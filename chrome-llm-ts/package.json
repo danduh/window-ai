@@ -1,6 +1,6 @@
 {
   "name": "chrome-llm-ts",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "AI Types and Interface library for interacting with in Chrome local language models and streaming responses.",
   "dependencies": {
     "tslib": "^2.3.0"
@@ -19,7 +19,18 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/yourusername/ai-sdk.git"
+    "url": "https://github.com/danduh/window-ai/tree/main/chrome-llm-ts#readme"
   },
+  "keywords": [
+    "ai",
+    "sdk",
+    "language-model",
+    "streaming",
+    "openai",
+    "machine-learning"
+  ],
+  "homepage": "https://github.com/danduh/window-ai/tree/main/chrome-llm-ts#readme",
+  "author": "Daniel Ostrovsky",
+  "license": "MIT",
   "typings": "./src/index.d.ts"
 }
