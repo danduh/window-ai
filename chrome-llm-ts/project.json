@@ -1,0 +1,32 @@
+{
+  "name": "chrome-llm-ts",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "chrome-llm-ts/src",
+  "projectType": "library",
+  "release": {
+    "version": {
+      "generatorOptions": {
+        "packageRoot": "dist/{projectRoot}",
+        "currentVersionResolver": "git-tag"
+      }
+    }
+  },
+  "tags": [],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/chrome-llm-ts",
+        "main": "chrome-llm-ts/src/index.ts",
+        "tsConfig": "chrome-llm-ts/tsconfig.lib.json",
+        "assets": ["chrome-llm-ts/*.md"]
+      }
+    },
+    "nx-release-publish": {
+      "options": {
+        "packageRoot": "dist/{projectRoot}"
+      }
+    }
+  }
+}
