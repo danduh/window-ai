@@ -1,5 +1,5 @@
 {
-  "name": "chrome-llm-ts",
+  "name": "@danduh/chrome-llm-ts",
   "version": "0.1.0",
   "description": "AI Types and Interface library for interacting with in Chrome local language models and streaming responses.",
   "dependencies": {

@@ -1,8 +1,12 @@
 // global.d.ts
-import type { AI } from 'chrome-llm-ts';
+import type {AI} from 'chrome-llm-ts';
 
 declare global {
   interface Window {
-    ai: AI;
+    // ai: AI;
+    ai: any
+    translation: any;
+
   }
+
 }

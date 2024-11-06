@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
 interface ChatInputProps {
-  onSend: (message: string) => void;
+  onSend: (message: string, action: "Prompt" | "Translate") => void;
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
+const ChatInput: React.FC<ChatInputProps> = ({onSend}) => {
   const [input, setInput] = useState<string>('');
 
   const handleSend = () => {
     if (input.trim()) {
-      onSend(input); // Call the onSend function passed in props with the current input
+      onSend(input, 'Prompt'); // Call the onSend function passed in props with the current input
       setInput('');  // Clear the input field after sending
     }
   };
+
+  const translateSend = () => {
+    if (input.trim()) {
+      onSend(input, 'Translate'); // Call the onSend function passed in props with the current input
+      setInput('');  // Clear the input field after sending
+    }
+  }
 
   return (
     <div className="chat-input">
@@ -24,6 +31,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSend }) => {
         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
       />
       <button onClick={handleSend}>Send</button>
+      <button onClick={translateSend}>Translate</button>
     </div>
   );
 };
