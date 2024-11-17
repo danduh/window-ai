@@ -1,16 +1,5 @@
 // Shared self.ai APIs
 
-export interface Window {
-  readonly ai: AI;
-}
-
-export interface AI {
-  readonly languageModel: AILanguageModelFactory;
-}
-
-export interface WorkerGlobalScope {
-  readonly ai: AI;
-}
 
 // AI Interface
 
@@ -21,9 +10,9 @@ export interface AICreateMonitor extends EventTarget {
   // Might get more functionality in the future.
 }
 
-type AICreateMonitorCallback = (monitor: AICreateMonitor) => void;
+export type AICreateMonitorCallback = (monitor: AICreateMonitor) => void;
 
-type AICapabilityAvailability = "readily" | "after-download" | "no";
+export type AICapabilityAvailability = "readily" | "after-download" | "no";
 
 // Language Model Factory
 

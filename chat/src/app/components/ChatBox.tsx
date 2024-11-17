@@ -1,6 +1,6 @@
 import React from 'react';
 
-interface Message {
+export interface Message {
   id: number;
   text: string;
   sender: string;

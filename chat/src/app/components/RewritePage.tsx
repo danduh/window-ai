@@ -4,7 +4,7 @@ import ChatBox, {Message} from "./ChatBox";
 import {getSummaryAI} from "../services/SummaryService";
 import {AISummarizerFormat, AISummarizerLength, AISummarizerType} from "chrome-llm-ts";
 
-export function Summary() {
+export function RewritePage() {
   const [textArea, setTextArea] = useState<string>('')
   const [messages, setMessages] = useState<Message[]>([])
   const [type, setType] = useState<AISummarizerType>('key-points')
@@ -24,7 +24,7 @@ export function Summary() {
 
   return (
     <div className="app">
-      <h1>Summary</h1>
+      <h1>Rewriter</h1>
       <div className="chat-input">
         <textarea
           value={textArea}
@@ -68,4 +68,4 @@ export function Summary() {
   );
 }
 
-export default Summary;
+export default RewritePage;

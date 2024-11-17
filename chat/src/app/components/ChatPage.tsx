@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import ChatBox from './components/ChatBox';
-import ChatInput from './components/ChatInput';
-import './App.css';
-import {translate, zeroShot} from "./services/LocalAIService";
+import ChatBox from './ChatBox';
+import ChatInput from './ChatInput';
+import './ChatPage.css';
+import {zeroShot} from "./../services/LocalAIService";
 
 interface Message {
   id: number;
@@ -10,7 +10,8 @@ interface Message {
   sender: string;
 }
 
-const App: React.FC = () => {
+const ChatPage: React.FC = () => {
+  const [systemMsg, setSystemMsg] = useState<string>();
   const [messages, setMessages] = useState<Message[]>([]);
   const [useStream, setUseStream] = useState<boolean>(false); // State for "Use Stream" checkbox
 
@@ -45,24 +46,13 @@ const App: React.FC = () => {
   const handleUserMessage = async (text: string, action: 'Prompt' | 'Translate') => {
     // Add user message to chat
     addMessage(text, 'User');
-    debugger
 
-    let response: string;
+    // Call AI API and get response
+    const response = await zeroShot(text, useStream, systemMsg);
 
-    switch (action) {
-      case "Prompt":
-        response = await zeroShot(text, useStream, "You are a stock broker");
-        break;
-      case "Translate":
-        response = await translate(text);
-        break;
-
-    }
-
-    // Call OpenAI API and get response
 
     if (response) {
-      // Add OpenAI response to chat
+      // Add AI response to chat
       addMessage(response, 'Bot');
     }
   };
@@ -78,10 +68,14 @@ const App: React.FC = () => {
         />
         Use Stream
       </label>
+      <label>
+        <input type="text" onChange={(e) => setSystemMsg(e.target.value)}/>
+        Add System Message
+      </label>
       <ChatBox messages={messages}/>
       <ChatInput onSend={handleUserMessage}/>
     </div>
   );
 };
 
-export default App;
+export default ChatPage;
