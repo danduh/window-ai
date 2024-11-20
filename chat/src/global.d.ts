@@ -7,3 +7,10 @@ declare global {
     translation: Translation;
   }
 }
+
+declare module "*.md";
+
+declare module '*.md' {
+  const content: string; // markdown is just a string
+  export default content;
+}

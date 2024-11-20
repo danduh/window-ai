@@ -1,10 +1,13 @@
-import './WriteRewritePage.scss';
-import React, {useState} from "react";
+import React, {useEffect, useState} from "react";
 import {
   AIRewriterFormat, AIRewriterLength, AIRewriterTone,
   AIWriterFormat, AIWriterLength, AIWriterTone
 } from "chrome-llm-ts";
 import {reWriteAI, writeAI} from "../services/WriterService";
+
+// import docsContent from '../docs/Writer-ReWriter-API.md'
+import {DocsRenderer} from "../tools/DocsRenderer";
+import {loadMDFile} from "../tools/md-loader";
 
 const renderOptions = (enumObj: object) => (
   Object.entries(enumObj).map(([key, value]) => (
@@ -133,6 +136,7 @@ export function WriteRewritePage() {
           </div>
         </section>
       )}
+      <DocsRenderer docFile="Writer-ReWriter-API.md"></DocsRenderer>
     </div>
   );
 }

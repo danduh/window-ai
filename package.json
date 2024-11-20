@@ -9,9 +9,16 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/react-syntax-highlighter": "^15.5.13",
+    "prismjs": "^1.29.0",
     "react": "^18.3.1",
     "react-dom": "18.3.1",
-    "react-router-dom": "^6.27.0"
+    "react-markdown": "^9.0.1",
+    "react-router-dom": "^6.27.0",
+    "react-shadow": "^20.5.0",
+    "react-syntax-highlighter": "^15.6.1",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.14.5",
@@ -50,6 +57,7 @@
     "jsdom": "~22.1.0",
     "nx": "20.0.7",
     "prettier": "^2.6.2",
+    "raw-loader": "^4.0.2",
     "react-refresh": "^0.10.0",
     "sass": "^1.55.0",
     "tslib": "^2.3.0",

@@ -1,8 +1,7 @@
 import React, {useState} from 'react';
 import ChatBox from './ChatBox';
 import ChatInput from './ChatInput';
-import './ChatPage.css';
-import {zeroShot} from "./../services/LocalAIService";
+import {zeroShot} from '../services/ChatAIService';
 
 interface Message {
   id: number;
@@ -12,8 +11,10 @@ interface Message {
 
 const ChatPage: React.FC = () => {
   const [systemMsg, setSystemMsg] = useState<string>();
+  const [destroy, setDestroy] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [useStream, setUseStream] = useState<boolean>(false); // State for "Use Stream" checkbox
+
 
   const addMessage = async (response: string | any, sender: string = 'User') => {
     if (typeof response === 'string') {
@@ -43,12 +44,12 @@ const ChatPage: React.FC = () => {
     }
   };
 
-  const handleUserMessage = async (text: string, action: 'Prompt' | 'Translate') => {
+  const handleUserMessage = async (text: string) => {
     // Add user message to chat
     addMessage(text, 'User');
 
     // Call AI API and get response
-    const response = await zeroShot(text, useStream, systemMsg);
+    const response = await zeroShot(text, useStream, systemMsg, destroy);
 
 
     if (response) {
@@ -60,18 +61,37 @@ const ChatPage: React.FC = () => {
   return (
     <div className="app">
       <h1>AI Chat</h1>
-      <label>
-        <input
-          type="checkbox"
-          checked={useStream}
-          onChange={(e) => setUseStream(e.target.checked)}
-        />
-        Use Stream
-      </label>
-      <label>
-        <input type="text" onChange={(e) => setSystemMsg(e.target.value)}/>
-        Add System Message
-      </label>
+      <fieldset className="chat">
+        <div>
+          <label htmlFor="stream">
+            Use Stream:
+          </label>
+          <input
+            id="stream"
+            type="checkbox"
+            checked={useStream}
+            onChange={(e) => setUseStream(e.target.checked)}
+          />
+        </div>
+        <div>
+          <label htmlFor="destroy">
+            Destroy Chat Session:
+          </label>
+          <input
+            id="destroy"
+            type="checkbox"
+            checked={destroy}
+            onChange={(e) => setDestroy(e.target.checked)}
+          />
+        </div>
+        <div>
+          <label htmlFor="systemMsg">
+            Add System Message
+          </label>
+          <input id="systemMsg" type="text"
+                 onChange={(e) => setSystemMsg(e.target.value)}/>
+        </div>
+      </fieldset>
       <ChatBox messages={messages}/>
       <ChatInput onSend={handleUserMessage}/>
     </div>

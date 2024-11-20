@@ -14,13 +14,6 @@ const ChatInput: React.FC<ChatInputProps> = ({onSend}) => {
     }
   };
 
-  const translateSend = () => {
-    if (input.trim()) {
-      onSend(input, 'Translate'); // Call the onSend function passed in props with the current input
-      setInput('');  // Clear the input field after sending
-    }
-  }
-
   return (
     <div className="chat-input">
       <input
@@ -31,7 +24,6 @@ const ChatInput: React.FC<ChatInputProps> = ({onSend}) => {
         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
       />
       <button onClick={handleSend}>Send</button>
-      <button onClick={translateSend}>Translate</button>
     </div>
   );
 };

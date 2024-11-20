@@ -7,7 +7,7 @@ import WriteRewritePage from "./components/WriteRewritePage";
 
 const AppRouter: React.FC = () => {
   return (
-    <div>
+    <div className="main-wrapper">
       <nav>
         <ul>
           <li><Link to="/">Home</Link></li>

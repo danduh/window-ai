@@ -1,8 +1,243 @@
-/* You can add global styles to this file, and also import other style files */
-h1{
-  text-align: center;
+/* Basic CSS Reset */
+html, body, div, span, applet, object, iframe, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed,
+figure, figcaption, footer, header, hgroup,
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
 }
-button{
-  height: 34px;
-  margin: 0 10px;
+
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure,
+footer, header, hgroup, menu, nav, section {
+  display: block;
 }
+html, body, .main-wrapper {
+  height: 100%;
+  margin: 0; /* It is also common to remove default margin */
+}
+
+body {
+  line-height: 1;
+}
+
+ol, ul {
+  list-style: none;
+}
+
+blockquote, q {
+  quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+  content: '';
+  content: none;
+}
+
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+
+* {
+  box-sizing: border-box;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  height: 100%;
+  background-color: #f4f4f8;
+}
+
+$nav-background: #333;
+$link-color: white;
+$link-hover-background: #555;
+$link-padding: 10px 15px;
+
+nav {
+  background-color: $nav-background;
+  padding: 10px;
+
+  ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+
+    li {
+      margin-right: 20px;
+
+      &:last-child {
+        margin-right: 0; // No margin for the last item
+      }
+
+      a {
+        color: $link-color;
+        text-decoration: none;
+        font-weight: bold;
+        padding: $link-padding;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background-color: $link-hover-background;
+          border-radius: 5px;
+        }
+      }
+    }
+  }
+}
+
+
+h1 {
+  margin: 0 0 20px 0;
+  color: #333;
+}
+
+textarea {
+  width: 100%;
+  height: 50px;
+}
+
+.output {
+  max-width: 800px;
+
+  pre {
+    white-space: pre-wrap;
+  }
+}
+
+fieldset {
+  width: 800px;
+  display: flex;
+  flex-direction: column;
+  font-size: 16px;
+
+  div {
+    margin-top: 5px;
+
+    label {
+      width: 20%;
+      display: inline-flex;
+    }
+
+    input {
+      font-size: 18px;
+      width: 500px;
+
+      &[type='checkbox'] {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 2px;
+        border: 1px solid;
+      }
+
+      &[type='checkbox']:checked {
+        background: #adf;
+      }
+
+      &[type='checkbox']:checked:after {
+        content: "V";
+        position: absolute;
+        font-size: 90%;
+      }
+    }
+
+    select, span {
+      width: 150px;
+      font-size: 16px;
+    }
+  }
+}
+
+fieldset.chat {
+  width: 500px;
+  font-size: 16px;
+
+  label {
+    width: 40%;
+  }
+
+  input {
+    width: 50%;
+  }
+}
+.docs-content{
+  max-width: 1200px;
+}
+.chat-box {
+  width: 100%;
+  max-width: 500px;
+  height: 60vh;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px;
+  background-color: #fff;
+  overflow-y: auto;
+  margin-bottom: 20px;
+}
+
+.chat-message {
+  padding: 5px 10px;
+  margin: 5px 0;
+  border-radius: 4px;
+}
+
+.chat-message.user {
+  background-color: #e0f7fa;
+  text-align: left;
+}
+
+.chat-message.bot {
+  background-color: #ffe0b2;
+  text-align: left;
+}
+
+.chat-input {
+  display: flex;
+  width: 100%;
+  max-width: 500px;
+}
+
+.chat-input input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px 0 0 4px;
+  outline: none;
+}
+
+.chat-input button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 0 4px 4px 0;
+  outline: none;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #0056b3;
+  }
+}
+
