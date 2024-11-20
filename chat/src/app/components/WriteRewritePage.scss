@@ -1,3 +1,16 @@
+textarea {
+  width: 100%;
+  height: 50px;
+}
+
+.output {
+  max-width: 800px;
+
+  pre {
+    white-space: pre-wrap;
+  }
+}
+
 fieldset {
   width: 800px;
   display: flex;
@@ -15,6 +28,26 @@ fieldset {
     input {
       font-size: 18px;
       width: 500px;
+
+      &[type='checkbox'] {
+        -webkit-appearance: none;
+        width: 20px;
+        height: 20px;
+        background: white;
+        border-radius: 2px;
+        border: 1px solid;
+      }
+
+      &[type='checkbox']:checked {
+        background: #adf;
+      }
+
+      &[type='checkbox']:checked:after {
+        content: "V";
+        position: absolute;
+        font-size: 90%;
+      }
+
     }
 
     select {

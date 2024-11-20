@@ -1,163 +1,138 @@
 import './WriteRewritePage.scss';
 import React, {useState} from "react";
-import {Message} from "./ChatBox";
 import {
-  AIRewriterFormat, AIRewriterLength,
-  AIRewriterTone,
-  AIWriterFormat,
-  AIWriterLength,
-  AIWriterTone
+  AIRewriterFormat, AIRewriterLength, AIRewriterTone,
+  AIWriterFormat, AIWriterLength, AIWriterTone
 } from "chrome-llm-ts";
-import {writeAI} from "../services/WriterService";
+import {reWriteAI, writeAI} from "../services/WriterService";
 
-
-const renderOptions = (enumObj: object) => {
-  return Object.entries(enumObj).map(([key, value]) => (
-    <option key={key} value={value}>
-      {key}
-    </option>
-  ));
-};
+const renderOptions = (enumObj: object) => (
+  Object.entries(enumObj).map(([key, value]) => (
+    <option key={key} value={value}>{key}</option>
+  ))
+);
 
 export function WriteRewritePage() {
-  const [selectedTone, setSelectedTone] = useState<AIRewriterTone>(
-    AIRewriterTone.AsIs
-  );
-  const [selectedFormat, setSelectedFormat] = useState<AIRewriterFormat>(
-    AIRewriterFormat.AsIs
-  );
-  const [selectedLength, setSelectedLength] = useState<AIRewriterLength>(
-    AIRewriterLength.AsIs
-  );
-  const [textArea, setTextArea] = useState<string>('')
-  const [messages, setMessages] = useState<Message[]>([])
-  const [useStream, setUseStream] = useState<boolean>(false); // State for "Use Stream" checkbox
-  const [tone, setTone] = useState<AIWriterTone>(AIWriterTone.Neutral)
-  const [format, setFormat] = useState<AIWriterFormat>(AIWriterFormat.Markdown)
+  const [textArea, setTextArea] = useState('');
+  const [output, setOutput] = useState<string>('');
+  const [useStream, setUseStream] = useState(false);
+  const [tone, setTone] = useState<AIWriterTone>(AIWriterTone.Neutral);
+  const [format, setFormat] = useState<AIWriterFormat>(AIWriterFormat.Markdown);
   const [length, setLength] = useState<AIWriterLength>(AIWriterLength.Short);
-  const [sharedContext, setSharedContext] = useState<string>('');
+  const [sharedContext, setSharedContext] = useState('');
+  const [selectedTone, setSelectedTone] = useState<AIRewriterTone>(AIRewriterTone.AsIs);
+  const [selectedFormat, setSelectedFormat] = useState<AIRewriterFormat>(AIRewriterFormat.AsIs);
+  const [selectedLength, setSelectedLength] = useState<AIRewriterLength>(AIRewriterLength.AsIs);
 
-  const handleChange = (
-    event: React.ChangeEvent<HTMLSelectElement>,
-    setter: React.Dispatch<React.SetStateAction<any>>
-  ) => {
-    setter(event.target.value);
+  const handleSelectChange = <T, >(event: React.ChangeEvent<HTMLSelectElement>, setter: React.Dispatch<React.SetStateAction<T>>) => {
+    setter(event.target.value as T);
   };
 
-  const writeForMe = async () => {
-
-    const response = await writeAI(textArea, useStream, format, length, tone, sharedContext)
-
-    const newMessage: Message = {
-      id: Date.now(), // Use current timestamp for unique ID
-      text: '',
-      sender: 'Writer',
-    };
-
+  const handleOutput = async (response: string | any) => {
     if (useStream) {
-      for await (const text of response as any) {
-        setMessages((prevMessages: Message[]) => {
-          const lastMessage: Message = prevMessages.pop() || newMessage;
-          lastMessage.text = text;
-          prevMessages.push(lastMessage)
-          return [...prevMessages]
-        });
-      }
+      for await (const text of response) setOutput(text);
     } else {
-      newMessage.text = response as string
-      setMessages([newMessage]);
+      setOutput(response as string);
     }
   }
 
+  const writeForMe = async () => {
+    const response = await writeAI(textArea, useStream, format, length, tone, sharedContext);
+    await handleOutput(response)
+  };
+
+  const reWrite = async () => {
+    const response = await reWriteAI(output.trim(), useStream, selectedFormat, selectedLength, selectedTone, sharedContext);
+    await handleOutput(response)
+  };
+
   return (
     <div className="app">
-      <h1>Writer</h1>
-      <div className="chat-input">
-        <textarea
-          value={textArea}
-          onChange={(e) => setTextArea(e.target.value)}
-        ></textarea>
-      </div>
-      <div className="settings">
-        <fieldset>
-          <legend>Settings</legend>
-          <div>
-            <label htmlFor="sharedContext">Shared Context</label>
-            <input type="text"
-                   id="sharedContext"
-                   value={sharedContext}
-                   onChange={(e) => setSharedContext(e.target.value)}
-            ></input>
-          </div>
-          <div>
-            <label htmlFor="type">Tone:</label>
-            <select id="type" value={tone} onChange={(e) => setTone(e.target.value as AIWriterTone)}>
-              <option value={AIWriterTone.Neutral}>{AIWriterTone.Neutral}</option>
-              <option value={AIWriterTone.Casual}>{AIWriterTone.Casual}</option>
-              <option value={AIWriterTone.Formal}>{AIWriterTone.Formal}</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="length">Length:</label>
-            <select id="length" value={length} onChange={(e) => setLength(e.target.value as AIWriterLength)}>
-              <option value="short">Short</option>
-              <option value="medium">Medium</option>
-              <option value="long">Long</option>
-            </select>
-          </div>
-          <div>
-            <label htmlFor="format">Format:</label>
-            <select id="format" value={format} onChange={(e) => setFormat(e.target.value as AIWriterFormat)}>
-              <option value="markdown">Markdown</option>
-              <option value="plain-text">Plain text</option>
-            </select>
-          </div>
-        </fieldset>
-        <button onClick={writeForMe}>Write For Me</button>
-      </div>
-      <div className="output">
-        <pre>{messages[0]?.text}</pre>
-      </div>
-
       <section>
-        <h1>ReWriter</h1>
+        <h1>Writer</h1>
+        <div className="text-input">
+          <textarea value={textArea} onChange={e => setTextArea(e.target.value)}/>
+        </div>
         <div className="settings">
           <fieldset>
-            <legend>Rewrite Settings</legend>
+            <legend>Settings</legend>
             <div>
-              <label htmlFor="rewriter-tone">Select Tone: </label>
-              <select
-                id="rewriter-tone"
-                value={selectedTone}
-                onChange={(e) => handleChange(e, setSelectedTone)}
-              >
-                {renderOptions(AIRewriterTone)}
+              <label>Use Stream</label>
+              <input
+                type="checkbox"
+                checked={useStream}
+                onChange={(e) => setUseStream(e.target.checked)}
+              />
+            </div>
+            <div>
+              <label htmlFor="sharedContext">Shared Context</label>
+              <input id="sharedContext" value={sharedContext} onChange={e => setSharedContext(e.target.value)}/>
+            </div>
+            <div>
+              <label htmlFor="tone">Tone:</label>
+              <select id="tone" value={tone} onChange={e => handleSelectChange(e, setTone)}>
+                {renderOptions(AIWriterTone)}
               </select>
             </div>
             <div>
-              <label htmlFor="rewriter-format">Select Format: </label>
-              <select
-                id="rewriter-format"
-                value={selectedFormat}
-                onChange={(e) => handleChange(e, setSelectedFormat)}
-              >
-                {renderOptions(AIRewriterFormat)}
+              <label htmlFor="length">Length:</label>
+              <select id="length" value={length} onChange={e => handleSelectChange(e, setLength)}>
+                {renderOptions(AIWriterLength)}
               </select>
             </div>
             <div>
-              <label htmlFor="rewriter-length">Select Length: </label>
-              <select
-                id="rewriter-length"
-                value={selectedLength}
-                onChange={(e) => handleChange(e, setSelectedLength)}
-              >
-                {renderOptions(AIRewriterLength)}
+              <label htmlFor="format">Format:</label>
+              <select id="format" value={format} onChange={e => handleSelectChange(e, setFormat)}>
+                {renderOptions(AIWriterFormat)}
               </select>
             </div>
           </fieldset>
           <button onClick={writeForMe}>Write For Me</button>
         </div>
       </section>
+      <div className="output">
+        <h3>Output:</h3>
+        <pre>{output}</pre>
+      </div>
+      {output && (
+        <section>
+          <h1>Re Writer</h1>
+          <div className="settings">
+            <fieldset>
+              <legend>Rewrite Settings</legend>
+              <div>
+                <label>Use Stream</label>
+                <input
+                  type="checkbox"
+                  checked={useStream}
+                  onChange={(e) => setUseStream(e.target.checked)}
+                />
+              </div>
+              <div>
+                <label htmlFor="rewriter-tone">Select Tone: </label>
+                <select id="rewriter-tone" value={selectedTone} onChange={e => handleSelectChange(e, setSelectedTone)}>
+                  {renderOptions(AIRewriterTone)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="rewriter-format">Select Format: </label>
+                <select id="rewriter-format" value={selectedFormat}
+                        onChange={e => handleSelectChange(e, setSelectedFormat)}>
+                  {renderOptions(AIRewriterFormat)}
+                </select>
+              </div>
+              <div>
+                <label htmlFor="rewriter-length">Select Length: </label>
+                <select id="rewriter-length" value={selectedLength}
+                        onChange={e => handleSelectChange(e, setSelectedLength)}>
+                  {renderOptions(AIRewriterLength)}
+                </select>
+              </div>
+            </fieldset>
+            <button onClick={reWrite}>Rewrite</button>
+          </div>
+        </section>
+      )}
     </div>
   );
 }

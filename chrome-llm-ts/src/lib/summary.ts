@@ -1,9 +1,28 @@
 export {};
 
-export type AIModelAvailability = 'readily' | 'after-download' | 'no';
-export type AISummarizerType = 'tl;dr' | 'key-points' | 'teaser' | 'headline';
-export type AISummarizerFormat = 'plain-text' | 'markdown';
-export type AISummarizerLength = 'short' | 'medium' | 'long';
+export enum AIModelAvailability {
+  Readily = 'readily',
+  AfterDownload = 'after-download',
+  No = 'no'
+}
+
+export enum AISummarizerType {
+  TLDR = 'tl;dr',
+  KeyPoints = 'key-points',
+  Teaser = 'teaser',
+  Headline = 'headline'
+}
+
+export enum AISummarizerFormat {
+  PlainText = 'plain-text',
+  Markdown = 'markdown'
+}
+
+export enum AISummarizerLength {
+  Short = 'short',
+  Medium = 'medium',
+  Long = 'long'
+}
 
 export type AISummarizerCreateOptions = {
   type?: AISummarizerType,

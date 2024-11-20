@@ -1,26 +1,35 @@
-import './Summary.css';
-import React, {useState} from "react";
-import ChatBox, {Message} from "./ChatBox";
-import {getSummaryAI} from "../services/SummaryService";
-import {AISummarizerFormat, AISummarizerLength, AISummarizerType} from "chrome-llm-ts";
+import React, { useState } from "react";
+import { Message } from "./ChatBox";
+import { getSummaryAI } from "../services/SummaryService";
+import {
+  AISummarizerFormat,
+  AISummarizerLength,
+  AISummarizerType
+} from "chrome-llm-ts";
 
 export function Summary() {
-  const [textArea, setTextArea] = useState<string>('')
-  const [messages, setMessages] = useState<Message[]>([])
-  const [type, setType] = useState<AISummarizerType>('key-points')
-  const [format, setFormat] = useState<AISummarizerFormat>('markdown')
-  const [length, setLength] = useState<AISummarizerLength>('short');
+  const [textArea, setTextArea] = useState<string>('');
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [type, setType] = useState<AISummarizerType>(AISummarizerType.KeyPoints);
+  const [format, setFormat] = useState<AISummarizerFormat>(AISummarizerFormat.Markdown);
+  const [length, setLength] = useState<AISummarizerLength>(AISummarizerLength.Short);
 
   const handleSummarize = async () => {
-    console.log(textArea, type, format, length)
-    const summary = await getSummaryAI(textArea, type, format, length)
+    console.log(textArea, type, format, length);
+    const summary = await getSummaryAI(textArea, type, format, length);
     const newMessage: Message = {
-      id: Date.now(), // Use current timestamp for unique ID
+      id: Date.now(),
       text: summary,
       sender: 'Summary AI',
     };
-    setMessages([newMessage])
-  }
+    setMessages([newMessage]);
+  };
+
+  const renderOptions = (enumObj: object) => (
+    Object.entries(enumObj).map(([key, value]) => (
+      <option key={key} value={value}>{key}</option>
+    ))
+  );
 
   return (
     <div className="app">
@@ -28,7 +37,7 @@ export function Summary() {
       <div className="chat-input">
         <textarea
           value={textArea}
-          onChange={(e) => setTextArea(e.target.value)}
+          onChange={e => setTextArea(e.target.value)}
         ></textarea>
       </div>
       <div>
@@ -36,26 +45,20 @@ export function Summary() {
           <legend>Settings</legend>
           <div>
             <label htmlFor="type">Summary Type:</label>
-            <select id="type" value={type} onChange={(e) => setType(e.target.value as AISummarizerType)}>
-              <option value="key-points">Key Points</option>
-              <option value="tl;dr">TL;DR</option>
-              <option value="teaser">Teaser</option>
-              <option value="headline">Headline</option>
+            <select id="type" value={type} onChange={e => setType(e.target.value as AISummarizerType)}>
+              {renderOptions(AISummarizerType)}
             </select>
           </div>
           <div>
             <label htmlFor="length">Length:</label>
-            <select id="length" value={length} onChange={(e) => setLength(e.target.value as AISummarizerLength)}>
-              <option value="short">Short</option>
-              <option value="medium">Medium</option>
-              <option value="long">Long</option>
+            <select id="length" value={length} onChange={e => setLength(e.target.value as AISummarizerLength)}>
+              {renderOptions(AISummarizerLength)}
             </select>
           </div>
           <div>
             <label htmlFor="format">Format:</label>
-            <select id="format" value={format} onChange={(e) => setFormat(e.target.value as AISummarizerFormat)}>
-              <option value="markdown">Markdown</option>
-              <option value="plain-text">Plain text</option>
+            <select id="format" value={format} onChange={e => setFormat(e.target.value as AISummarizerFormat)}>
+              {renderOptions(AISummarizerFormat)}
             </select>
           </div>
         </fieldset>
