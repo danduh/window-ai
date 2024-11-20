@@ -1,5 +1,12 @@
 import 'chrome-llm-ts';
-import {AI, AIWriterFormat, AIWriterLength, AIWriterTone} from "chrome-llm-ts";
+import {
+  AIRewriterFormat,
+  AIRewriterLength,
+  AIRewriterTone,
+  AIWriterFormat,
+  AIWriterLength,
+  AIWriterTone
+} from "chrome-llm-ts";
 
 
 export const writeAI = async (prompt: string,
@@ -8,9 +15,7 @@ export const writeAI = async (prompt: string,
                               length?: AIWriterLength,
                               tone?: AIWriterTone,
                               sharedContext?: string) => {
-  debugger
   const writer = await window.ai.writer!.create({sharedContext, format, length, tone});
-  debugger
   if (stream) {
     return writer.writeStreaming(prompt);
   } else {
@@ -19,13 +24,12 @@ export const writeAI = async (prompt: string,
 }
 export const reWriteAI = async (prompt: string,
                                 stream = false,
-                                format?: AIWriterFormat,
-                                length?: AIWriterLength,
-                                tone?: AIWriterTone,
+                                format?: AIRewriterFormat,
+                                length?: AIRewriterLength,
+                                tone?: AIRewriterTone,
                                 sharedContext?: string) => {
-  debugger
-  const reWriter = await window.ai.rewriter!.create();
-  debugger
+
+  const reWriter = await window.ai.rewriter!.create({sharedContext, format, length, tone});
   if (stream) {
     return reWriter.rewriteStreaming(prompt);
   } else {

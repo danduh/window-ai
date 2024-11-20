@@ -3,7 +3,7 @@ import {Routes, Route, Navigate, Link} from 'react-router-dom';
 import ChatPage from './components/ChatPage';
 import Summary from "./components/Summary";
 import TranslatePage from "./components/TranslatePage";
-import WriteRewrite from "./components/WriteRewrite";
+import WriteRewritePage from "./components/WriteRewritePage";
 
 const AppRouter: React.FC = () => {
   return (
@@ -21,7 +21,7 @@ const AppRouter: React.FC = () => {
         <Route path="/chat" element={<ChatPage/>}/>
         <Route path="/summary" element={<Summary/>}/>
         <Route path="/tranlate" element={<TranslatePage/>}/>
-        <Route path="/writer" element={<WriteRewrite/>}/>
+        <Route path="/writer" element={<WriteRewritePage/>}/>
         <Route path="*" element={<Navigate to="/chat" replace/>}/>
       </Routes>
     </div>
