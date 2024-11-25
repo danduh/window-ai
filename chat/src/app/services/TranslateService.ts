@@ -8,17 +8,13 @@ export const translate = async (prompt: string,
     targetLanguage,
   };
   const translator = await window.translation.createTranslator(languagePair);
-
-  const result = await translator.translate(prompt)
-  console.log(result)
-  return result;
+  return  await translator.translate(prompt)
 }
 
 export const detectLanguage = async (prompt: string): Promise<string> => {
   const detector = await window.translation.createDetector();
 
   const results = await detector.detect(prompt);
-  console.table(results)
   return results[0].detectedLanguage || "";
 }
 

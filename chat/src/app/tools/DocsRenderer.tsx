@@ -8,10 +8,6 @@ import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {dracula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {loadMDFile} from "./md-loader";
 
-type MarkdownRendererProps = {
-  children: string;
-};
-
 export function DocsRenderer({docFile}: { docFile: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [docsContent, setDocsContent] = useState('');
@@ -20,7 +16,7 @@ export function DocsRenderer({docFile}: { docFile: string }) {
   }
 
   return (
-    <section>
+    <section className="docs-section">
       <button onClick={async () => {
         await loadDocs()
         setIsOpen(!isOpen)

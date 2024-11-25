@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import ChatBox from './ChatBox';
 import ChatInput from './ChatInput';
 import {zeroShot} from '../services/ChatAIService';
+import {DocsRenderer} from "../tools/DocsRenderer";
 
 interface Message {
   id: number;
@@ -94,6 +95,7 @@ const ChatPage: React.FC = () => {
       </fieldset>
       <ChatBox messages={messages}/>
       <ChatInput onSend={handleUserMessage}/>
+      <DocsRenderer docFile="Chat-API.md"></DocsRenderer>
     </div>
   );
 };
