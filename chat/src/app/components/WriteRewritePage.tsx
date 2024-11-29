@@ -8,6 +8,7 @@ import {reWriteAI, writeAI} from "../services/WriterService";
 // import docsContent from '../docs/Writer-ReWriter-API.md'
 import {DocsRenderer} from "../tools/DocsRenderer";
 import {loadMDFile} from "../tools/md-loader";
+import {talkToMe} from "../services/TexToSpeachService";
 
 const renderOptions = (enumObj: object) => (
   Object.entries(enumObj).map(([key, value]) => (
@@ -48,6 +49,11 @@ export function WriteRewritePage() {
     const response = await reWriteAI(output.trim(), useStream, selectedFormat, selectedLength, selectedTone, sharedContext);
     await handleOutput(response)
   };
+
+  // const readForMe = async () => {
+  //   await talkToMe(output);
+  // }
+
 
   return (
     <div className="app">
@@ -91,6 +97,7 @@ export function WriteRewritePage() {
             </div>
           </fieldset>
           <button onClick={writeForMe}>Write For Me</button>
+          {/*<button onClick={readForMe}>Read For Me</button>*/}
         </div>
       </section>
       <div className="output">
