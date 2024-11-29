@@ -9,7 +9,7 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <StrictMode>
-    <BrowserRouter basename="/window-ai">
+    <BrowserRouter>
       {/*<App/>*/}
       <AppRouter/>
     </BrowserRouter>
