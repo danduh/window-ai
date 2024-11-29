@@ -4,6 +4,7 @@ import ChatPage from './components/ChatPage';
 import Summary from "./components/Summary";
 import TranslatePage from "./components/TranslatePage";
 import WriteRewritePage from "./components/WriteRewritePage";
+import {HomePage} from "./components/HomePage";
 
 const AppRouter: React.FC = () => {
   return (
@@ -18,6 +19,7 @@ const AppRouter: React.FC = () => {
         </ul>
       </nav>
       <Routes>
+        <Route path="/" element={<HomePage/>}/>
         <Route path="/chat" element={<ChatPage/>}/>
         <Route path="/summary" element={<Summary/>}/>
         <Route path="/tranlate" element={<TranslatePage/>}/>

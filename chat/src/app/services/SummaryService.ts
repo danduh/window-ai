@@ -10,6 +10,5 @@ export const getSummaryAI = async (
 
   const result = await summarizer.summarize(text);
   summarizer.destroy()
-  console.log(result);
   return result
 }

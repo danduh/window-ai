@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -8,17 +8,23 @@ import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {dracula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {loadMDFile} from "./md-loader";
 
-export function DocsRenderer({docFile}: { docFile: string }) {
-  const [isOpen, setIsOpen] = useState(false);
+export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(initOpen);
   const [docsContent, setDocsContent] = useState('');
   const loadDocs = async () => {
     setDocsContent(await loadMDFile(docFile));
   }
+  useEffect(() => {
+    const fetchDocs = async () => {
+      setDocsContent(await loadMDFile(docFile));
+    };
+    fetchDocs();
+  }, [docFile]);
 
   return (
     <section className="docs-section">
       <button onClick={async () => {
-        await loadDocs()
+        // await loadDocs()
         setIsOpen(!isOpen)
       }}>
         {isOpen ? "Hide Documentation" : "Show Documentation"}

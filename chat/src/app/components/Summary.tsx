@@ -16,7 +16,6 @@ export function Summary() {
   const [length, setLength] = useState<AISummarizerLength>(AISummarizerLength.Short);
 
   const handleSummarize = async () => {
-    console.log(textArea, type, format, length);
     const summary = await getSummaryAI(textArea, type, format, length);
     const newMessage: Message = {
       id: Date.now(),

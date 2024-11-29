@@ -23,9 +23,8 @@ export const zeroShot = async (prompt: string,
   if (!session) {
     session = await window.ai.languageModel.create({systemPrompt})
   }
-
+  console.log(`${session.tokensSoFar}/${session.maxTokens} (${session.tokensLeft} left)`);
   if (!streaming) {
-    console.log(`${session.tokensSoFar}/${session.maxTokens} (${session.tokensLeft} left)`);
     return await session.prompt(prompt);
   } else {
     return session.promptStreaming(prompt);

@@ -46,7 +46,6 @@ const TranslatePage: React.FC = () => {
 
   const isCanTranslate = async () => {
     const res = await canTranslate({sourceLanguage, targetLanguage})
-    console.log(res);
     setTranslationAbility(res)
   }
 
@@ -80,7 +79,6 @@ const TranslatePage: React.FC = () => {
                 value={sourceLanguage}
                 onChange={e => {
                   setSourceLanguage(e.target.value)
-                  console.log(e.target.value)
                 }}
               >
                 {languages.map(lang => (
