@@ -1,7 +1,6 @@
 {
   "$schema": "./node_modules/nx/schemas/nx-schema.json",
   "defaultBase": "main",
-  "nxCloudId": "6727c6a569448200f9feece7",
   "plugins": [
     {
       "plugin": "@nx/webpack/plugin",
