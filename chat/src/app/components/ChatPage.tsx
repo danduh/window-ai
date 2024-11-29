@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import ChatBox from './ChatBox';
 import ChatInput from './ChatInput';
-import {zeroShot} from '../services/ChatAIService';
+import {getModelCapabilities, zeroShot} from '../services/ChatAIService';
 import {DocsRenderer} from "../tools/DocsRenderer";
+import {AILanguageModelCapabilities} from "chrome-llm-ts";
 
 interface Message {
   id: number;
@@ -15,6 +16,15 @@ const ChatPage: React.FC = () => {
   const [destroy, setDestroy] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [useStream, setUseStream] = useState<boolean>(false); // State for "Use Stream" checkbox
+  const [temperature, setTemperature] = useState<number>(1); // State for temperature
+  const [modelCaps, setModelCaps] = useState<AILanguageModelCapabilities>()
+
+
+  useEffect(() => {
+    getModelCapabilities().then((resp) => {
+      setModelCaps(resp)
+    })
+  }, [])
 
 
   const addMessage = async (response: string | any, sender: string = 'User') => {
@@ -63,6 +73,21 @@ const ChatPage: React.FC = () => {
     <div className="app">
       <h1>AI Chat</h1>
       <fieldset className="chat">
+        <legend>Model Stats</legend>
+        <div>
+          <span>Default TopK:</span>
+          <span>{modelCaps?.defaultTopK}</span>
+        </div>
+        <div>
+          <span>Max TopK:</span>
+          <span>{modelCaps?.maxTopK}</span>
+        </div>
+        <div>
+          <span>Default Temperature:</span>
+          <span>{modelCaps?.defaultTemperature}</span>
+        </div>
+      </fieldset>
+      <fieldset className="chat">
         <div>
           <label htmlFor="stream">
             Use Stream:
@@ -72,6 +97,20 @@ const ChatPage: React.FC = () => {
             type="checkbox"
             checked={useStream}
             onChange={(e) => setUseStream(e.target.checked)}
+          />
+        </div>
+        <div>
+          <label htmlFor="temperature">Temperature: <span
+            id="label-temperature">{temperature.toFixed(2)}</span></label>
+          <input
+            type="range"
+            id="temperature"
+            name="temperature"
+            min="0"
+            max="1"
+            step="0.1"
+            value={temperature}
+            onChange={(e) => setTemperature(parseFloat(e.target.value))}
           />
         </div>
         <div>
