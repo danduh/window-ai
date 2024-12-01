@@ -37,6 +37,7 @@ jobs:
         run: |
           npm ci
           npx nx build chat
+          cp ./dist/chat/index.html ./dist/chat/404.html
       - name: Setup Pages
         uses: actions/configure-pages@v4
       - name: Upload artifact
