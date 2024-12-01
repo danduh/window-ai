@@ -1,4 +1,4 @@
 # window-ai
 Demo for window.ai API
 
-### [Demo Application](https://github.com/danduh/window-ai)
+### [Demo Application](https://danduh.github.io/window-ai/)
