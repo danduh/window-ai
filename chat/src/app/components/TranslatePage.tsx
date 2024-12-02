@@ -51,7 +51,6 @@ const TranslatePage: React.FC = () => {
 
   return (
     <div className="app">
-      Как дела?
       <section>
         <h1>AI Language Detection and Translation</h1>
         <div className="text-input">
