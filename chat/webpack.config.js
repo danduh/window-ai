@@ -8,16 +8,12 @@ module.exports = {
             {
                 test: /\.md$/,
                 use: [
-                    // {
-                    //     loader: 'html-loader', // Converts loaded files to HTML
-                    // },
                     {
                         loader: "raw-loader",
                     },
                 ],
             },
         ],
-
     },
 
     output: {

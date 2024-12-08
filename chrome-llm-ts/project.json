@@ -15,12 +15,22 @@
   "targets": {
     "build": {
       "executor": "@nx/js:tsc",
-      "outputs": ["{options.outputPath}"],
+      "outputs": [
+        "{options.outputPath}"
+      ],
       "options": {
+        "configurations": {
+          "production": {
+            "sourceMap": false
+          }
+        },
+
         "outputPath": "dist/chrome-llm-ts",
         "main": "chrome-llm-ts/src/index.ts",
         "tsConfig": "chrome-llm-ts/tsconfig.lib.json",
-        "assets": ["chrome-llm-ts/*.md"]
+        "assets": [
+          "chrome-llm-ts/*.md"
+        ]
       }
     },
     "nx-release-publish": {
