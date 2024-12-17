@@ -4,7 +4,7 @@
 
 The Writer and Rewriter APIs are part of the built-in AI capabilities in Chrome, allowing users to create and revise content efficiently. The APIs leverage fine-tuned models tailored for specific writing and rewriting tasks.
 
-<iframe src="http://localhost:4200/writer?inIframe=true"
+<iframe src="{{exampleSite.baseURL}}writer?inIframe=true"
 style="border: none;"
 width="99%" height="600"></iframe>
 

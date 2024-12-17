@@ -1,6 +1,6 @@
 # Prompt API
 
-<iframe src="http://localhost:4200/chat?inIframe=true"
+<iframe src="{{exampleSite.baseURL}}chat?inIframe=true"
 style="border: none;" scrolling="no"
 width="99%" height="600"></iframe>
 

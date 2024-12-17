@@ -11,7 +11,7 @@ nav:
 repo_url: https://github.com/danduh/window-ai
 
 theme:
-#  logo: ./img/icon128.png
+  #  logo: ./img/icon128.png
   favicon: ./img/icon-32.png
   name: material
   palette:
@@ -56,8 +56,14 @@ extra:
     provider: google
     property: G-S8DM4C7W6H
 
+  exampleSite:
+    baseURL: "https://danduh.github.io/window-ai/"
+#    baseURL: "http://localhost:4200/"
+
+
 plugins:
   - glightbox
   - jsfiddle
+  - markdownextradata: { }
 
 copyright: Copyright &copy; 2020 - 2024 Daniel Ostrovsky
