@@ -1,0 +1,63 @@
+site_name: Browser Built In AI
+site_description: Documentation for the in Chrome Built In AI API
+site_url: https://browserai.danduh.me
+nav:
+  - Home: index.md
+  - Prompts: Chat-API.md
+  - Summary: Summary-API.md
+  - Translate: Translate-API.md
+  - Writer/ReWriter: Writer-ReWriter-API.md
+
+repo_url: https://github.com/danduh/window-ai
+
+theme:
+#  logo: ./img/icon128.png
+  favicon: ./img/icon-32.png
+  name: material
+  palette:
+    primary: blue
+  extra_templates:
+    - overrides/extra_head.html
+  features:
+    - content.code.copy
+    - toc.integrate
+    - navigation.footer
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/danduh/window-ai
+
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/danduh81
+
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/danduh/
+
+    - icon: fontawesome/brands/youtube
+      link: https://www.youtube.com/@danduh81
+
+  analytics:
+    provider: google
+    property: G-S8DM4C7W6H
+
+plugins:
+  - glightbox
+  - jsfiddle
+
+copyright: Copyright &copy; 2020 - 2024 Daniel Ostrovsky
