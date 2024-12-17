@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
+    "sourceMap": false,  // Disable source maps
     "outDir": "../dist/out-tsc",
     "declaration": true,
     "types": ["node"]
