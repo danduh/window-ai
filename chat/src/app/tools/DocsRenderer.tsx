@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -7,8 +7,10 @@ import root from 'react-shadow';
 import {Prism as SyntaxHighlighter} from 'react-syntax-highlighter';
 import {dracula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {loadMDFile} from "./md-loader";
+import {AppContext} from "../context";
 
 export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: boolean }) {
+  const mainContext = useContext(AppContext);
   const [isOpen, setIsOpen] = useState(initOpen);
   const [docsContent, setDocsContent] = useState('');
   const loadDocs = async () => {
@@ -20,6 +22,9 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
     };
     fetchDocs();
   }, [docFile]);
+
+  if (mainContext.inIframe)
+    return null;
 
   return (
     <section className="docs-section">
