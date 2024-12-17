@@ -54,7 +54,7 @@ extra:
 
   analytics:
     provider: google
-    property: G-S8DM4C7W6H
+    property: G-ZC3N8B4VGB
 
   exampleSite:
     baseURL: "https://danduh.github.io/window-ai/"
