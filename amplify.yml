@@ -3,7 +3,7 @@ frontend:
   phases:
     preBuild:
       commands:
-        - /bin/bash -c "cd docs"
+        - /bin/bash -c "cd ai-docs"
         - /bin/bash -c "pip3 install -r requirements.txt --user --no-cache-dir"
     build:
       commands:
