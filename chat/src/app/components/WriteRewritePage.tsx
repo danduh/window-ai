@@ -5,7 +5,6 @@ import {
 } from "chrome-llm-ts";
 import {reWriteAI, writeAI} from "../services/WriterService";
 
-// import docsContent from '../docs/Writer-ReWriter-API.md'
 import {DocsRenderer} from "../tools/DocsRenderer";
 import {loadMDFile} from "../tools/md-loader";
 import {talkToMe} from "../services/TexToSpeachService";
