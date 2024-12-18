@@ -57,8 +57,8 @@ extra:
     property: G-ZC3N8B4VGB
 
   exampleSite:
-    baseURL: "https://danduh.github.io/window-ai/"
-#    baseURL: "http://localhost:4200/"
+#    baseURL: "https://danduh.github.io/window-ai/"
+    baseURL: "http://localhost:4200/"
 
 
 plugins:

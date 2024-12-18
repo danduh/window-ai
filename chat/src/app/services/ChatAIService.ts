@@ -1,6 +1,7 @@
 import 'chrome-llm-ts';
+import {AILanguageModel} from "chrome-llm-ts";
 
-let session: any;
+let session: null | AILanguageModel;
 
 export const resetModel = async () => {
   const capabilities = await window.ai.languageModel.capabilities();
@@ -15,6 +16,7 @@ export const zeroShot = async (prompt: string,
                                systemPrompt?: string,
                                destroy = true) => {
 
+  debugger
   if (session && destroy) {
     session.destroy()
     session = null;

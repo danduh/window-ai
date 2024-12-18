@@ -1,0 +1,35 @@
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+body {
+  @apply bg-gray-100 text-gray-900 font-sans;
+}
+
+.app {
+  @apply max-w-4xl mx-auto p-4;
+}
+
+h1 {
+  @apply text-3xl font-bold mb-6 text-center;
+}
+
+fieldset {
+  @apply mb-4 p-4 border border-gray-300 rounded-lg;
+}
+
+legend {
+  @apply font-semibold text-lg;
+}
+
+input[type="text"], input[type="range"] {
+  @apply w-full p-2 border border-gray-300 rounded-md;
+}
+
+input[type="checkbox"] {
+  @apply mr-2;
+}
+
+label {
+  @apply block mb-2;
+}

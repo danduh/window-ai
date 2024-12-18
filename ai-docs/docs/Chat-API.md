@@ -1,7 +1,7 @@
 # Prompt API
 
 <iframe src="{{exampleSite.baseURL}}chat?inIframe=true"
-style="border: none;" scrolling="no"
+style="border: none;"
 width="99%" height="600"></iframe>
 
 ## Prerequisites

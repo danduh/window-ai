@@ -15,17 +15,22 @@ const ChatInput: React.FC<ChatInputProps> = ({onSend}) => {
   };
 
   return (
-    <div className="chat-input">
+    <div className="chat-input flex space-x-2">
       <input
         type="text"
         placeholder="Type a message..."
         value={input}
         onChange={(e) => setInput(e.target.value)}
         onKeyPress={(e) => e.key === 'Enter' && handleSend()}
+        className="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
-      <button onClick={handleSend}>Send</button>
-    </div>
-  );
+      <button
+        onClick={handleSend}
+        className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+      >
+        Send
+      </button>
+    </div>);
 };
 
 export default ChatInput;

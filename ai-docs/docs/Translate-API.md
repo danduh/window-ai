@@ -6,7 +6,7 @@ This document provides a guide on how to use the `Translation` module from TypeS
 
 The `Translation` API allows for both language detection and text translation. These capabilities are available with specific configurations and flags within Chrome.
 
-<iframe src="{{exampleSite.baseURL}}tranlate?inIframe=true"
+<iframe src="{{exampleSite.baseURL}}translate?inIframe=true"
 style="border: none;"
 width="99%" height="600"></iframe>
 

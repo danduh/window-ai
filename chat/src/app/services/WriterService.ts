@@ -16,7 +16,7 @@ export const writeAI = async (prompt: string,
                               tone?: AIWriterTone,
                               sharedContext?: string) => {
 
-  const writer = await window.ai.writer!.create({sharedContext, format, length, tone});
+  const writer = await window.ai.writer!.create({sharedContext});
   if (stream) {
     return writer.writeStreaming(prompt);
   } else {

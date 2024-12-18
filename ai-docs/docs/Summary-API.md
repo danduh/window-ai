@@ -7,7 +7,7 @@ This document provides a guide on how to use the `AISummarizer` module from Type
 `AISummarizer` is a service that offers AI-based text summarization capabilities with different options for summarization types, lengths, and formats.
 
 <iframe src="{{exampleSite.baseURL}}summary?inIframe=true"
-style="border: none;" scrolling="no"
+style="border: none;"
 width="99%" height="600"></iframe>
 
 
