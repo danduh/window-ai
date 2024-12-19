@@ -15,7 +15,7 @@ const ChatPage: React.FC = () => {
   const [systemMsg, setSystemMsg] = useState<string>();
   const [destroy, setDestroy] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [useStream, setUseStream] = useState<boolean>(false); // State for "Use Stream" checkbox
+  const [useStream, setUseStream] = useState<boolean>(true); // State for "Use Stream" checkbox
   const [temperature, setTemperature] = useState<number>(1); // State for temperature
   const [modelCaps, setModelCaps] = useState<AILanguageModelCapabilities>()
 

@@ -61,8 +61,10 @@
         - Navigate to `chrome://flags/#optimization-guide-on-device-model` and enable `BypassPerfRequirement`.
     - Enable Prompt API:
         - Navigate to `chrome://flags/#prompt-api-for-gemini-nano` and enable it.
-
-2. **Model Verification**:
+2. **Chrome Components**:
+   - Go to `chrome://components`, 
+     - find "Optimization Guide On Device Model" and click "Check for Update".
+3. **Model Verification**:
     - Verify availability in Chrome DevTools with `(await ai.languageModel.capabilities()).available;`.
 
 ### AISummarizer

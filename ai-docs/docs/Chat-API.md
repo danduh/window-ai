@@ -13,9 +13,10 @@ Follow these steps to enable Gemini Nano and the Prompt API flags for local expe
 1. Open a new tab in Chrome, go to `chrome://flags/#optimization-guide-on-device-model`
 2. Select Enabled BypassPerfRequirement
     - This bypass performance checks which might get in the way of having Gemini Nano downloaded on your device.
-3. Go to `chrome://flags/#prompt-api-for-gemini-nano`
-4. Select Enabled
-5. Relaunch Chrome.
+3. Go to `chrome://flags/#prompt-api-for-gemini-nano`.  Select Enabled
+4. Relaunch Chrome.
+5. Go to `chrome://components`, find "Optimization Guide On Device Model" and click "Check for Update". 
+
 
 ### Confirm availability of Gemini Nano
 
