@@ -14,10 +14,10 @@ theme:
   #  logo: ./img/icon128.png
   favicon: ./img/icon-32.png
   name: material
+  custom_dir: overrides
+
   palette:
     primary: blue
-  extra_templates:
-    - overrides/extra_head.html
   features:
     - content.code.copy
     - toc.integrate
@@ -37,6 +37,8 @@ markdown_extensions:
   - pymdownx.snippets
   - pymdownx.superfences
 
+extra_javascript:
+  - ./js/social.js
 
 extra:
   social:
