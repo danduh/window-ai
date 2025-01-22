@@ -16,7 +16,6 @@ export const zeroShot = async (prompt: string,
                                systemPrompt?: string,
                                destroy = true) => {
 
-  debugger
   if (session && destroy) {
     session.destroy()
     session = null;
