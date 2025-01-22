@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build APPLication
         run: |
-          npm ci
+          npm i
           npx nx build chat --verbose
           cp ./dist/chat/index.html ./dist/chat/404.html
       - name: Setup Pages
