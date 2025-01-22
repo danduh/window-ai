@@ -4,6 +4,7 @@ import ChatInput from './ChatInput';
 import {getModelCapabilities, zeroShot} from '../services/ChatAIService';
 import {DocsRenderer} from "../tools/DocsRenderer";
 import {AILanguageModelCapabilities} from "chrome-llm-ts";
+import {isChromeCanary} from "../tools/isCanary";
 
 interface Message {
   id: number;
@@ -11,59 +12,54 @@ interface Message {
   sender: string;
 }
 
+const isCanary = isChromeCanary()
+
 const ChatPage: React.FC = () => {
-  const [systemMsg, setSystemMsg] = useState<string>();
+  const [systemMsg, setSystemMsg] = useState<string>('');
   const [destroy, setDestroy] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);
-  const [useStream, setUseStream] = useState<boolean>(true); // State for "Use Stream" checkbox
-  const [temperature, setTemperature] = useState<number>(1); // State for temperature
-  const [modelCaps, setModelCaps] = useState<AILanguageModelCapabilities>()
-
+  const [useStream, setUseStream] = useState<boolean>(true);
+  const [temperature, setTemperature] = useState<number>(1);
+  const [modelCaps, setModelCaps] = useState<AILanguageModelCapabilities>();
 
   useEffect(() => {
     getModelCapabilities().then((resp) => {
-      setModelCaps(resp)
-    })
-  }, [])
-
+      setModelCaps(resp);
+    });
+  }, []);
 
   const addMessage = async (response: string | any, sender: string = 'User') => {
     if (typeof response === 'string') {
       const newMessage: Message = {
-        id: Date.now(), // Use current timestamp for unique ID
+        id: Date.now(),
         text: response,
         sender,
       };
       setMessages((prevMessages) => [...prevMessages, newMessage]);
     } else {
       const newMessage: Message = {
-        id: Date.now(), // Use current timestamp for unique ID
+        id: Date.now(),
         text: '',
         sender: 'Bot',
       };
-      // debugger
       setMessages((prevMessages) => [...prevMessages, newMessage]);
 
       for await (const text of response) {
         setMessages((prevMessages) => {
           const lastMessage: Message = prevMessages.pop() as Message;
-          lastMessage.text += text;
-          prevMessages.push(lastMessage)
-          return [...prevMessages]
+          lastMessage.text = isCanary ? lastMessage.text + text : text;
+          prevMessages.push(lastMessage);
+          return [...prevMessages];
         });
       }
     }
   };
 
   const handleUserMessage = async (text: string) => {
-    // Add user message to chat
     addMessage(text, 'User');
-
-    // Call AI API and get response
     const response = await zeroShot(text, useStream, systemMsg, destroy);
 
     if (response) {
-      // Add AI response to chat
       addMessage(response, 'Bot');
     }
   };
@@ -138,7 +134,6 @@ const ChatPage: React.FC = () => {
       <ChatInput onSend={handleUserMessage}/>
       <DocsRenderer docFile="Chat-API.md"/>
     </div>
-
   );
 };
 
