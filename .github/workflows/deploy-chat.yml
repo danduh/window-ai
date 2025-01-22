@@ -36,7 +36,7 @@ jobs:
       - name: Build APPLication
         run: |
           npm ci
-          npx nx build chat
+          npx nx build chat --verbose
           cp ./dist/chat/index.html ./dist/chat/404.html
       - name: Setup Pages
         uses: actions/configure-pages@v4
