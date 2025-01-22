@@ -1,4 +1,5 @@
 import React, {useEffect, useState} from 'react';
+import Markdown from "react-markdown";
 
 export interface Message {
   id: number;
@@ -28,7 +29,8 @@ const ChatBox: React.FC<ChatBoxProps> = ({messages}) => {
               ? 'bg-blue-100 text-blue-800 ml-auto'
               : 'bg-gray-100 text-gray-800'
           } max-w-[80%] break-words`}>
-          <strong className="font-semibold">{message.sender}:</strong> {message.text}
+          <strong className="font-semibold">{message.sender}:</strong>
+          <Markdown>{message.text}</Markdown>
         </div>
       ))}
     </div>
