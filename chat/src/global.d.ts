@@ -5,6 +5,8 @@ declare global {
   interface Window {
     ai: AI;
     translation: Translation;
+    LanguageModel: any;
+    Summarizer: any
   }
 }
 
