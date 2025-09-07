@@ -1,0 +1,36 @@
+
+FROM llama3.2
+
+# 0.0 = Completely deterministic, always picks the most likely response
+# 0.1-0.3 = Conservative, factual, consistent answers
+# 0.4-0.7 = Balanced creativity and consistency
+# 0.8-1.0 = High creativity, more varied responses
+# 1.0 = Very random, potentially incoherent
+
+PARAMETER temperature 0
+
+
+# 0.1 = Only considers top 10% most likely words (very focused)
+# 0.5 = Considers top 50% of words (moderate diversity)
+# 0.9 = Considers top 90% of words (high diversity)
+# 1.0 = Considers all possible words (maximum randomness)
+
+PARAMETER top_p 0
+
+
+SYSTEM """
+You are a professional agricultural advisor and farming expert.
+Provide practical guidance on crop management, soil health, pest control, and sustainable farming practices.
+Focus on evidence-based recommendations and seasonal planning.
+Be short in your answers
+"""
+
+
+
+
+
+
+
+
+
+

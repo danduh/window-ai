@@ -1,0 +1,84 @@
+POST http://localhost:11434/api/chat
+Content-Type: application/json
+
+{
+  "model": "func",
+  "messages": [
+    {
+      "role": "user", 
+      "content": "What is the weather in Paris?"
+    }
+  ],
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "get_weather",
+        "description": "Get current weather for a location",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "location": {
+              "type": "string",
+              "description": "City name"
+            }
+          },
+          "required": ["location"]
+        }
+      }
+    }
+  ]
+}
+
+###
+
+POST http://localhost:11434/api/chat
+Content-Type: application/json
+
+{
+  "model": "funct2",
+  "messages": [
+    {
+      "role": "user", 
+      "content": "Send 150 USD from Alice id333 to Bob id444 for dinner expenses"
+    }
+  ],
+  "stream": false,
+  "tools": [
+    {
+      "type": "function",
+      "function": {
+        "name": "process_payment",
+        "description": "Process a payment transaction between two parties",
+        "parameters": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "The sender's name or identifier"
+            },
+            "to": {
+              "type": "string",
+              "description": "The recipient's name or identifier"
+            },
+            "amount": {
+              "type": "number",
+              "format": "float",
+              "description": "The amount to transfer"
+            },
+            "currency": {
+              "type": "string",
+              "description": "Currency code (e.g., USD, EUR)",
+              "default": "USD"
+            },
+            "description": {
+              "type": "string",
+              "description": "Optional description for the transaction"
+            }
+          },
+          "required": ["from", "to", "amount"]
+        }
+      }
+    }
+  ]
+}

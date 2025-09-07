@@ -24,17 +24,17 @@ const server = new Server(
 const tools: Tool[] = [
   {
     name: 'validate_balance',
-    description: 'Validates if a user has sufficient balance for a transaction',
+    description: 'Checks whether a user has sufficient account balance to complete a financial transaction. Returns balance validation status along with current balance information and detailed feedback.',
     inputSchema: {
       type: 'object',
       properties: {
         userId: {
           type: 'string',
-          description: 'The unique identifier of the user',
+          description: 'The unique user identifier (UUID or string ID) of the account holder whose balance needs to be validated',
         },
         requiredAmount: {
           type: 'number',
-          description: 'The amount of money needed for the transaction',
+          description: 'The monetary amount (in USD) required for the intended transaction. Must be a positive number or zero.',
           minimum: 0,
         },
       },
@@ -43,22 +43,22 @@ const tools: Tool[] = [
   },
   {
     name: 'make_transfer',
-    description: 'Transfers money from one user to another',
+    description: 'Executes a secure money transfer between two users in the payment system. Automatically validates sender balance before processing and provides detailed transaction results including transaction ID for tracking.',
     inputSchema: {
       type: 'object',
       properties: {
         fromUserId: {
           type: 'string',
-          description: 'The unique identifier of the sender',
+          description: 'The unique identifier of the user initiating the transfer (sender). This user must have sufficient balance to cover the transfer amount.',
         },
         toUserEmail: {
           type: 'string',
-          description: 'The email address of the recipient',
+          description: 'The email address of the recipient user. Must be a valid email format and correspond to an existing user in the system.',
           format: 'email',
         },
         amount: {
           type: 'number',
-          description: 'The amount of money to transfer',
+          description: 'The amount of money to transfer (in USD). Must be at least $0.01 and cannot exceed the sender\'s available balance.',
           minimum: 0.01,
         },
       },
@@ -67,13 +67,13 @@ const tools: Tool[] = [
   },
   {
     name: 'get_user_info',
-    description: 'Gets user information by user ID (demo helper)',
+    description: 'Retrieves comprehensive user account information including personal details and current balance. Useful for account lookups, balance inquiries, and user verification during payment operations.',
     inputSchema: {
       type: 'object',
       properties: {
         userId: {
           type: 'string',
-          description: 'The unique identifier of the user',
+          description: 'The unique identifier of the user whose information should be retrieved. Returns null if no user exists with this ID.',
         },
       },
       required: ['userId'],
@@ -81,7 +81,7 @@ const tools: Tool[] = [
   },
   {
     name: 'list_all_users',
-    description: 'Lists all users in the system (demo purposes)',
+    description: 'Returns a complete list of all registered users in the payment system, including their basic information and current account balances. Primarily intended for demonstration and testing purposes.',
     inputSchema: {
       type: 'object',
       properties: {},

@@ -65,7 +65,7 @@
    - Go to `chrome://components`, 
      - find "Optimization Guide On Device Model" and click "Check for Update".
 3. **Model Verification**:
-    - Verify availability in Chrome DevTools with `(await ai.languageModel.capabilities()).available;`.
+    - Verify availability in Chrome DevTools with `await LanguageModel.availability();;`.
 
 ### AISummarizer
 
@@ -76,7 +76,7 @@
         - Navigate to `chrome://flags/#summarization-api-for-gemini-nano` and enable it.
 
 2. **Model Setup**:
-    - Use Chrome DevTools to confirm model setup with `await ai.summarizer.capabilities();`.
+    - Use Chrome DevTools to confirm model setup with `await Summarizer.availability();`.
 
 ### Language Translation API
 
@@ -100,7 +100,7 @@
         - Go to `chrome://flags/#rewriter-api-for-gemini-nano` and enable it.
 
 2. **Model Verification**:
-    - Confirm setup with `(await ai.languageModel.capabilities()).available;` in Chrome DevTools.
+    - Confirm setup with `await LanguageModel.availability();` in Chrome DevTools.
 
 
 

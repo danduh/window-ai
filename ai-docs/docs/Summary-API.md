@@ -36,7 +36,7 @@ width="99%" height="600"></iframe>
 
 6. **Finalize Setup**:
    - Open Chrome DevTools and execute `await ai.summarizer.create();` in the console to initiate the model download.
-   - Execute `await ai.summarizer.capabilities();` repeatedly until the response indicates "readily". This process may take 3 to 5 minutes.
+   - Execute `await Summarizer.availability();` repeatedly until the response indicates "readily". This process may take 3 to 5 minutes.
    - If the message reads "The model was available but there was not an execution config available...", you might need to wait a day for configuration updates.
    - Refer to the troubleshooting section if problems persist.
 
@@ -48,8 +48,8 @@ Before creating a summarizer session, check the availability of the model.
 
 ```javascript
 async function checkCapabilities() {
-  const capabilities = await window.ai.summarizer.capabilities();
-  console.log("Model Availability:", capabilities.available);
+  const availability = await window.Summarizer.availability();
+  console.log("Model Availability:", availability);
 }
 
 checkCapabilities();
@@ -67,7 +67,7 @@ async function createSummarizerSession() {
     format: 'plain-text'  // Enum value
   };
 
-  const summarizerSession = await window.ai.summarizer.create(options);
+  const summarizerSession = await Summarizer.create(options);
   return summarizerSession;
 }
 ```

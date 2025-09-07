@@ -20,7 +20,7 @@ Follow these steps to enable Gemini Nano and the Prompt API flags for local expe
 
 ### Confirm availability of Gemini Nano
 
-1. Open DevTools and send `(await ai.languageModel.capabilities()).available;` in the console.
+1. Open DevTools and send `await LanguageModel.availability();` in the console.
 2. If this returns “_readily_”, then you are all set.
 
 ### Zero-shot prompting
@@ -29,7 +29,7 @@ In this example, a single string is used to prompt the API, which is assumed to 
 response is from the language model.
 
 ```js
-const session = await ai.languageModel.create();
+const session = await LanguageModel.create();
 
 // Prompt the model and wait for the whole result to come back.
 const result = await session.prompt("Write me a poem.");
@@ -47,7 +47,7 @@ for await (const chunk of stream) {
 The language model can be configured with a special "system prompt" which gives it the context for future interactions:
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     systemPrompt: "Pretend to be an eloquent hamster."
 });
 
@@ -67,7 +67,7 @@ aligns with the common "chat completions API" format of `{ role, content }` pair
 be used instead of the `systemPrompt` option shown above.
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     initialPrompts: [
         {role: "system", content: "Predict up to 5 emojis as a response to a comment. Output emojis, comma-separated."},
         {role: "user", content: "This is amazing!"},
@@ -106,7 +106,7 @@ will come from the user role. These methods can also take in objects in the `{ r
 such objects, in case you want to provide multiple user or assistant messages before getting another assistant message:
 
 ```js
-const multiUserSession = await ai.languageModel.create({
+const multiUserSession = await LanguageModel.create({
     systemPrompt: "You are a mediator in a discussion between two departments."
 });
 
@@ -128,7 +128,7 @@ A special case of the above is using the assistant role to emulate tool use or f
 as coming from the assistant side of the conversation:
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     systemPrompt: `
     You are a helpful assistant. You have access to the following tools:
     - calculator: A calculator. To use it, write "CALCULATOR: <expression>" where <expression> is a valid mathematical expression.
@@ -169,13 +169,13 @@ and [top-K](https://huggingface.co/blog/how-to-generate#top-k-sampling). More in
 parameters can be found using the `capabilities()` API explained [below](#capabilities-detection).
 
 ```js
-const customSession = await ai.languageModel.create({
+const customSession = await LanguageModel.create({
     temperature: 0.8,
     topK: 10
 });
 
-const capabilities = await ai.languageModel.capabilities();
-const slightlyHighTemperatureSession = await ai.languageModel.create({
+const capabilities = await LanguageModel.capabilities();
+const slightlyHighTemperatureSession = await LanguageModel.create({
     temperature: Math.max(
         capabilities.defaultTemperature * 1.2,
         capabilities.maxTemperature
@@ -191,7 +191,7 @@ const slightlyHighTemperatureSession = await ai.languageModel.create({
 Each language model session consists of a persistent series of interactions with the model:
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     systemPrompt: "You are a friendly, helpful assistant specialized in clothing choices."
 });
 
@@ -209,7 +209,7 @@ const result2 = await session.prompt(`
 Multiple unrelated continuations of the same prompt can be set up by creating a session and then cloning it:
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     systemPrompt: "You are a friendly, helpful assistant specialized in clothing choices."
 });
 
@@ -231,7 +231,7 @@ A language model session can be destroyed, either by using an `AbortSignal` pass
 const controller = new AbortController();
 stopButton.onclick = () => controller.abort();
 
-const session = await ai.languageModel.create({signal: controller.signal});
+const session = await LanguageModel.create({signal: controller.signal});
 ```
 
 or by calling `destroy()` on the session:
@@ -325,14 +325,14 @@ session.addEventListener("contextoverflow", () => {
 
 ### Capabilities detection
 
-In all our above examples, we call `ai.languageModel.create()` and assume it will always succeed.
+In all our above examples, we call `LanguageModel.create()` and assume it will always succeed.
 
 However, sometimes a language model needs to be downloaded before the API can be used. In such cases, immediately
 calling `create()` will start the download, which might take a long time. The capabilities API gives you insight into
 the download status of the model:
 
 ```js
-const capabilities = await ai.languageModel.capabilities();
+const capabilities = await LanguageModel.capabilities();
 console.log(capabilities.available);
 ```
 
@@ -364,7 +364,7 @@ In cases where the model needs to be downloaded as part of creation, you can mon
 order to show your users a progress bar) using code such as the following:
 
 ```js
-const session = await ai.languageModel.create({
+const session = await LanguageModel.create({
     monitor(m) {
         m.addEventListener("downloadprogress", e => {
             console.log(`Downloaded ${e.loaded} of ${e.total} bytes.`);
@@ -507,9 +507,9 @@ To actually get a response back from the model given a prompt, the following pos
 3. Add an initial prompt to establish context. (This will not generate a response.)
 4. Execute a prompt and receive a response.
 
-We've chosen to manifest these 3-4 stages into the API as two methods, `ai.languageModel.create()` and
+We've chosen to manifest these 3-4 stages into the API as two methods, `LanguageModel.create()` and
 `session.prompt()`/`session.promptStreaming()`, with some additional facilities for dealing with the fact that
-`ai.languageModel.create()` can include a download step. Some APIs simplify this into a single method, and some split it
+`LanguageModel.create()` can include a download step. Some APIs simplify this into a single method, and some split it
 up into three (usually not four).
 
 ### Stateless or session-based

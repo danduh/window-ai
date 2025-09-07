@@ -15,8 +15,8 @@ export const writeAI = async (prompt: string,
                               length?: AIWriterLength,
                               tone?: AIWriterTone,
                               sharedContext?: string) => {
-
-  const writer = await window.ai.writer!.create({sharedContext});
+  debugger
+  const writer = await window.Writer.create();
   if (stream) {
     return writer.writeStreaming(prompt);
   } else {
@@ -32,7 +32,7 @@ export const reWriteAI = async (prompt: string,
                                 tone?: AIRewriterTone,
                                 sharedContext?: string) => {
 
-  const reWriter = await window.ai.rewriter!.create({sharedContext, format, length, tone});
+  const reWriter = await window.Writer.create({sharedContext, format, length, tone});
   if (stream) {
     return reWriter.rewriteStreaming(prompt);
   } else {

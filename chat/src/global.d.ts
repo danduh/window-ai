@@ -6,7 +6,9 @@ declare global {
     ai: AI;
     translation: Translation;
     LanguageModel: any;
+    Translator: any;
     Summarizer: any
+    Writer: any
   }
 }
 
