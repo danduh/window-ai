@@ -36,7 +36,7 @@ const result = await session.prompt("Write me a poem.");
 console.log(result);
 
 // Prompt the model and stream the result:
-const stream = await session.promptStreaming("Write me an extra-long poem.");
+const stream = session.promptStreaming("Write me an extra-long poem.");
 for await (const chunk of stream) {
     console.log(chunk);
 }
@@ -48,7 +48,9 @@ The language model can be configured with a special "system prompt" which gives 
 
 ```js
 const session = await LanguageModel.create({
-    systemPrompt: "Pretend to be an eloquent hamster."
+    initialPrompts: [
+        { role: "system", content: "Pretend to be an eloquent hamster." }
+    ]
 });
 
 console.log(await session.prompt("What is your favorite food?"));
@@ -64,7 +66,7 @@ promise will be rejected with a `"QuotaExceededError"` `DOMException`.
 
 If developers want to provide examples of the user/assistant interaction, they can use the `initialPrompts` array. This
 aligns with the common "chat completions API" format of `{ role, content }` pairs, including a `"system"` role which can
-be used instead of the `systemPrompt` option shown above.
+be used as shown above.
 
 ```js
 const session = await LanguageModel.create({
@@ -93,11 +95,8 @@ const result2 = await predictEmoji("This code is so good you should get promoted
 
 Some details on error cases:
 
-* Using both `systemPrompt` and a `{ role: "system" }` prompt in `initialPrompts`, or using multiple
-  `{ role: "system" }` prompts, or placing the `{ role: "system" }` prompt anywhere besides at the 0th position in
-  `initialPrompts`, will reject with a `TypeError`.
-* If the combined token length of all the initial prompts (including the separate `systemPrompt`, if provided) is too
-  large, then the promise will be rejected with a `"QuotaExceededError"` `DOMException`.
+* Using multiple `{ role: "system" }` prompts, or placing the `{ role: "system" }` prompt anywhere besides at the 0th position in `initialPrompts`, will reject with a `TypeError`.
+* If the combined token length of all the initial prompts is too large, then the promise will be rejected with a `"QuotaExceededError"` `DOMException`.
 
 ### Customizing the role per prompt
 
@@ -107,7 +106,9 @@ such objects, in case you want to provide multiple user or assistant messages be
 
 ```js
 const multiUserSession = await LanguageModel.create({
-    systemPrompt: "You are a mediator in a discussion between two departments."
+    initialPrompts: [
+        { role: "system", content: "You are a mediator in a discussion between two departments." }
+    ]
 });
 
 const result = await multiUserSession.prompt([
@@ -129,10 +130,12 @@ as coming from the assistant side of the conversation:
 
 ```js
 const session = await LanguageModel.create({
-    systemPrompt: `
-    You are a helpful assistant. You have access to the following tools:
-    - calculator: A calculator. To use it, write "CALCULATOR: <expression>" where <expression> is a valid mathematical expression.
-  `
+    initialPrompts: [
+        { role: "system", content: `
+          You are a helpful assistant. You have access to the following tools:
+          - calculator: A calculator. To use it, write "CALCULATOR: <expression>" where <expression> is a valid mathematical expression.
+        ` }
+    ]
 });
 
 async function promptWithCalculator(prompt) {
@@ -163,7 +166,7 @@ in [issue #7](https://github.com/explainers-by-googlers/prompt-api/issues/7).
 
 ### Configuration of per-session options
 
-In addition to the `systemPrompt` and `initialPrompts` options shown above, the currently-configurable options
+In addition to the `initialPrompts` options shown above, the currently-configurable options
 are [temperature](https://huggingface.co/blog/how-to-generate#sampling)
 and [top-K](https://huggingface.co/blog/how-to-generate#top-k-sampling). More information about the values for these
 parameters can be found using the `capabilities()` API explained [below](#capabilities-detection).
@@ -192,7 +195,9 @@ Each language model session consists of a persistent series of interactions with
 
 ```js
 const session = await LanguageModel.create({
-    systemPrompt: "You are a friendly, helpful assistant specialized in clothing choices."
+    initialPrompts: [
+        { role: "system", content: "You are a friendly, helpful assistant specialized in clothing choices." }
+    ]
 });
 
 const result = await session.prompt(`
@@ -210,7 +215,9 @@ Multiple unrelated continuations of the same prompt can be set up by creating a 
 
 ```js
 const session = await LanguageModel.create({
-    systemPrompt: "You are a friendly, helpful assistant specialized in clothing choices."
+    initialPrompts: [
+        { role: "system", content: "You are a friendly, helpful assistant specialized in clothing choices." }
+    ]
 });
 
 const session2 = await session.clone();

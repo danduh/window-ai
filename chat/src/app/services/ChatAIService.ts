@@ -1,15 +1,19 @@
 import 'chrome-llm-ts';
-import { AILanguageModel } from 'chrome-llm-ts';
+import { AILanguageModel, AILanguageModelFactory } from 'chrome-llm-ts';
+
+declare global {
+  const LanguageModel: AILanguageModelFactory;
+}
 
 let session: null | AILanguageModel;
 
 export const resetModel = async () => {
   // const capabilities = await window.ai.languageModel.capabilities();
-  const capabilities = await window.LanguageModel.availability();
+  await LanguageModel.availability();
 };
 
 export const getModelCapabilities = async () => {
-  return await window.LanguageModel.availability();
+  return await LanguageModel.availability();
   // return await window.ai.languageModel.capabilities();
 };
 type NeverType = never;
@@ -24,12 +28,12 @@ export const zeroShot = async (
     session.destroy();
     session = null;
   }
-
   if (!session) {
+    const createOptions = systemPrompt 
+      ? { initialPrompts: [{ role: "system" as const, content: systemPrompt }] }
+      : {};
     
-    session = (await window.LanguageModel.create({
-      systemPrompt,
-    })) as NeverType;
+    session = (await LanguageModel.create(createOptions)) as NeverType;
   }
 
   console.log(

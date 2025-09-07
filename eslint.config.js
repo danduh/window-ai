@@ -3,7 +3,11 @@ const baseConfig = require('./eslint.base.config.js');
 module.exports = [
   ...baseConfig,
   {
-    ignores: ['**/dist'],
+    ignores: [
+      '**/dist',
+      '**/vite.config.*.timestamp*',
+      '**/vitest.config.*.timestamp*',
+    ],
   },
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.js', '**/*.jsx'],
