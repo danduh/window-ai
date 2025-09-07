@@ -19,6 +19,7 @@ export type AICapabilityAvailability = "readily" | "after-download" | "no";
 export interface AILanguageModelFactory {
   create(options?: AILanguageModelCreateOptions): Promise<AILanguageModel>;
   capabilities(): Promise<AILanguageModelCapabilities>;
+  availability(options?: AILanguageModelCreateOptions): Promise<AICapabilityAvailability>;
 }
 
 // Language Model Interface
@@ -28,7 +29,7 @@ export interface AILanguageModel extends EventTarget {
     input: AILanguageModelPromptInput,
     options?: AILanguageModelPromptOptions
   ): Promise<string>;
-
+  create(options?: AILanguageModelCreateOptions): Promise<AILanguageModel>;
   promptStreaming(
     input: AILanguageModelPromptInput,
     options?: AILanguageModelPromptOptions
@@ -71,6 +72,7 @@ export interface AILanguageModelCreateOptions {
   signal?: AbortSignal;
   monitor?: AICreateMonitorCallback;
 
+  /** @deprecated Use initialPrompts with role: "system" instead */
   systemPrompt?: string;
   initialPrompts?: AILanguageModelInitialPrompt[];
   topK?: number;

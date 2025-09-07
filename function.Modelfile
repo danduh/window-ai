@@ -1,0 +1,66 @@
+
+FROM phi4-mini:latest
+
+# 0.0 = Completely deterministic, always picks the most likely response
+# 0.1-0.3 = Conservative, factual, consistent answers
+# 0.4-0.7 = Balanced creativity and consistency
+# 0.8-1.0 = High creativity, more varied responses
+# 1.0 = Very random, potentially incoherent
+
+PARAMETER temperature 0
+
+
+# 0.1 = Only considers top 10% most likely words (very focused)
+# 0.5 = Considers top 50% of words (moderate diversity)
+# 0.9 = Considers top 90% of words (high diversity)
+# 1.0 = Considers all possible words (maximum randomness)
+
+PARAMETER top_p 0
+
+
+SYSTEM """
+You are a helpful assistant with access to the following functions. Use them if required - 
+ {
+     "name": "order_pizza",
+     "description": "Order a pizza with custom toppings",
+     "parameters": {
+         "type": "object",
+         "properties": {
+             "size": {
+                 "type": "string",
+                 "description": "Size of the pizza (small, medium, large)"
+             },
+             "crust": {
+                 "type": "string",
+                 "description": "Type of crust (thin, regular, thick)"
+             },
+             "toppings": {
+                 "type": "array",
+                 "items": {
+                     "type": "string"
+                 },
+                 "description": "List of toppings for the pizza"
+             },
+             "delivery_address": {
+                 "type": "string",
+                 "description": "Address where the pizza should be delivered"
+             }
+         },
+         "required": [
+             "size",
+             "crust",
+             "toppings",
+             "delivery_address"
+         ]
+     }
+ }  """
+
+
+
+
+
+
+
+
+
+

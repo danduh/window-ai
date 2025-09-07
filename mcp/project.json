@@ -1,0 +1,58 @@
+{
+  "name": "mcp",
+  "$schema": "../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "mcp/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/esbuild:esbuild",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "platform": "node",
+        "outputPath": "dist/mcp",
+        "format": ["cjs"],
+        "bundle": false,
+        "main": "mcp/src/main.ts",
+        "tsConfig": "mcp/tsconfig.app.json",
+        "assets": ["mcp/src/assets"],
+        "generatePackageJson": true,
+        "esbuildOptions": {
+          "sourcemap": true,
+          "outExtension": {
+            ".js": ".js"
+          }
+        }
+      },
+      "configurations": {
+        "development": {},
+        "production": {
+          "esbuildOptions": {
+            "sourcemap": false,
+            "outExtension": {
+              ".js": ".js"
+            }
+          }
+        }
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "dependsOn": ["build"],
+      "options": {
+        "buildTarget": "mcp:build",
+        "runBuildTargetDependencies": false
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "mcp:build:development"
+        },
+        "production": {
+          "buildTarget": "mcp:build:production"
+        }
+      }
+    }
+  },
+  "tags": []
+}

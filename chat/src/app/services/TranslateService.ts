@@ -7,12 +7,16 @@ export const translate = async (prompt: string,
     sourceLanguage, // Or detect the source language with the Language Detection API
     targetLanguage,
   };
-  const translator = await window.translation.createTranslator(languagePair);
+  const translator = await window.Translator.create(languagePair);
   return  await translator.translate(prompt)
 }
 
 export const detectLanguage = async (prompt: string): Promise<string> => {
-  const detector = await window.translation.createDetector();
+  const languagePair = {
+    sourceLanguage:'en',
+    targetLanguage:'ru',
+  };
+  const detector = await window.Translator.create(languagePair);
 
   const results = await detector.detect(prompt);
   return results[0].detectedLanguage || "";
@@ -20,5 +24,5 @@ export const detectLanguage = async (prompt: string): Promise<string> => {
 
 
 export const canTranslate = async (languagePair: TranslationLanguageOptions) => {
-  return await window.translation.canTranslate(languagePair);
+  return await window.Translator.canTranslate(languagePair);
 }

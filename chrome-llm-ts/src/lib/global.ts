@@ -1,9 +1,12 @@
-import {AILanguageModelFactory, AISummarizer, Translation} from "chrome-llm-ts";
+import {AILanguageModelFactory} from "./interfaces";
+import { AISummarizer } from "./summary";
+import { Translation } from "./translation";
 import {AIRewriterFactory, AIWriterFactory} from "./writer";
 
 export interface Window {
   readonly ai: AI;
-  readonly translator: Translation
+  readonly translator: Translation;
+  readonly LanguageModel: AILanguageModelFactory;
 }
 
 export interface AI {
@@ -15,4 +18,5 @@ export interface AI {
 
 export interface WorkerGlobalScope {
   readonly ai: AI;
+  readonly LanguageModel: AILanguageModelFactory;
 }

@@ -1,10 +1,14 @@
 // global.d.ts
-import {AI, Translation} from 'chrome-llm-ts';
+import {AI, Translation, AILanguageModelFactory} from 'chrome-llm-ts';
 
 declare global {
   interface Window {
     ai: AI;
     translation: Translation;
+    LanguageModel: AILanguageModelFactory;
+    Translator: any;
+    Summarizer: any
+    Writer: any
   }
 }
 

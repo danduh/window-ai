@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "payment-demo": {
+      "command": "node",
+      "args": ["/Users/danielos/dev/window-ai/dist/mcp/main.js"],
+      "env": {}
+    }
+  }
+}
