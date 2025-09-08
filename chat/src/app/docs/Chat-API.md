@@ -108,45 +108,6 @@ const result = await multiUserSession.prompt([
 
 Because of their special behavior of being preserved on context window overflow, system prompts cannot be provided this way.
 
-### Emulating tool use or function-calling via assistant-role prompts
-
-A special case of the above is using the assistant role to emulate tool use or function-calling, by marking a response as coming from the assistant side of the conversation:
-
-```js
-const session = await LanguageModel.create({
-  initialPrompts: [
-    { role: "system", content: `
-      You are a helpful assistant. You have access to the following tools:
-      - calculator: A calculator. To use it, write "CALCULATOR: <expression>" where <expression> is a valid mathematical expression.
-    ` }
-  ]
-});
-
-async function promptWithCalculator(prompt) {
-  const result = await session.prompt(prompt);
-
-  // Check if the assistant wants to use the calculator tool.
-  const match = /^CALCULATOR: (.*)$/.exec(result);
-  if (match) {
-    const expression = match[1];
-    const mathResult = evaluateMathExpression(expression);
-
-    // Add the result to the session so it's in context going forward.
-    await session.prompt({ role: "assistant", content: mathResult });
-
-    // Return it as if that's what the assistant said to the user.
-    return mathResult;
-  }
-
-  // The assistant didn't want to use the calculator. Just return its response.
-  return result;
-}
-
-console.log(await promptWithCalculator("What is 2 + 2?"));
-```
-
-We'll likely explore more specific APIs for tool- and function-calling in the future; follow along in [issue #7](https://github.com/explainers-by-googlers/prompt-api/issues/7).
-
 ### Configuration of per-session options
 
 In addition to the `systemPrompt` and `initialPrompts` options shown above, the currently-configurable options are [temperature](https://huggingface.co/blog/how-to-generate#sampling) and [top-K](https://huggingface.co/blog/how-to-generate#top-k-sampling). More information about the values for these parameters can be found using the `capabilities()` API explained [below](#capabilities-detection).

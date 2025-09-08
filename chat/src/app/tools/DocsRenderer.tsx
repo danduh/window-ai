@@ -11,11 +11,9 @@ import {AppContext} from "../context";
 
 export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: boolean }) {
   const mainContext = useContext(AppContext);
-  const [isOpen, setIsOpen] = useState(initOpen);
+  const [isOpen, setIsOpen] = useState(initOpen || false);
   const [docsContent, setDocsContent] = useState('');
-  const loadDocs = async () => {
-    setDocsContent(await loadMDFile(docFile));
-  }
+  
   useEffect(() => {
     const fetchDocs = async () => {
       setDocsContent(await loadMDFile(docFile));
@@ -28,18 +26,19 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
 
   return (
     <>
-      <section className="docs-section mt-8 border-t border-gray-200 pt-8">
-        <button
-          className="w-full md:w-auto px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-          onClick={async () => {
-            setIsOpen(!isOpen)
-          }}>
-          {isOpen ? "Hide Documentation" : "Show Documentation"}
-        </button>
-      </section>
-      <section className="docs-section mt-2 border-gray-200">
-        {isOpen && (
-          <div className="docs-content mt-4 bg-white rounded-lg shadow-md overflow-hidden p-4">
+      {!initOpen && (
+        <section className="docs-section mt-8 pt-8">
+          <button
+            className="w-full md:w-auto px-4 py-2 bg-primary-500 text-white rounded-md hover:bg-primary-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-opacity-50"
+            onClick={() => setIsOpen(!isOpen)}>
+            {isOpen ? "Hide Documentation" : "Show Documentation"}
+          </button>
+        </section>
+      )}
+      
+      <section className="docs-section mt-2 ">
+        {(isOpen || initOpen) && (
+          <div className="docs-content mt-4 bg-white dark:bg-gray-800 rounded-lg overflow-hidden transition-colors duration-200">
             <root.div>
               <div className="p-4 md:p-6">
                 <Markdown
@@ -55,7 +54,7 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
                           {String(children).replace(/\n$/, '')}
                         </SyntaxHighlighter>
                       ) : (
-                        <code className={`${className} bg-gray-100 rounded-md px-1 py-0.5`} {...props}>
+                        <code className={`${className} bg-gray-100 dark:bg-gray-800 rounded-md px-1 py-0.5 text-gray-900 dark:text-gray-100`} {...props}>
                           {children}
                         </code>
                       );
