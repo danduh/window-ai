@@ -21,6 +21,18 @@ export default defineConfig({
       }
     }
   ],
+  build: {
+    outDir: 'dist/chat',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['react-helmet']
+        }
+      }
+    }
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

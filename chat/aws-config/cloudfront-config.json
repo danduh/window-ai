@@ -1,0 +1,131 @@
+{
+  "CloudFrontDistributionConfig": {
+    "CallerReference": "chat-app-seo-optimized",
+    "Comment": "SEO-optimized React Chat App with pre-rendered pages",
+    "DefaultRootObject": "index.html",
+    "Origins": [
+      {
+        "Id": "S3-chat-app-bucket",
+        "DomainName": "your-bucket-name.s3.amazonaws.com",
+        "S3OriginConfig": {
+          "OriginAccessIdentity": ""
+        }
+      }
+    ],
+    "DefaultCacheBehavior": {
+      "TargetOriginId": "S3-chat-app-bucket",
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "MinTTL": 0,
+      "ForwardedValues": {
+        "QueryString": false,
+        "Cookies": {
+          "Forward": "none"
+        },
+        "Headers": [
+          "CloudFront-Is-Desktop-Viewer",
+          "CloudFront-Is-Mobile-Viewer",
+          "CloudFront-Is-Tablet-Viewer"
+        ]
+      },
+      "TrustedSigners": {
+        "Enabled": false,
+        "Quantity": 0
+      },
+      "Compress": true
+    },
+    "CacheBehaviors": [
+      {
+        "PathPattern": "*.html",
+        "TargetOriginId": "S3-chat-app-bucket",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "MinTTL": 0,
+        "DefaultTTL": 86400,
+        "MaxTTL": 31536000,
+        "ForwardedValues": {
+          "QueryString": false,
+          "Cookies": {
+            "Forward": "none"
+          }
+        },
+        "Compress": true
+      },
+      {
+        "PathPattern": "sitemap.xml",
+        "TargetOriginId": "S3-chat-app-bucket",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "MinTTL": 0,
+        "DefaultTTL": 3600,
+        "MaxTTL": 86400,
+        "ForwardedValues": {
+          "QueryString": false,
+          "Cookies": {
+            "Forward": "none"
+          }
+        },
+        "Compress": true
+      },
+      {
+        "PathPattern": "robots.txt",
+        "TargetOriginId": "S3-chat-app-bucket",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "MinTTL": 0,
+        "DefaultTTL": 3600,
+        "MaxTTL": 86400,
+        "ForwardedValues": {
+          "QueryString": false,
+          "Cookies": {
+            "Forward": "none"
+          }
+        },
+        "Compress": true
+      },
+      {
+        "PathPattern": "*.js",
+        "TargetOriginId": "S3-chat-app-bucket",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "MinTTL": 31536000,
+        "DefaultTTL": 31536000,
+        "MaxTTL": 31536000,
+        "ForwardedValues": {
+          "QueryString": false,
+          "Cookies": {
+            "Forward": "none"
+          }
+        },
+        "Compress": true
+      },
+      {
+        "PathPattern": "*.css",
+        "TargetOriginId": "S3-chat-app-bucket",
+        "ViewerProtocolPolicy": "redirect-to-https",
+        "MinTTL": 31536000,
+        "DefaultTTL": 31536000,
+        "MaxTTL": 31536000,
+        "ForwardedValues": {
+          "QueryString": false,
+          "Cookies": {
+            "Forward": "none"
+          }
+        },
+        "Compress": true
+      }
+    ],
+    "CustomErrorResponses": [
+      {
+        "ErrorCode": 404,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 300
+      },
+      {
+        "ErrorCode": 403,
+        "ResponsePagePath": "/index.html",
+        "ResponseCode": "200",
+        "ErrorCachingMinTTL": 300
+      }
+    ],
+    "Enabled": true,
+    "PriceClass": "PriceClass_All",
+    "HttpVersion": "http2"
+  }
+}
