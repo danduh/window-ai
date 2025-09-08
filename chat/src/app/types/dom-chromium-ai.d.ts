@@ -68,12 +68,57 @@ declare global {
     destroy(): void;
   }
 
+  // Language detection result interface
+  interface LanguageDetectionResult {
+    detectedLanguage: string;
+    confidence: number;
+  }
+
+  // Translation options interface
+  interface TranslatorCreateOptions {
+    sourceLanguage: string;
+    targetLanguage: string;
+    signal?: AbortSignal;
+    monitor?: (m: { addEventListener: (type: string, listener: (e: ProgressEvent) => void) => void }) => void;
+  }
+
+  // Language detection options interface
+  interface LanguageDetectorCreateOptions {
+    expectedInputLanguages?: string[];
+    signal?: AbortSignal;
+    monitor?: (m: { addEventListener: (type: string, listener: (e: ProgressEvent) => void) => void }) => void;
+  }
+
+  // QuotaExceededError interface for proper typing
+  interface QuotaExceededError extends DOMException {
+    readonly name: "QuotaExceededError";
+    readonly requested: number;
+    readonly quota: number;
+  }
+
   abstract class Translator {
-    static create(options: { sourceLanguage: string; targetLanguage: string }): Promise<Translator>;
+    static create(options: TranslatorCreateOptions): Promise<Translator>;
     static availability(options: { sourceLanguage: string; targetLanguage: string }): Promise<"unavailable" | "downloadable" | "downloading" | "available">;
     
-    translate(input: string, options?: any): Promise<string>;
-    translateStreaming(input: string, options?: any): ReadableStream<string>;
+    translate(input: string, options?: { signal?: AbortSignal }): Promise<string>;
+    translateStreaming(input: string): ReadableStream<string>;
+    readonly inputQuota: number;
+    measureInputUsage(input: string): Promise<number>;
     destroy(): void;
+  }
+
+  abstract class LanguageDetector {
+    static create(options?: LanguageDetectorCreateOptions): Promise<LanguageDetector>;
+    static availability(options?: { expectedInputLanguages?: string[] }): Promise<"unavailable" | "downloadable" | "downloading" | "available">;
+    
+    detect(input: string, options?: { signal?: AbortSignal }): Promise<LanguageDetectionResult[]>;
+    readonly inputQuota: number;
+    measureInputUsage(input: string): Promise<number>;
+    destroy(): void;
+  }
+
+  interface Window {
+    Translator: typeof Translator;
+    LanguageDetector: typeof LanguageDetector;
   }
 }
