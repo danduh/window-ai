@@ -6,6 +6,7 @@ import Summary from "./components/Summary";
 import TranslatePage from "./components/TranslatePage";
 import WriteRewritePage from "./components/WriteRewritePage";
 import {HomePage} from "./components/HomePage";
+import SEOHead from "./components/SEOHead";
 import {AppContext} from "./context";
 import {ThemeProvider} from "./context/ThemeContext";
 
@@ -28,6 +29,7 @@ const AppRouter: React.FC = () => {
 
   return (
     <ThemeProvider>
+      <SEOHead />
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
         {!inIframe && (
           <nav className="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200">
