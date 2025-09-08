@@ -1,0 +1,94 @@
+{
+  "Comment": "CloudFront distribution configuration for SEO-optimized React SPA",
+  "DefaultCacheBehavior": {
+    "TargetOriginId": "S3Origin",
+    "ViewerProtocolPolicy": "redirect-to-https",
+    "Compress": true,
+    "ForwardedValues": {
+      "QueryString": false,
+      "Cookies": {
+        "Forward": "none"
+      }
+    },
+    "TrustedSigners": {
+      "Enabled": false,
+      "Quantity": 0
+    },
+    "MinTTL": 0,
+    "DefaultTTL": 86400,
+    "MaxTTL": 31536000
+  },
+  "CacheBehaviors": [
+    {
+      "PathPattern": "*.html",
+      "TargetOriginId": "S3Origin",
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "Compress": true,
+      "ForwardedValues": {
+        "QueryString": false,
+        "Cookies": {
+          "Forward": "none"
+        }
+      },
+      "MinTTL": 0,
+      "DefaultTTL": 3600,
+      "MaxTTL": 86400
+    },
+    {
+      "PathPattern": "*.js",
+      "TargetOriginId": "S3Origin",
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "Compress": true,
+      "ForwardedValues": {
+        "QueryString": false,
+        "Cookies": {
+          "Forward": "none"
+        }
+      },
+      "MinTTL": 0,
+      "DefaultTTL": 31536000,
+      "MaxTTL": 31536000
+    },
+    {
+      "PathPattern": "*.css",
+      "TargetOriginId": "S3Origin",
+      "ViewerProtocolPolicy": "redirect-to-https",
+      "Compress": true,
+      "ForwardedValues": {
+        "QueryString": false,
+        "Cookies": {
+          "Forward": "none"
+        }
+      },
+      "MinTTL": 0,
+      "DefaultTTL": 31536000,
+      "MaxTTL": 31536000
+    }
+  ],
+  "CustomErrorResponses": [
+    {
+      "ErrorCode": 403,
+      "ResponsePagePath": "/index.html",
+      "ResponseCode": "200",
+      "ErrorCachingMinTTL": 300
+    },
+    {
+      "ErrorCode": 404,
+      "ResponsePagePath": "/index.html", 
+      "ResponseCode": "200",
+      "ErrorCachingMinTTL": 300
+    }
+  ],
+  "Origins": [
+    {
+      "Id": "S3Origin",
+      "DomainName": "your-bucket-name.s3.amazonaws.com",
+      "S3OriginConfig": {
+        "OriginAccessIdentity": ""
+      }
+    }
+  ],
+  "Enabled": true,
+  "DefaultRootObject": "index.html",
+  "PriceClass": "PriceClass_100"
+}

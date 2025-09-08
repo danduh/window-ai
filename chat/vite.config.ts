@@ -6,6 +6,7 @@ import {nxCopyAssetsPlugin} from '@nx/vite/plugins/nx-copy-assets.plugin';
 export default defineConfig({
   root: __dirname,
   cacheDir: '../node_modules/.vite/chat',
+  base: process.env.NODE_ENV === 'production' ? '/window-ai/' : '/',
   plugins: [
     react(),
     nxViteTsPaths(),
@@ -21,6 +22,18 @@ export default defineConfig({
       }
     }
   ],
+  build: {
+    outDir: '../dist/chat',
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom']
+        }
+      }
+    }
+  },
   // Uncomment this if you are using workers.
   // worker: {
   //  plugins: [ nxViteTsPaths() ],

@@ -8,6 +8,7 @@ import Tabs from './Tabs';
 import {getModelCapabilities, zeroShot} from '../services/ChatAIService';
 import {DocsRenderer} from "../tools/DocsRenderer";
 import {isChromeCanary} from "../tools/isCanary";
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 interface Message {
   id: number;
@@ -18,6 +19,8 @@ interface Message {
 const isCanary = isChromeCanary()
 
 const ChatPage: React.FC = () => {
+  useSEOData(seoConfigs.chat, '/chat');
+  
   const [systemMsg, setSystemMsg] = useState<string>('');
   const [destroy, setDestroy] = useState<boolean>(false);
   const [messages, setMessages] = useState<Message[]>([]);

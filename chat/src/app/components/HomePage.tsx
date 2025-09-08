@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 const APISection = ({ 
   title, 
@@ -36,6 +37,8 @@ const CodeSnippet = ({ children }: { children: React.ReactNode }) => (
 );
 
 export const HomePage: React.FC = () => {
+  useSEOData(seoConfigs.home, '/');
+  
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-4">

@@ -13,8 +13,11 @@ import {
 import { DocsRenderer } from "../tools/DocsRenderer";
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 export function WriteRewritePage() {
+  useSEOData(seoConfigs.writer, '/writer');
+  
   // Writer state
   const [writingPrompt, setWritingPrompt] = useState('');
   const [writtenContent, setWrittenContent] = useState<string>('');

@@ -9,6 +9,7 @@ import {
 import {DocsRenderer} from "../tools/DocsRenderer";
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 const languages = [
   {code: 'en', name: 'English'},
@@ -23,6 +24,8 @@ const languages = [
 
 
 const TranslatePage: React.FC = () => {
+  useSEOData(seoConfigs.translate, '/translate');
+  
   const [sourceText, setSourceText] = useState<string>('');
   const [translation, setTranslation] = useState<string>('');
   const [sourceLanguage, setSourceLanguage] = useState<string>('uk');
