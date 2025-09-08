@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Routes, Route, Navigate, Link, useSearchParams} from 'react-router-dom';
 import ChatPage from './components/ChatPage';
+import ToolCallingPage from './components/ToolCallingPage';
 import Summary from "./components/Summary";
 import TranslatePage from "./components/TranslatePage";
 import WriteRewritePage from "./components/WriteRewritePage";
@@ -43,6 +44,8 @@ const AppRouter: React.FC = () => {
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Home</Link>
                     <Link to="/chat"
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Chat</Link>
+                    <Link to="/tool-calling"
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Tool Calling</Link>
                     <Link to="/summary"
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Summary</Link>
                     <Link to="/translate"
@@ -89,6 +92,8 @@ const AppRouter: React.FC = () => {
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Home</Link>
                 <Link to="/chat"
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Chat</Link>
+                <Link to="/tool-calling"
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Tool Calling</Link>
                 <Link to="/summary"
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Summary</Link>
                 <Link to="/translate"
@@ -104,6 +109,7 @@ const AppRouter: React.FC = () => {
             <Routes>
               <Route path="/" element={<HomePage/>}/>
               <Route path="/chat" element={<ChatPage/>}/>
+              <Route path="/tool-calling" element={<ToolCallingPage/>}/>
               <Route path="/summary" element={<Summary/>}/>
               <Route path="/translate" element={<TranslatePage/>}/>
               <Route path="/writer" element={<WriteRewritePage/>}/>

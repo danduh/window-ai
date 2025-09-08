@@ -4,23 +4,23 @@ _This proposal is an early design sketch by the Chrome built-in AI team to descr
 
 Browsers and operating systems are increasingly expected to gain access to a language model. ([Example](https://developer.chrome.com/docs/ai/built-in), [example](https://blogs.windows.com/windowsdeveloper/2024/05/21/unlock-a-new-era-of-innovation-with-windows-copilot-runtime-and-copilot-pcs/), [example](https://www.apple.com/apple-intelligence/).) Language models are known for their versatility. With enough creative [prompting](https://developers.google.com/machine-learning/resources/prompt-eng), they can help accomplish tasks as diverse as:
 
-* Classification, tagging, and keyword extraction of arbitrary text;
-* Helping users compose text, such as blog posts, reviews, or biographies;
-* Summarizing, e.g. of articles, user reviews, or chat logs;
-* Generating titles or headlines from article contents
-* Answering questions based on the unstructured contents of a web page
-* Translation between languages
-* Proofreading
+- Classification, tagging, and keyword extraction of arbitrary text;
+- Helping users compose text, such as blog posts, reviews, or biographies;
+- Summarizing, e.g. of articles, user reviews, or chat logs;
+- Generating titles or headlines from article contents
+- Answering questions based on the unstructured contents of a web page
+- Translation between languages
+- Proofreading
 
 The Chrome built-in AI team and the Web Machine Learning Community Group are exploring purpose-built APIs for some of these use cases (namely [translator / language detector](https://github.com/webmachinelearning/translation-api), [summarizer / writer / rewriter](https://github.com/webmachinelearning/writing-assistance-apis), and [proofreader](https://github.com/webmachinelearning/proposals/issues/7)). This proposal additionally exploring a general-purpose "prompt API" which allows web developers to prompt a language model directly. This gives web developers access to many more capabilities, at the cost of requiring them to do their own prompt engineering.
 
 Currently, web developers wishing to use language models must either call out to cloud APIs, or bring their own and run them using technologies like WebAssembly and WebGPU. By providing access to the browser or operating system's existing language model, we can provide the following benefits compared to cloud APIs:
 
-* Local processing of sensitive data, e.g. allowing websites to combine AI features with end-to-end encryption.
-* Potentially faster results, since there is no server round-trip involved.
-* Offline usage.
-* Lower API costs for web developers.
-* Allowing hybrid approaches, e.g. free users of a website use on-device AI whereas paid users use a more powerful API-based model.
+- Local processing of sensitive data, e.g. allowing websites to combine AI features with end-to-end encryption.
+- Potentially faster results, since there is no server round-trip involved.
+- Offline usage.
+- Lower API costs for web developers.
+- Allowing hybrid approaches, e.g. free users of a website use on-device AI whereas paid users use a more powerful API-based model.
 
 Similarly, compared to bring-your-own-AI approaches, using a built-in language model can save the user's bandwidth, likely benefit from more optimizations, and have a lower barrier to entry for web developers.
 
@@ -28,20 +28,20 @@ Similarly, compared to bring-your-own-AI approaches, using a built-in language m
 
 Our goals are to:
 
-* Provide web developers a uniform JavaScript API for accessing browser-provided language models.
-* Abstract away specific details of the language model in question as much as possible, e.g. tokenization, system messages, or control tokens.
-* Guide web developers to gracefully handle failure cases, e.g. no browser-provided model being available.
-* Allow a variety of implementation strategies, including on-device or cloud-based models, while keeping these details abstracted from developers.
+- Provide web developers a uniform JavaScript API for accessing browser-provided language models.
+- Abstract away specific details of the language model in question as much as possible, e.g. tokenization, system messages, or control tokens.
+- Guide web developers to gracefully handle failure cases, e.g. no browser-provided model being available.
+- Allow a variety of implementation strategies, including on-device or cloud-based models, while keeping these details abstracted from developers.
 
 The following are explicit non-goals:
 
-* We do not intend to force every browser to ship or expose a language model; in particular, not all devices will be capable of storing or running one. It would be conforming to implement this API by always signaling that no language model is available, or to implement this API entirely by using cloud services instead of on-device models.
-* We do not intend to provide guarantees of language model quality, stability, or interoperability between browsers. In particular, we cannot guarantee that the models exposed by these APIs are particularly good at any given use case. These are left as quality-of-implementation issues, similar to the [shape detection API](https://wicg.github.io/shape-detection-api/). (See also a [discussion of interop](https://www.w3.org/reports/ai-web-impact/#interop) in the W3C "AI & the Web" document.)
+- We do not intend to force every browser to ship or expose a language model; in particular, not all devices will be capable of storing or running one. It would be conforming to implement this API by always signaling that no language model is available, or to implement this API entirely by using cloud services instead of on-device models.
+- We do not intend to provide guarantees of language model quality, stability, or interoperability between browsers. In particular, we cannot guarantee that the models exposed by these APIs are particularly good at any given use case. These are left as quality-of-implementation issues, similar to the [shape detection API](https://wicg.github.io/shape-detection-api/). (See also a [discussion of interop](https://www.w3.org/reports/ai-web-impact/#interop) in the W3C "AI & the Web" document.)
 
 The following are potential goals we are not yet certain of:
 
-* Allow web developers to know, or control, whether language model interactions are done on-device or using cloud services. This would allow them to guarantee that any user data they feed into this API does not leave the device, which can be important for privacy purposes. Similarly, we might want to allow developers to request on-device-only language models, in case a browser offers both varieties.
-* Allow web developers to know some identifier for the language model in use, separate from the browser version. This would allow them to allowlist or blocklist specific models to maintain a desired level of quality, or restrict certain use cases to a specific model.
+- Allow web developers to know, or control, whether language model interactions are done on-device or using cloud services. This would allow them to guarantee that any user data they feed into this API does not leave the device, which can be important for privacy purposes. Similarly, we might want to allow developers to request on-device-only language models, in case a browser offers both varieties.
+- Allow web developers to know some identifier for the language model in use, separate from the browser version. This would allow them to allowlist or blocklist specific models to maintain a desired level of quality, or restrict certain use cases to a specific model.
 
 Both of these potential goals could pose challenges to interoperability, so we want to investigate more how important such functionality is to developers to find the right tradeoff.
 
@@ -55,11 +55,11 @@ In this example, a single string is used to prompt the API, which is assumed to 
 const session = await LanguageModel.create();
 
 // Prompt the model and wait for the whole result to come back.
-const result = await session.prompt("Write me a poem.");
+const result = await session.prompt('Write me a poem.');
 console.log(result);
 
 // Prompt the model and stream the result:
-const stream = session.promptStreaming("Write me an extra-long poem.");
+const stream = session.promptStreaming('Write me an extra-long poem.');
 for await (const chunk of stream) {
   console.log(chunk);
 }
@@ -71,10 +71,12 @@ The language model can be configured with a special "system prompt" which gives 
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{ role: "system", content: "Pretend to be an eloquent hamster." }]
+  initialPrompts: [
+    { role: 'system', content: 'Pretend to be an eloquent hamster.' },
+  ],
 });
 
-console.log(await session.prompt("What is your favorite food?"));
+console.log(await session.prompt('What is your favorite food?'));
 ```
 
 The system prompt is special, in that the language model will not respond to it, and it will be preserved even if the context window otherwise overflows due to too many calls to `prompt()`.
@@ -88,12 +90,16 @@ If developers want to provide examples of the user/assistant interaction, they c
 ```js
 const session = await LanguageModel.create({
   initialPrompts: [
-    { role: "system", content: "Predict up to 5 emojis as a response to a comment. Output emojis, comma-separated." },
-    { role: "user", content: "This is amazing!" },
-    { role: "assistant", content: "❤️, ➕" },
-    { role: "user", content: "LGTM" },
-    { role: "assistant", content: "👍, 🚢" }
-  ]
+    {
+      role: 'system',
+      content:
+        'Predict up to 5 emojis as a response to a comment. Output emojis, comma-separated.',
+    },
+    { role: 'user', content: 'This is amazing!' },
+    { role: 'assistant', content: '❤️, ➕' },
+    { role: 'user', content: 'LGTM' },
+    { role: 'assistant', content: '👍, 🚢' },
+  ],
 });
 
 // Clone an existing session for efficiency, instead of recreating one each time.
@@ -102,17 +108,19 @@ async function predictEmoji(comment) {
   return await freshSession.prompt(comment);
 }
 
-const result1 = await predictEmoji("Back to the drawing board");
+const result1 = await predictEmoji('Back to the drawing board');
 
-const result2 = await predictEmoji("This code is so good you should get promoted");
+const result2 = await predictEmoji(
+  'This code is so good you should get promoted'
+);
 ```
 
 (Note that merely creating a session does not cause any new responses from the language model. We need to call `prompt()` or `promptStreaming()` to get a response.)
 
 Some details on error cases:
 
-* Placing the `{ role: "system" }` prompt anywhere besides at the 0th position in `initialPrompts` will reject with a `TypeError`.
-* If the combined token length of all the initial prompts is too large, then the promise will be rejected with a [`QuotaExceededError` exception](#tokenization-context-window-length-limits-and-overflow).
+- Placing the `{ role: "system" }` prompt anywhere besides at the 0th position in `initialPrompts` will reject with a `TypeError`.
+- If the combined token length of all the initial prompts is too large, then the promise will be rejected with a [`QuotaExceededError` exception](#tokenization-context-window-length-limits-and-overflow).
 
 ### Customizing the role per prompt
 
@@ -120,16 +128,27 @@ Our examples so far have provided `prompt()` and `promptStreaming()` with a sing
 
 ```js
 const multiUserSession = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: "You are a mediator in a discussion between two departments."
-  }]
+  initialPrompts: [
+    {
+      role: 'system',
+      content: 'You are a mediator in a discussion between two departments.',
+    },
+  ],
 });
 
 const result = await multiUserSession.prompt([
-  { role: "user", content: "Marketing: We need more budget for advertising campaigns." },
-  { role: "user", content: "Finance: We need to cut costs and advertising is on the list." },
-  { role: "assistant", content: "Let's explore a compromise that satisfies both departments." }
+  {
+    role: 'user',
+    content: 'Marketing: We need more budget for advertising campaigns.',
+  },
+  {
+    role: 'user',
+    content: 'Finance: We need to cut costs and advertising is on the list.',
+  },
+  {
+    role: 'assistant',
+    content: "Let's explore a compromise that satisfies both departments.",
+  },
 ]);
 
 // `result` will contain a compromise proposal from the assistant.
@@ -144,37 +163,60 @@ The Prompt API supports **tool use** via the `tools` option, allowing you to def
 Here’s an example of how to use the `tools` option:
 
 ```js
+
+const schema = {
+  type: 'object',
+  required: ['toolName'],
+  additionalProperties: false,
+  properties: {
+    toolName: {
+      type: 'string',
+      description: 'Name of the tool that should be executed',
+    },
+    location: {
+      type: 'string',
+      description: 'parameter for tool',
+    },
+  },
+};
 const session = await LanguageModel.create({
+   responseConstraint: schema,
   initialPrompts: [
     {
-      role: "system",
-      content: `You are a helpful assistant. You can use tools to help the user.`
-    }
+      role: 'system',
+      content: `You are a helpful assistant. You can use tools to help the user.`,
+    },
   ],
   tools: [
     {
-      name: "getWeather",
-      description: "Get the weather in a location.",
+      name: 'getWeather',
+      description: 'Get the weather in a location.',
       inputSchema: {
-        type: "object",
+        type: 'object',
         properties: {
           location: {
-            type: "string",
-            description: "The city to check for the weather condition.",
+            type: 'string',
+            description: 'The city to check for the weather condition.',
           },
         },
-        required: ["location"],
+        required: ['location'],
       },
       async execute({ location }) {
-        const res = await fetch("https://weatherapi.example/?location=" + location);
+        const res = await fetch(
+          'https://weatherapi.example/?location=' + location
+        );
         // Returns the result as a JSON string.
         return JSON.stringify(await res.json());
       },
-    }
-  ]
+      enabled: true,
+    },
+  ],
 });
 
-const result = await session.prompt("What is the weather in Seattle?");
+
+const result = await session.prompt('What is weather in Tel Aviv');
+
+console.log(result);
 ```
 
 In this example, the `tools` array defines a `getWeather` tool, specifying its name, description, input schema, and `execute` implementation. When the language model determines that a tool call is needed, the user agent invokes the `getWeather` tool's `execute()` function with the provided arguments and returns the result to the model, which can then incorporate it into its response.
@@ -184,7 +226,9 @@ In this example, the `tools` array defines a `getWeather` tool, specifying its n
 Developers should be aware that the model might call their tool multiple times, concurrently. For example, code such as
 
 ```js
-const result = await session.prompt("Which of these locations currently has the highest temperature? Seattle, Tokyo, Berlin");
+const result = await session.prompt(
+  'Which of these locations currently has the highest temperature? Seattle, Tokyo, Berlin'
+);
 ```
 
 might call the above `"getWeather"` tool's `execute()` function three times. The model would wait for all tool call results to return, using the equivalent of `Promise.all()` internally, before it composes its final response.
@@ -195,9 +239,9 @@ Similarly, the model might call multiple different tools, if it believes they al
 
 All of the above examples have been of text prompts. Some language models also support other inputs. Our design initially includes the potential to support images and audio clips as inputs. This is done by using objects in the form `{ type: "image", content }` and `{ type: "audio", content }` instead of strings. The `content` values can be the following:
 
-* For image inputs: [`ImageBitmapSource`](https://html.spec.whatwg.org/#imagebitmapsource), i.e. `Blob`, `ImageData`, `ImageBitmap`, `VideoFrame`, `OffscreenCanvas`, `HTMLImageElement`, `SVGImageElement`, `HTMLCanvasElement`, or `HTMLVideoElement` (will get the current frame). Also raw bytes via `BufferSource` (i.e. `ArrayBuffer` or typed arrays).
+- For image inputs: [`ImageBitmapSource`](https://html.spec.whatwg.org/#imagebitmapsource), i.e. `Blob`, `ImageData`, `ImageBitmap`, `VideoFrame`, `OffscreenCanvas`, `HTMLImageElement`, `SVGImageElement`, `HTMLCanvasElement`, or `HTMLVideoElement` (will get the current frame). Also raw bytes via `BufferSource` (i.e. `ArrayBuffer` or typed arrays).
 
-* For audio inputs: for now, `Blob`, `AudioBuffer`, or raw bytes via `BufferSource`. Other possibilities we're investigating include `HTMLAudioElement`, `AudioData`, and `MediaStream`, but we're not yet sure if those are suitable to represent "clips": most other uses of them on the web platform are able to handle streaming data.
+- For audio inputs: for now, `Blob`, `AudioBuffer`, or raw bytes via `BufferSource`. Other possibilities we're investigating include `HTMLAudioElement`, `AudioData`, and `MediaStream`, but we're not yet sure if those are suitable to represent "clips": most other uses of them on the web platform are able to handle streaming data.
 
 Sessions that will include these inputs need to be created using the `expectedInputs` option, to ensure that any necessary downloads are done as part of session creation, and that if the model is not capable of such multimodal prompts, the session creation fails. (See also the below discussion of [expected input languages](#multilingual-content-and-expected-input-languages), not just expected input types.)
 
@@ -207,42 +251,47 @@ A sample of using these APIs:
 const session = await LanguageModel.create({
   // { type: "text" } is not necessary to include explicitly, unless
   // you also want to include expected input languages for text.
-  expectedInputs: [
-    { type: "audio" },
-    { type: "image" }
-  ]
+  expectedInputs: [{ type: 'audio' }, { type: 'image' }],
 });
 
-const referenceImage = await (await fetch("/reference-image.jpeg")).blob();
-const userDrawnImage = document.querySelector("canvas");
+const referenceImage = await (await fetch('/reference-image.jpeg')).blob();
+const userDrawnImage = document.querySelector('canvas');
 
-const response1 = await session.prompt([{
-  role: "user",
-  content: [
-    { type: "text", value: "Give a helpful artistic critique of how well the second image matches the first:" },
-    { type: "image", value: referenceImage },
-    { type: "image", value: userDrawnImage }
-  ]
-}]);
+const response1 = await session.prompt([
+  {
+    role: 'user',
+    content: [
+      {
+        type: 'text',
+        value:
+          'Give a helpful artistic critique of how well the second image matches the first:',
+      },
+      { type: 'image', value: referenceImage },
+      { type: 'image', value: userDrawnImage },
+    ],
+  },
+]);
 
 console.log(response1);
 
 const audioBlob = await captureMicrophoneInput({ seconds: 10 });
 
-const response2 = await session.prompt([{
-  role: "user",
-  content: [
-    { type: "text", value: "My response to your critique:" },
-    { type: "audio", value: audioBlob }
-  ]
-}]);
+const response2 = await session.prompt([
+  {
+    role: 'user',
+    content: [
+      { type: 'text', value: 'My response to your critique:' },
+      { type: 'audio', value: audioBlob },
+    ],
+  },
+]);
 ```
 
 Note how once we move to multimodal prompting, the prompt format becomes more explicit:
 
-* We must always pass an array of messages, instead of a single string value.
-* Each message must have a `role` property: unlike with the string shorthand, `"user"` is no longer assumed.
-* The `content` property must be an array of content, if it contains any multimodal content.
+- We must always pass an array of messages, instead of a single string value.
+- Each message must have a `role` property: unlike with the string shorthand, `"user"` is no longer assumed.
+- The `content` property must be an array of content, if it contains any multimodal content.
 
 This extra ceremony is necessary to make it clear that we are sending a single message that contains multimodal content, versus sending multiple messages, one per each piece of content. To avoid such confusion, the multimodal format has fewer defaults and shorthands than if you interact with the API using only text. (See some discussion in [issue #89](https://github.com/webmachinelearning/prompt-api/pull/89).)
 
@@ -251,33 +300,34 @@ To illustrate, the following extension of our above [multi-user example](#custom
 ```js
 const response = await session.prompt([
   {
-    role: "user",
-    content: "Your compromise just made the discussion more heated. The two departments drew up posters to illustrate their strategies' advantages:"
+    role: 'user',
+    content:
+      "Your compromise just made the discussion more heated. The two departments drew up posters to illustrate their strategies' advantages:",
   },
   {
-    role: "user",
-    content: [{ type: "image", value: brochureFromTheMarketingDepartment }]
+    role: 'user',
+    content: [{ type: 'image', value: brochureFromTheMarketingDepartment }],
   },
   {
-    role: "user",
-    content: [{ type: "image", value: brochureFromTheFinanceDepartment }]
-  }
+    role: 'user',
+    content: [{ type: 'image', value: brochureFromTheFinanceDepartment }],
+  },
 ]);
 ```
 
 Details:
 
-* Cross-origin data that has not been exposed using the `Access-Control-Allow-Origin` header cannot be used with the prompt API, and will reject with a `"SecurityError"` `DOMException`. This applies to `HTMLImageElement`, `SVGImageElement`, `HTMLVideoElement`, `HTMLCanvasElement`, and `OffscreenCanvas`. Note that this is more strict than `createImageBitmap()`, which has a tainting mechanism which allows creating opaque image bitmaps from unexposed cross-origin resources. For the prompt API, such resources will just fail. This includes attempts to use cross-origin-tainted canvases.
+- Cross-origin data that has not been exposed using the `Access-Control-Allow-Origin` header cannot be used with the prompt API, and will reject with a `"SecurityError"` `DOMException`. This applies to `HTMLImageElement`, `SVGImageElement`, `HTMLVideoElement`, `HTMLCanvasElement`, and `OffscreenCanvas`. Note that this is more strict than `createImageBitmap()`, which has a tainting mechanism which allows creating opaque image bitmaps from unexposed cross-origin resources. For the prompt API, such resources will just fail. This includes attempts to use cross-origin-tainted canvases.
 
-* Raw-bytes cases (`Blob` and `BufferSource`) will apply the appropriate sniffing rules ([for images](https://mimesniff.spec.whatwg.org/#rules-for-sniffing-images-specifically), [for audio](https://mimesniff.spec.whatwg.org/#rules-for-sniffing-audio-and-video-specifically)) and reject with an `"EncodingError"` `DOMException` if the format is not supported or there is some error decoding the data. This behavior is similar to that of `createImageBitmap()`.
+- Raw-bytes cases (`Blob` and `BufferSource`) will apply the appropriate sniffing rules ([for images](https://mimesniff.spec.whatwg.org/#rules-for-sniffing-images-specifically), [for audio](https://mimesniff.spec.whatwg.org/#rules-for-sniffing-audio-and-video-specifically)) and reject with an `"EncodingError"` `DOMException` if the format is not supported or there is some error decoding the data. This behavior is similar to that of `createImageBitmap()`.
 
-* Animated images will be required to snapshot the first frame (like `createImageBitmap()`). In the future, animated image input may be supported via some separate opt-in, similar to video clip input. But we don't want interoperability problems from some implementations supporting animated images and some not, in the initial version.
+- Animated images will be required to snapshot the first frame (like `createImageBitmap()`). In the future, animated image input may be supported via some separate opt-in, similar to video clip input. But we don't want interoperability problems from some implementations supporting animated images and some not, in the initial version.
 
-* For `HTMLVideoElement`, even a single frame might not yet be downloaded when the prompt API is called. In such cases, calling into the prompt API will force at least a single frame's worth of video to download. (The intent is to behave the same as `createImageBitmap(videoEl)`.)
+- For `HTMLVideoElement`, even a single frame might not yet be downloaded when the prompt API is called. In such cases, calling into the prompt API will force at least a single frame's worth of video to download. (The intent is to behave the same as `createImageBitmap(videoEl)`.)
 
-* Attempting to supply an invalid combination, e.g. `{ type: "audio", value: anImageBitmap }`, `{ type: "image", value: anAudioBuffer }`, or `{ type: "text", value: anArrayBuffer }`, will reject with a `TypeError`.
+- Attempting to supply an invalid combination, e.g. `{ type: "audio", value: anImageBitmap }`, `{ type: "image", value: anAudioBuffer }`, or `{ type: "text", value: anArrayBuffer }`, will reject with a `TypeError`.
 
-* For now, using the `"assistant"` role with an image or audio prompt will reject with a `"NotSupportedError"` `DOMException`. (As we explore multimodal outputs, this restriction might be lifted in the future.)
+- For now, using the `"assistant"` role with an image or audio prompt will reject with a `"NotSupportedError"` `DOMException`. (As we explore multimodal outputs, this restriction might be lifted in the future.)
 
 Future extensions may include more ambitious multimodal inputs, such as video clips, or realtime audio or video. (Realtime might require a different API design, more based around events or streams instead of messages.)
 
@@ -287,12 +337,12 @@ To help with programmatic processing of language model responses, the prompt API
 
 ```js
 const schema = {
-  type: "object",
-  required: ["rating"],
+  type: 'object',
+  required: ['rating'],
   additionalProperties: false,
   properties: {
     rating: {
-      type: "number",
+      type: 'number',
       minimum: 0,
       maximum: 5,
     },
@@ -300,8 +350,9 @@ const schema = {
 };
 
 // Prompt the model and wait for the JSON response to come back.
-const result = await session.prompt("Summarize this feedback into a rating between 0-5: "+
-  "The food was delicious, service was excellent, will recommend.",
+const result = await session.prompt(
+  'Summarize this feedback into a rating between 0-5: ' +
+    'The food was delicious, service was excellent, will recommend.',
   { responseConstraint: schema }
 );
 
@@ -314,7 +365,8 @@ If the input value is a valid JSON schema object, but uses JSON schema features 
 The result value returned is a string that can be parsed with `JSON.parse()`. If the user agent is unable to produce a response that is compliant with the schema, the method will error with a `"SyntaxError"` `DOMException`.
 
 ```js
-const emailRegExp = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
+const emailRegExp =
+  /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/;
 
 const emailAddress = await session.prompt(
   `Create a fictional email address for ${characterName}.`,
@@ -331,11 +383,14 @@ If a value that is neither a `RegExp` object or a valid JSON schema object is gi
 By default, the implementation may include the schema or regular expression as part of the message sent to the underlying language model, which will use up some of the [input quota](#tokenization-context-window-length-limits-and-overflow). You can measure how much it will use up by passing the `responseConstraint` option to `session.measureInputUsage()`. If you want to avoid this behavior, you can use the `omitResponseConstraintInput` option. In such cases, it's strongly recommended to include some guidance in the prompt string itself:
 
 ```js
-const result = await session.prompt(`
+const result = await session.prompt(
+  `
   Summarize this feedback into a rating between 0-5, only outputting a JSON
   object { rating }, with a single property whose value is a number:
   The food was delicious, service was excellent, will recommend.
-`, { responseConstraint: schema, omitResponseConstraintInput: true });
+`,
+  { responseConstraint: schema, omitResponseConstraintInput: true }
+);
 ```
 
 If `omitResponseConstraintInput` is set to `true` without `responseConstraint` set, then the method will error with a `TypeError`.
@@ -362,19 +417,19 @@ const followup = await session.prompt([
 
 In some cases, instead of asking for a new response message, you want to "prefill" part of the `"assistant"`-role response message. An example use case is to guide the language model toward specific response formats. To do this, add `prefix: true` to the trailing `"assistant"`-role message. For example:
 
-```js
+````js
 const characterSheet = await session.prompt([
   {
-    role: "user",
-    content: "Create a TOML character sheet for a gnome barbarian"
+    role: 'user',
+    content: 'Create a TOML character sheet for a gnome barbarian',
   },
   {
-    role: "assistant",
-    content: "```toml\n",
-    prefix: true
-  }
+    role: 'assistant',
+    content: '```toml\n',
+    prefix: true,
+  },
 ]);
-```
+````
 
 (Such examples work best if we also support [stop sequences](https://github.com/webmachinelearning/prompt-api/issues/44); stay tuned for that!)
 
@@ -394,21 +449,29 @@ For such cases, in addition to the `prompt()` and `promptStreaming()` methods, t
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: "You are a skilled analyst who correlates patterns across multiple images."
-  }],
-  expectedInputs: [{ type: "image" }]
+  initialPrompts: [
+    {
+      role: 'system',
+      content:
+        'You are a skilled analyst who correlates patterns across multiple images.',
+    },
+  ],
+  expectedInputs: [{ type: 'image' }],
 });
 
 fileUpload.onchange = async (e) => {
-  await session.append([{
-    role: "user",
-    content: [
-      { type: "text", value: `Here's one image. Notes: ${fileNotesInput.value}` },
-      { type: "image", value: fileUpload.files[0] }
-    ]
-  }]);
+  await session.append([
+    {
+      role: 'user',
+      content: [
+        {
+          type: 'text',
+          value: `Here's one image. Notes: ${fileNotesInput.value}`,
+        },
+        { type: 'image', value: fileUpload.files[0] },
+      ],
+    },
+  ]);
 };
 
 analyzeButton.onclick = async (e) => {
@@ -429,13 +492,15 @@ _However, see [issue #42](https://github.com/webmachinelearning/prompt-api/issue
 ```js
 const customSession = await LanguageModel.create({
   temperature: 0.8,
-  topK: 10
+  topK: 10,
 });
 
 const params = await LanguageModel.params();
 const conditionalSession = await LanguageModel.create({
-  temperature: isCreativeTask ? params.defaultTemperature * 1.1 : params.defaultTemperature * 0.8,
-  topK: isGeneratingIdeas ? params.maxTopK : params.defaultTopK
+  temperature: isCreativeTask
+    ? params.defaultTemperature * 1.1
+    : params.defaultTemperature * 0.8,
+  topK: isGeneratingIdeas ? params.maxTopK : params.defaultTopK,
 });
 ```
 
@@ -443,11 +508,11 @@ If the language model is not available at all in this browser, `params()` will f
 
 Error-handling behavior:
 
-* If values below 0 are passed for `temperature`, then `create()` will return a promise rejected with a `RangeError`.
-* If values above `maxTemperature` are passed for `temperature`, then `create()` will clamp to `maxTemperature`. (`+Infinity` is specifically allowed, as a way of requesting maximum temperature.)
-* If values below 1 are passed for `topK`, then `create()` will return a promise rejected with a `RangeError`.
-* If values above `maxTopK` are passed for `topK`, then `create()` will clamp to `maxTopK`. (This includes `+Infinity` and numbers above `Number.MAX_SAFE_INTEGER`.)
-* If fractional values are passed for `topK`, they are rounded down (using the usual [IntegerPart](https://webidl.spec.whatwg.org/#abstract-opdef-integerpart) algorithm for web specs).
+- If values below 0 are passed for `temperature`, then `create()` will return a promise rejected with a `RangeError`.
+- If values above `maxTemperature` are passed for `temperature`, then `create()` will clamp to `maxTemperature`. (`+Infinity` is specifically allowed, as a way of requesting maximum temperature.)
+- If values below 1 are passed for `topK`, then `create()` will return a promise rejected with a `RangeError`.
+- If values above `maxTopK` are passed for `topK`, then `create()` will clamp to `maxTopK`. (This includes `+Infinity` and numbers above `Number.MAX_SAFE_INTEGER`.)
+- If fractional values are passed for `topK`, they are rounded down (using the usual [IntegerPart](https://webidl.spec.whatwg.org/#abstract-opdef-integerpart) algorithm for web specs).
 
 ### Session persistence and cloning
 
@@ -455,10 +520,13 @@ Each language model session consists of a persistent series of interactions with
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: "You are a friendly, helpful assistant specialized in clothing choices."
-  }]
+  initialPrompts: [
+    {
+      role: 'system',
+      content:
+        'You are a friendly, helpful assistant specialized in clothing choices.',
+    },
+  ],
 });
 
 const result = await session.prompt(`
@@ -476,10 +544,13 @@ Multiple unrelated continuations of the same prompt can be set up by creating a 
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: "You are a friendly, helpful assistant specialized in clothing choices."
-  }]
+  initialPrompts: [
+    {
+      role: 'system',
+      content:
+        'You are a friendly, helpful assistant specialized in clothing choices.',
+    },
+  ],
 });
 
 const session2 = await session.clone();
@@ -511,19 +582,19 @@ stopButton.onclick = () => session.destroy();
 
 Destroying a session will have the following effects:
 
-* If done before the promise returned by `create()` is settled:
+- If done before the promise returned by `create()` is settled:
 
-  * Stop signaling any ongoing download progress for the language model. (The browser may also abort the download, or may continue it. Either way, no further `downloadprogress` events will fire.)
+  - Stop signaling any ongoing download progress for the language model. (The browser may also abort the download, or may continue it. Either way, no further `downloadprogress` events will fire.)
 
-  * Reject the `create()` promise.
+  - Reject the `create()` promise.
 
-* Otherwise:
+- Otherwise:
 
-  * Reject any ongoing calls to `prompt()`.
+  - Reject any ongoing calls to `prompt()`.
 
-  * Error any `ReadableStream`s returned by `promptStreaming()`.
+  - Error any `ReadableStream`s returned by `promptStreaming()`.
 
-* Most importantly, destroying the session allows the user agent to unload the language model from memory, if no other APIs or sessions are using it.
+- Most importantly, destroying the session allows the user agent to unload the language model from memory, if no other APIs or sessions are using it.
 
 In all cases the exception used for rejecting promises or erroring `ReadableStream`s will be an `"AbortError"` `DOMException`, or the given abort reason.
 
@@ -537,23 +608,25 @@ Specific calls to `prompt()` or `promptStreaming()` can be aborted by passing an
 const controller = new AbortController();
 stopButton.onclick = () => controller.abort();
 
-const result = await session.prompt("Write me a poem", { signal: controller.signal });
+const result = await session.prompt('Write me a poem', {
+  signal: controller.signal,
+});
 ```
 
 Note that because sessions are stateful, and prompts can be queued, aborting a specific prompt is slightly complicated:
 
-* If the prompt is still queued behind other prompts in the session, then it will be removed from the queue, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
-* If the prompt is being currently responded to by the model, then it will be aborted, the prompt/response pair will be removed from the session, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
-* If the prompt has already been fully responded to by the model, then attempting to abort the prompt will do nothing.
+- If the prompt is still queued behind other prompts in the session, then it will be removed from the queue, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
+- If the prompt is being currently responded to by the model, then it will be aborted, the prompt/response pair will be removed from the session, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
+- If the prompt has already been fully responded to by the model, then attempting to abort the prompt will do nothing.
 
 Similarly, the `append()` operation can also be aborted. In this case the behavior is:
 
-* If the append is queued behind other appends in the session, then it will be removed from the queue, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
-* If the append operation is currently ongoing, then it will be aborted, any part of the prompt that was appended so far will be removed from the session, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
-* If the append operation is complete (i.e., the returned promise has resolved), then attempting to abort it will do nothing. This includes all the following states:
-  * The append operation is complete, but a prompt generation step has not yet triggered.
-  * The append operation is complete, and a prompt generation step is processing.
-  * The append operation is complete, and a prompt generation step has used it to produce a result.
+- If the append is queued behind other appends in the session, then it will be removed from the queue, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
+- If the append operation is currently ongoing, then it will be aborted, any part of the prompt that was appended so far will be removed from the session, and the returned promise will be rejected with an `"AbortError"` `DOMException`.
+- If the append operation is complete (i.e., the returned promise has resolved), then attempting to abort it will do nothing. This includes all the following states:
+  - The append operation is complete, but a prompt generation step has not yet triggered.
+  - The append operation is complete, and a prompt generation step is processing.
+  - The append operation is complete, and a prompt generation step has used it to produce a result.
 
 Finally, note that if either prompting or appending has caused an [overflow](#tokenization-context-window-length-limits-and-overflow), aborting the operation does not re-introduce the overflowed messages into the session.
 
@@ -562,7 +635,9 @@ Finally, note that if either prompting or appending has caused an [overflow](#to
 A given language model session will have a maximum number of tokens it can process. Developers can check their current usage and progress toward that limit by using the following properties on the session object:
 
 ```js
-console.log(`${session.inputUsage} tokens used, out of ${session.inputQuota} tokens available.`);
+console.log(
+  `${session.inputUsage} tokens used, out of ${session.inputQuota} tokens available.`
+);
 ```
 
 To know how many tokens a prompt will consume, without actually processing it, developers can use the `measureInputUsage()` method. This method accepts the same input types as `prompt()`, including strings and multimodal input arrays:
@@ -570,36 +645,38 @@ To know how many tokens a prompt will consume, without actually processing it, d
 ```js
 const stringUsage = await session.measureInputUsage(promptString);
 
-const audioUsage = await session.measureInputUsage([{
-  role: "user",
-  content: [
-    { type: "text", value: "My response to your critique:" },
-    { type: "audio", value: audioBlob }
-  ]
-}]);
+const audioUsage = await session.measureInputUsage([
+  {
+    role: 'user',
+    content: [
+      { type: 'text', value: 'My response to your critique:' },
+      { type: 'audio', value: audioBlob },
+    ],
+  },
+]);
 ```
 
 Some notes on this API:
 
-* We do not expose the actual tokenization to developers since that would make it too easy to depend on model-specific details.
-* Implementations must include in their count any control tokens that will be necessary to process the prompt, e.g. ones indicating the start or end of the input.
-* The counting process can be aborted by passing an `AbortSignal`, i.e. `session.measureInputUsage(promptString, { signal })`.
-* We use the phrases "input usage" and "input quota" in the API, to avoid being specific to the current language model tokenization paradigm. In the future, even if we change paradigms, we anticipate some concept of usage and quota still being applicable, even if it's just string length.
+- We do not expose the actual tokenization to developers since that would make it too easy to depend on model-specific details.
+- Implementations must include in their count any control tokens that will be necessary to process the prompt, e.g. ones indicating the start or end of the input.
+- The counting process can be aborted by passing an `AbortSignal`, i.e. `session.measureInputUsage(promptString, { signal })`.
+- We use the phrases "input usage" and "input quota" in the API, to avoid being specific to the current language model tokenization paradigm. In the future, even if we change paradigms, we anticipate some concept of usage and quota still being applicable, even if it's just string length.
 
 It's possible to send a prompt that causes the context window to overflow. That is, consider a case where `session.measureInputUsage(promptString) > session.inputQuota - session.inputUsage` before calling `session.prompt(promptString)`, and then the web developer calls `session.prompt(promptString)` anyway. In such cases, the initial portions of the conversation with the language model will be removed, one prompt/response pair at a time, until enough tokens are available to process the new prompt. The exception is the [system prompt](#system-prompts), which is never removed.
 
 Such overflows can be detected by listening for the `"quotaoverflow"` event on the session:
 
 ```js
-session.addEventListener("quotaoverflow", () => {
+session.addEventListener('quotaoverflow', () => {
   console.log("We've gone past the quota, and some inputs will be dropped!");
 });
 ```
 
 If it's not possible to remove enough tokens from the conversation history to process the new prompt, then the `prompt()` or `promptStreaming()` call will fail with a `QuotaExceededError` exception and nothing will be removed. This is a proposed new type of exception, which subclasses `DOMException`, and replaces the web platform's existing `"QuotaExceededError"` `DOMException`. See [whatwg/webidl#1465](https://github.com/whatwg/webidl/pull/1465) for this proposal. For our purposes, the important part is that it has the following properties:
 
-* `requested`: how many tokens the input consists of
-* `quota`: how many tokens were available (which will be less than `requested`, and equal to the value of `session.inputQuota - session.inputUsage` at the time of the call)
+- `requested`: how many tokens the input consists of
+- `quota`: how many tokens were available (which will be less than `requested`, and equal to the value of `session.inputQuota - session.inputUsage` at the time of the call)
 
 ### Multilingual content and expected input languages
 
@@ -609,24 +686,30 @@ It's better practice, if possible, to supply the `create()` method with informat
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: `
+  initialPrompts: [
+    {
+      role: 'system',
+      content: `
       You are a foreign-language tutor for Japanese. The user is Korean. If necessary, either you or
       the user might "break character" and ask for or give clarification in Korean. But by default,
       prefer speaking in Japanese, and return to the Japanese conversation once any sidebars are
       concluded.
-    `
-  }],
-  expectedInputs: [{
-    type: "text",
-    languages: ["en" /* for the system prompt */, "ja", "ko"]
-  }],
+    `,
+    },
+  ],
+  expectedInputs: [
+    {
+      type: 'text',
+      languages: ['en' /* for the system prompt */, 'ja', 'ko'],
+    },
+  ],
   // See below section
-  expectedOutputs: [{
-    type: "text",
-    languages: ["ja", "ko"]
-  }],
+  expectedOutputs: [
+    {
+      type: 'text',
+      languages: ['ja', 'ko'],
+    },
+  ],
 });
 ```
 
@@ -637,16 +720,16 @@ const session = await LanguageModel.create({
   expectedInputs: [
     // Be sure to download any material necessary for English and Japanese text
     // prompts, or fail-fast if the model cannot support that.
-    { type: "text", languages: ["en", "ja"] },
+    { type: 'text', languages: ['en', 'ja'] },
 
     // `languages` omitted: audio input processing will be best-effort based on
     // the base model's capability.
-    { type: "audio" },
+    { type: 'audio' },
 
     // Be sure to download any material necessary for OCRing French text in
     // images, or fail-fast if the model cannot support that.
-    { type: "image", languages: ["fr"] }
-  ]
+    { type: 'image', languages: ['fr'] },
+  ],
 });
 ```
 
@@ -657,9 +740,9 @@ If you want to check the availability of a given `expectedInputs` configuration 
 ```js
 const availability = await LanguageModel.availability({
   expectedInputs: [
-    { type: "text", languages: ["en", "ja"] },
-    { type: "audio", languages: ["en", "ja"] }
-  ]
+    { type: 'text', languages: ['en', 'ja'] },
+    { type: 'audio', languages: ['en', 'ja'] },
+  ],
 });
 
 // `availability` will be one of "unavailable", "downloadable", "downloading", or "available".
@@ -673,16 +756,16 @@ However, if you know ahead of time what languages you are hoping for the languag
 
 ```js
 const session = await LanguageModel.create({
-  initialPrompts: [{
-    role: "system",
-    content: `You are a helpful, harmless French chatbot.`
-  }],
-  expectedInputs: [
-    { type: "text", languages: ["en" /* for the system prompt */, "fr"] }
+  initialPrompts: [
+    {
+      role: 'system',
+      content: `You are a helpful, harmless French chatbot.`,
+    },
   ],
-  expectedOutputs: [
-    { type: "text", languages: ["fr"] }
-  ]
+  expectedInputs: [
+    { type: 'text', languages: ['en' /* for the system prompt */, 'fr'] },
+  ],
+  expectedOutputs: [{ type: 'text', languages: ['fr'] }],
 });
 ```
 
@@ -698,34 +781,34 @@ However, if the web developer wants to provide a differentiated user experience,
 
 The method will return a promise that fulfills with one of the following availability values:
 
-* "`unavailable`" means that the implementation does not support the requested options, or does not support prompting a language model at all.
-* "`downloadable`" means that the implementation supports the requested options, but it will have to download something (e.g. the language model itself, or a fine-tuning) before it can create a session using those options.
-* "`downloading`" means that the implementation supports the requested options, but will need to finish an ongoing download operation before it can create a session using those options.
-* "`available`" means that the implementation supports the requested options without requiring any new downloads.
+- "`unavailable`" means that the implementation does not support the requested options, or does not support prompting a language model at all.
+- "`downloadable`" means that the implementation supports the requested options, but it will have to download something (e.g. the language model itself, or a fine-tuning) before it can create a session using those options.
+- "`downloading`" means that the implementation supports the requested options, but will need to finish an ongoing download operation before it can create a session using those options.
+- "`available`" means that the implementation supports the requested options without requiring any new downloads.
 
 An example usage is the following:
 
 ```js
 const options = {
   expectedInputs: [
-    { type: "text", languages: ["en", "es"] },
-    { type: "audio", languages: ["en", "es"] }
+    { type: 'text', languages: ['en', 'es'] },
+    { type: 'audio', languages: ['en', 'es'] },
   ],
-  temperature: 2
+  temperature: 2,
 };
 
 const availability = await LanguageModel.availability(options);
 
-if (availability !== "unavailable") {
-  if (availability !== "available") {
-    console.log("Sit tight, we need to do some downloading...");
+if (availability !== 'unavailable') {
+  if (availability !== 'available') {
+    console.log('Sit tight, we need to do some downloading...');
   }
 
   const session = await LanguageModel.create(options);
   // ... Use session ...
 } else {
   // Either the API overall, or the expected languages and temperature setting, is not available.
-  console.error("No language model for us :(");
+  console.error('No language model for us :(');
 }
 ```
 
@@ -736,10 +819,10 @@ For cases where using the API is only possible after a download, you can monitor
 ```js
 const session = await LanguageModel.create({
   monitor(m) {
-    m.addEventListener("downloadprogress", e => {
+    m.addEventListener('downloadprogress', (e) => {
       console.log(`Downloaded ${e.loaded * 100}%`);
     });
-  }
+  },
 });
 ```
 
@@ -759,6 +842,7 @@ This pattern is a little involved. Several alternatives have been considered. Ho
 It is also nicely future-extensible by adding more events and properties to the `m` object.
 
 Finally, note that there is a sort of precedent in the (never-shipped) [`FetchObserver` design](https://github.com/whatwg/fetch/issues/447#issuecomment-281731850).
+
 </details>
 
 ## Detailed design
@@ -769,8 +853,8 @@ We intend for this API to expose instruction-tuned models. Although we cannot ma
 
 To illustrate the difference and how it impacts web developer expectations:
 
-* In a base model, a prompt like "Write a poem about trees." might get completed with "... Write about the animal you would like to be. Write about a conflict between a brother and a sister." (etc.) It is directly completing plausible next tokens in the text sequence.
-* Whereas, in an instruction-tuned model, the model will generally _follow_ instructions like "Write a poem about trees.", and respond with a poem about trees.
+- In a base model, a prompt like "Write a poem about trees." might get completed with "... Write about the animal you would like to be. Write about a conflict between a brother and a sister." (etc.) It is directly completing plausible next tokens in the text sequence.
+- Whereas, in an instruction-tuned model, the model will generally _follow_ instructions like "Write a poem about trees.", and respond with a poem about trees.
 
 To ensure the API can be used by web developers across multiple implementations, all browsers should be sure their models behave like instruction-tuned models.
 
@@ -813,12 +897,12 @@ Please see [the _Writing Assistance APIs_ specification](https://webmachinelearn
 
 ## Stakeholder feedback
 
-* W3C TAG: [w3ctag/design-reviews#1093](https://github.com/w3ctag/design-reviews/issues/1093)
-* Browser engines and browsers:
-  * Chromium: prototyping behind a flag
-  * Mozilla: [mozilla/standards-positions#1213](https://github.com/mozilla/standards-positions/issues/1213)
-  * WebKit: [WebKit/standards-positions#495](https://github.com/WebKit/standards-positions/issues/495)
-* Web developers: positive
-  * See [issue #74](https://github.com/webmachinelearning/prompt-api/issues/74) for some developer feedback
-  * Examples of organic enthusiasm: [X post](https://x.com/mortenjust/status/1805190952358650251), [blog post](https://tyingshoelaces.com/blog/chrome-ai-prompt-api), [blog post](https://labs.thinktecture.com/local-small-language-models-in-the-browser-a-first-glance-at-chromes-built-in-ai-and-prompt-api-with-gemini-nano/)
-  * [Feedback from developer surveys](https://docs.google.com/presentation/d/1DhFC2oB4PRrchavxUY3h9U4w4hrX5DAc5LoMqhn5hnk/edit#slide=id.g349a9ada368_1_6327)
+- W3C TAG: [w3ctag/design-reviews#1093](https://github.com/w3ctag/design-reviews/issues/1093)
+- Browser engines and browsers:
+  - Chromium: prototyping behind a flag
+  - Mozilla: [mozilla/standards-positions#1213](https://github.com/mozilla/standards-positions/issues/1213)
+  - WebKit: [WebKit/standards-positions#495](https://github.com/WebKit/standards-positions/issues/495)
+- Web developers: positive
+  - See [issue #74](https://github.com/webmachinelearning/prompt-api/issues/74) for some developer feedback
+  - Examples of organic enthusiasm: [X post](https://x.com/mortenjust/status/1805190952358650251), [blog post](https://tyingshoelaces.com/blog/chrome-ai-prompt-api), [blog post](https://labs.thinktecture.com/local-small-language-models-in-the-browser-a-first-glance-at-chromes-built-in-ai-and-prompt-api-with-gemini-nano/)
+  - [Feedback from developer surveys](https://docs.google.com/presentation/d/1DhFC2oB4PRrchavxUY3h9U4w4hrX5DAc5LoMqhn5hnk/edit#slide=id.g349a9ada368_1_6327)
