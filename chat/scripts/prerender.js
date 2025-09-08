@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 const path = require('path');
+const { setTimeout } = require('node:timers/promises');
 
 const routes = [
   '/',
@@ -35,11 +36,13 @@ async function prerender() {
       const url = `${baseUrl}${route === '/' ? '' : route}`;
       await page.goto(url, { 
         waitUntil: 'networkidle0',
-        timeout: 30000 
+        timeout: 3000
       });
       
       // Wait for React to hydrate and content to load
-      await page.waitForTimeout(2000);
+
+      await setTimeout(1000);
+
       
       // Get the rendered HTML
       const html = await page.content();
