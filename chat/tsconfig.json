@@ -8,7 +8,8 @@
   },
   "files": [],
   "include": [
-    "./src/global.d.ts"
+    "./src/global.d.ts",
+    "./src/app/types/dom-chromium-ai.d.ts"
   ],
   "references": [
     {

@@ -2,34 +2,109 @@
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
 
+/* Global styles */
+* {
+  @apply transition-colors duration-200;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
-  @apply bg-gray-100 text-gray-900 font-sans;
+  @apply bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-sans antialiased;
 }
 
-.app {
-  @apply max-w-4xl mx-auto p-4;
+/* Custom scrollbar styles */
+::-webkit-scrollbar {
+  @apply w-2;
 }
 
-h1 {
-  @apply text-3xl font-bold mb-6 text-center;
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
 }
 
-fieldset {
-  @apply mb-4 p-4 border border-gray-300 rounded-lg;
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
 }
 
-legend {
-  @apply font-semibold text-lg;
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
 }
 
-input[type="text"], input[type="range"] {
-  @apply w-full p-2 border border-gray-300 rounded-md;
+/* Prose styles for markdown content */
+.prose {
+  @apply max-w-none;
 }
 
-input[type="checkbox"] {
-  @apply mr-2;
+.prose p {
+  @apply mb-3 leading-relaxed;
 }
 
-label {
-  @apply block mb-2;
+.prose pre {
+  @apply bg-gray-100 dark:bg-gray-800 rounded-lg p-4 overflow-x-auto;
+}
+
+.prose code {
+  @apply bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-sm font-mono;
+}
+
+.prose blockquote {
+  @apply border-l-4 border-primary-500 pl-4 italic text-gray-600 dark:text-gray-400;
+}
+
+.prose ul, .prose ol {
+  @apply mb-4 pl-6;
+}
+
+.prose li {
+  @apply mb-1;
+}
+
+.prose h1, .prose h2, .prose h3, .prose h4, .prose h5, .prose h6 {
+  @apply font-bold text-gray-900 dark:text-gray-100 mb-3;
+}
+
+.prose h1 { @apply text-2xl; }
+.prose h2 { @apply text-xl; }
+.prose h3 { @apply text-lg; }
+
+/* Custom range input styles */
+input[type="range"] {
+  @apply appearance-none bg-transparent cursor-pointer;
+}
+
+input[type="range"]::-webkit-slider-track {
+  @apply w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  @apply appearance-none h-4 w-4 bg-primary-500 rounded-full cursor-pointer;
+}
+
+input[type="range"]::-moz-range-track {
+  @apply w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg border-none;
+}
+
+input[type="range"]::-moz-range-thumb {
+  @apply h-4 w-4 bg-primary-500 rounded-full cursor-pointer border-none;
+}
+
+/* Focus styles */
+.focus-ring {
+  @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800;
+}
+
+/* Animation utilities */
+@keyframes pulse-subtle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

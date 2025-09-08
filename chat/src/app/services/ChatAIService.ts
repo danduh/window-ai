@@ -1,43 +1,35 @@
-import 'chrome-llm-ts';
-import { AILanguageModel, AILanguageModelFactory } from 'chrome-llm-ts';
-
-declare global {
-  const LanguageModel: AILanguageModelFactory;
-}
-
-let session: null | AILanguageModel;
+let session: any = null;
 
 export const resetModel = async () => {
-  // const capabilities = await window.ai.languageModel.capabilities();
-  await LanguageModel.availability();
+  const availability = await LanguageModel.availability();
+  return availability;
 };
 
 export const getModelCapabilities = async () => {
-  return await LanguageModel.availability();
-  // return await window.ai.languageModel.capabilities();
+  return await LanguageModel.params();
 };
-type NeverType = never;
 
 export const zeroShot = async (
   prompt: string,
   streaming = false,
   systemPrompt?: string,
   destroy = true
-) => {
+): Promise<string | ReadableStream<string>> => {
   if (session && destroy) {
     session.destroy();
     session = null;
   }
+  debugger
   if (!session) {
-    const createOptions = systemPrompt 
-      ? { initialPrompts: [{ role: "system" as const, content: systemPrompt }] }
+    const createOptions: any = systemPrompt 
+      ? { initialPrompts: [{ role: "system", content: systemPrompt }] }
       : {};
     
-    session = (await LanguageModel.create(createOptions)) as NeverType;
+    session = await LanguageModel.create(createOptions);
   }
 
   console.log(
-    `${session.tokensSoFar}/${session.maxTokens} (${session.tokensLeft} left)`
+    `${session.inputUsage}/${session.inputQuota} tokens used`
   );
   if (!streaming) {
     return await session.prompt(prompt);
