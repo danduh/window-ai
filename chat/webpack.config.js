@@ -34,6 +34,7 @@ module.exports = {
             main: './src/main.tsx',
             index: './src/index.html',
             baseHref: process.env.NODE_ENV === 'production' ? '/window-ai/' : '/',
+            // baseHref: '/',
             assets: ['./src/favicon.ico', './src/assets'],
             styles: ['./src/global.css'],
             outputHashing: process.env['NODE_ENV'] === 'production' ? 'all' : 'none',
