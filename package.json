@@ -4,7 +4,12 @@
   "description": "Demo for window.ai API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:chat": "nx build chat",
+    "build:chat:prod": "nx serve chat --configuration=production",
+    "prerender:chat": "node chat/scripts/prerender-react.js",
+    "build:seo": "npm run build:chat:prod && npm run prerender:chat",
+    "serve:chat": "nx serve chat"
   },
   "author": "",
   "license": "ISC",

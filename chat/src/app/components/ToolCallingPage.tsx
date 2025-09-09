@@ -4,6 +4,7 @@ import ChatInput from './ChatInput';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
 import { DocsRenderer } from '../tools/DocsRenderer';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 interface Message {
   id: number;
@@ -30,6 +31,8 @@ const schema = {
     },
   };
 const ToolCallingPage: React.FC = () => {
+  useSEOData(seoConfigs.toolCalling, '/tool-calling');
+  
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [session, setSession] = useState<any>(null);

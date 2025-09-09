@@ -10,8 +10,11 @@ import {
 import { DocsRenderer } from '../tools/DocsRenderer';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
 export function Summary() {
+  useSEOData(seoConfigs.summary, '/summary');
+  
   const [textArea, setTextArea] = useState<string>('');
   const [summary, setSummary] = useState<string>('');
   const [type, setType] = useState<SummaryOptions['type']>('key-points');
