@@ -36,6 +36,7 @@
     "rxjs": "^7.8.1"
   },
   "devDependencies": {
+    "@aws/nx-plugin": "0.39.4",
     "@babel/core": "^7.14.5",
     "@babel/preset-react": "^7.14.5",
     "@eslint/js": "^9.8.0",
@@ -43,7 +44,7 @@
     "@nestjs/testing": "^10.0.2",
     "@nx/devkit": "21.4.1",
     "@nx/esbuild": "21.4.1",
-    "@nx/eslint": "21.4.1",
+    "@nx/eslint": "21.5.1",
     "@nx/eslint-plugin": "21.4.1",
     "@nx/js": "21.4.1",
     "@nx/nest": "21.4.1",
@@ -87,7 +88,7 @@
     "jsdom": "~22.1.0",
     "nx": "21.4.1",
     "postcss": "8.4.38",
-    "prettier": "^2.6.2",
+    "prettier": "3.6.2",
     "raw-loader": "^4.0.2",
     "react-refresh": "~0.14.0",
     "sass": "^1.55.0",
@@ -102,6 +103,11 @@
   },
   "optionalDependencies": {
     "@rollup/rollup-linux-x64-gnu": "*"
+  },
+  "overrides": {
+    "@aws/nx-plugin": {
+      "nx": "21.3.9"
+    }
   },
   "nx": {}
 }
