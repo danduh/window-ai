@@ -3,7 +3,7 @@ name: Deploy to AWS S3 and CloudFront
 on: workflow_dispatch
 
 env:
-  NODE_VERSION: "18"
+  NODE_VERSION: "20.x"
 
 jobs:
   build-and-deploy:
@@ -18,14 +18,13 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: "npm"
-          cache-dependency-path: "portfolio/package-lock.json"
+          cache-dependency-path: "package-lock.json"
 
       - name: Install dependencies
         run: |
-          cd portfolio
-          npm ci
+          npm i --legacy-peer-deps
 
-      - name: Build Docusaurus site
+      - name: Build Chat site
         run: |
             npx nx build chat
 
@@ -38,8 +37,7 @@ jobs:
 
       - name: Deploy to S3
         run: |
-          cd portfolio
-          aws s3 sync build/ s3://${{ vars.S3_BUCKET_NAME }} --delete --exact-timestamps
+          aws s3 sync dist/chat/ s3://${{ vars.S3_BUCKET_NAME }}/windowai --delete --exact-timestamps
         env:
           AWS_S3_BUCKET: ${{ vars.S3_BUCKET_NAME }}
 
