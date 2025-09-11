@@ -225,7 +225,7 @@ export const HomePage: React.FC = () => {
           </p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link 
-              to="/chat" 
+              to="/chat/chat-api-documentation" 
               className="flex items-center p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-lg hover:shadow-md transition-all duration-200 group"
             >
               <svg className="w-8 h-8 text-blue-600 dark:text-blue-400 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">

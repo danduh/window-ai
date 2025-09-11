@@ -249,11 +249,23 @@ export function WriteRewritePage() {
         </header>
 
         <Tabs 
-          defaultTab="demo"
+          defaultTab="docs"
+          basePath="/writer"
           tabs={[
+            {
+              id: 'docs',
+              label: 'API Documentation',
+              path: '/writer-api-documentation',
+              content: (
+                <div className="max-w-none">
+                  <DocsRenderer docFile="Writer-ReWriter-API.md" initOpen={true} />
+                </div>
+              )
+            },
             {
               id: 'demo',
               label: 'Demo',
+              path: '/writer-demo',
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Settings Panel */}
@@ -569,15 +581,6 @@ export function WriteRewritePage() {
                       )}
                     </div>
                   </div>
-                </div>
-              )
-            },
-            {
-              id: 'docs',
-              label: 'API Documentation',
-              content: (
-                <div className="max-w-none">
-                  <DocsRenderer docFile="Writer-ReWriter-API.md" initOpen={true} />
                 </div>
               )
             }

@@ -344,11 +344,23 @@ Always be helpful and use the most appropriate tool for the user's request.`,
         </header>
 
         <Tabs
-          defaultTab="demo"
+          defaultTab="docs"
+          basePath="/tool-calling"
           tabs={[
+            {
+              id: 'docs',
+              label: 'API Documentation',
+              path: '/tool-calling-api-documentation',
+              content: (
+                <div className="max-w-none">
+                  <DocsRenderer docFile="Tool-Calling-API.md" initOpen={true} />
+                </div>
+              ),
+            },
             {
               id: 'demo',
               label: 'Demo',
+              path: '/tool-calling-demo',
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Tools Panel */}
@@ -471,15 +483,6 @@ Always be helpful and use the most appropriate tool for the user's request.`,
                       />
                     </div>
                   </div>
-                </div>
-              ),
-            },
-            {
-              id: 'docs',
-              label: 'API Documentation',
-              content: (
-                <div className="max-w-none">
-                  <DocsRenderer docFile="Tool-Calling-API.md" initOpen={true} />
                 </div>
               ),
             },

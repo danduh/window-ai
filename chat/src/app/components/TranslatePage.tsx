@@ -133,11 +133,23 @@ const TranslatePage: React.FC = () => {
         </header>
 
         <Tabs 
-          defaultTab="demo"
+          defaultTab="docs"
+          basePath="/translate"
           tabs={[
+            {
+              id: 'docs',
+              label: 'API Documentation',
+              path: '/translate-api-documentation',
+              content: (
+                <div className="max-w-none">
+                  <DocsRenderer docFile="Translate-API.md" initOpen={true} />
+                </div>
+              )
+            },
             {
               id: 'demo',
               label: 'Demo',
+              path: '/translate-demo',
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Settings Panel */}
@@ -272,15 +284,6 @@ const TranslatePage: React.FC = () => {
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            },
-            {
-              id: 'docs',
-              label: 'API Documentation',
-              content: (
-                <div className="max-w-none">
-                  <DocsRenderer docFile="Translate-API.md" initOpen={true} />
                 </div>
               )
             }

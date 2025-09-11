@@ -24,11 +24,31 @@ global.navigator = dom.window.navigator;
 // Routes to prerender
 const routes = [
   { path: '/', filename: 'index.html' },
+  
+  // Chat routes
   { path: '/chat', filename: 'chat.html' },
+  { path: '/chat/chat-api-documentation', filename: 'chat-api-documentation.html' },
+  { path: '/chat/chat-demo', filename: 'chat-demo.html' },
+  
+  // Tool Calling routes
   { path: '/tool-calling', filename: 'tool-calling.html' },
+  { path: '/tool-calling/tool-calling-api-documentation', filename: 'tool-calling-api-documentation.html' },
+  { path: '/tool-calling/tool-calling-demo', filename: 'tool-calling-demo.html' },
+  
+  // Summary routes
   { path: '/summary', filename: 'summary.html' },
+  { path: '/summary/summary-api-documentation', filename: 'summary-api-documentation.html' },
+  { path: '/summary/summary-demo', filename: 'summary-demo.html' },
+  
+  // Translate routes
   { path: '/translate', filename: 'translate.html' },
+  { path: '/translate/translate-api-documentation', filename: 'translate-api-documentation.html' },
+  { path: '/translate/translate-demo', filename: 'translate-demo.html' },
+  
+  // Writer routes
   { path: '/writer', filename: 'writer.html' },
+  { path: '/writer/writer-api-documentation', filename: 'writer-api-documentation.html' },
+  { path: '/writer/writer-demo', filename: 'writer-demo.html' },
 ];
 
 // Build configuration
@@ -123,6 +143,34 @@ function getSEODataForRoute(routePath) {
         },
       },
     },
+    '/chat/chat-api-documentation': {
+      title:
+        'Chat API Documentation - Prompt API Guide | Chrome AI APIs',
+      description:
+        "Comprehensive documentation for Chrome's Prompt API (Gemini Nano). Learn about session management, streaming responses, system messages, and advanced configuration options.",
+      keywords:
+        'Prompt API documentation, Gemini Nano API, Chrome AI API docs, chat API guide, AI integration',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Chat API Documentation',
+        description: 'Technical documentation for the Prompt API',
+      },
+    },
+    '/chat/chat-demo': {
+      title:
+        'Chat Demo - Try Gemini Nano in Your Browser | Chrome AI APIs',
+      description:
+        'Interactive demo of Gemini Nano chat functionality. Test on-device AI conversations with streaming responses, system message configuration, and advanced settings.',
+      keywords:
+        'AI chat demo, Gemini Nano demo, interactive AI, browser AI demo, prompt API demo',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'AI Chat Demo',
+        description: 'Interactive chat interface powered by Gemini Nano',
+      },
+    },
     '/tool-calling': {
       title:
         'Tool Calling API - Function calling with Chrome AI | Chrome AI APIs',
@@ -135,6 +183,34 @@ function getSEODataForRoute(routePath) {
         '@type': 'WebPage',
         name: 'Tool Calling API Demo',
         description: 'Function calling and structured AI interactions',
+      },
+    },
+    '/tool-calling/tool-calling-api-documentation': {
+      title:
+        'Tool Calling API Documentation - Function Calling Guide | Chrome AI APIs',
+      description:
+        "Complete guide to Chrome's Tool Calling API. Learn how to define tools, handle function calls, and integrate external services with AI-powered interactions.",
+      keywords:
+        'tool calling API documentation, function calling guide, Chrome AI tools, API integration docs',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Tool Calling API Documentation',
+        description: 'Technical documentation for the Tool Calling API',
+      },
+    },
+    '/tool-calling/tool-calling-demo': {
+      title:
+        'Tool Calling Demo - Interactive Function Calling | Chrome AI APIs',
+      description:
+        'Interactive demo of Chrome AI Tool Calling API. Test function calling with calculators, time tools, and custom functions in real-time.',
+      keywords:
+        'tool calling demo, function calling demo, interactive AI tools, Chrome AI demo',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Tool Calling Demo',
+        description: 'Interactive function calling demonstration',
       },
     },
     '/summary': {
@@ -151,6 +227,34 @@ function getSEODataForRoute(routePath) {
         description: 'AI-powered text summarization with multiple formats',
       },
     },
+    '/summary/summary-api-documentation': {
+      title:
+        'Summarization API Documentation - Text Summary Guide | Chrome AI APIs',
+      description:
+        "Complete documentation for Chrome's Summarization API. Learn about different summary types, format options, length settings, and implementation best practices.",
+      keywords:
+        'summarization API documentation, text summary guide, Chrome AI docs, summary API reference',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Summarization API Documentation',
+        description: 'Technical documentation for the Summarization API',
+      },
+    },
+    '/summary/summary-demo': {
+      title:
+        'Summarization Demo - AI Text Summary Generator | Chrome AI APIs',
+      description:
+        'Interactive demo of Chrome AI Summarization API. Test different summary formats like key-points, TL;DR, headlines, and teasers with customizable length.',
+      keywords:
+        'text summarization demo, AI summary generator, interactive summarizer, Chrome AI demo',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Text Summarization Demo',
+        description: 'Interactive text summarization tool',
+      },
+    },
     '/translate': {
       title:
         'Translation & Language Detection APIs - Multi-language AI translation | Chrome AI APIs',
@@ -165,6 +269,34 @@ function getSEODataForRoute(routePath) {
         description: 'Multi-language translation and detection',
       },
     },
+    '/translate/translate-api-documentation': {
+      title:
+        'Translation API Documentation - Language Translation Guide | Chrome AI APIs',
+      description:
+        "Comprehensive guide to Chrome's Translation and Language Detection APIs. Learn about language pairs, detection capabilities, and translation implementation.",
+      keywords:
+        'translation API documentation, language detection guide, Chrome AI translation docs, multilingual API',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Translation API Documentation',
+        description: 'Technical documentation for Translation APIs',
+      },
+    },
+    '/translate/translate-demo': {
+      title:
+        'Translation Demo - Multi-language AI Translator | Chrome AI APIs',
+      description:
+        'Interactive demo of Chrome AI Translation APIs. Test language detection and translation between multiple language pairs with on-device processing.',
+      keywords:
+        'translation demo, language translator demo, multilingual AI demo, Chrome translation demo',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Translation Demo',
+        description: 'Interactive multi-language translation tool',
+      },
+    },
     '/writer': {
       title:
         'Writer & Rewriter APIs - AI-powered content creation | Chrome AI APIs',
@@ -177,6 +309,34 @@ function getSEODataForRoute(routePath) {
         '@type': 'WebPage',
         name: 'Writer & Rewriter Demo',
         description: 'AI-powered content creation and enhancement',
+      },
+    },
+    '/writer/writer-api-documentation': {
+      title:
+        'Writer & Rewriter API Documentation - Content Creation Guide | Chrome AI APIs',
+      description:
+        "Complete guide to Chrome's Writer and Rewriter APIs. Learn about content generation, text transformation, tone adjustment, and writing assistant capabilities.",
+      keywords:
+        'writer API documentation, rewriter API guide, Chrome AI writing docs, content creation API',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Writer & Rewriter API Documentation',
+        description: 'Technical documentation for Writer and Rewriter APIs',
+      },
+    },
+    '/writer/writer-demo': {
+      title:
+        'Writer & Rewriter Demo - AI Content Creation Tool | Chrome AI APIs',
+      description:
+        'Interactive demo of Chrome AI Writer and Rewriter APIs. Create new content from prompts and transform existing text with tone, format, and length options.',
+      keywords:
+        'AI writer demo, text rewriter demo, content creation demo, writing assistant demo',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Writer & Rewriter Demo',
+        description: 'Interactive AI-powered writing and rewriting tool',
       },
     },
   };

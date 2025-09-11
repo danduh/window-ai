@@ -13,10 +13,10 @@ import {useGoogleAnalytics} from "./hooks/useGoogleAnalytics";
 const AppRouter: React.FC = () => {
   const [searchParams] = useSearchParams();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [inIframe, seInIframe] = useState<boolean>(() => {
+  const [inIframe] = useState<boolean>(() => {
     try {
       return searchParams.get('inIframe') ? JSON.parse(searchParams.get('inIframe') as string) : false;
-    } catch (er) {
+    } catch {
       return false;
     }
   });
@@ -50,7 +50,7 @@ const AppRouter: React.FC = () => {
                     <Link to="/"
                           onClick={() => trackUserInteraction('navigation_click', 'home_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Home</Link>
-                    <Link to="/chat"
+                    <Link to="/chat/chat-api-documentation"
                           onClick={() => trackUserInteraction('navigation_click', 'chat_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Chat</Link>
                     <Link to="/tool-calling"
@@ -134,7 +134,7 @@ const AppRouter: React.FC = () => {
                 <Link to="/"
                       onClick={() => trackUserInteraction('navigation_click', 'home_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Home</Link>
-                <Link to="/chat"
+                <Link to="/chat/chat-api-documentation"
                       onClick={() => trackUserInteraction('navigation_click', 'chat_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Chat</Link>
                 <Link to="/tool-calling"
@@ -190,11 +190,31 @@ const AppRouter: React.FC = () => {
           <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
             <Routes>
               <Route path="/" element={<HomePage/>}/>
-              <Route path="/chat" element={<ChatPage/>}/>
-              <Route path="/tool-calling" element={<ToolCallingPage/>}/>
-              <Route path="/summary" element={<Summary/>}/>
-              <Route path="/translate" element={<TranslatePage/>}/>
-              <Route path="/writer" element={<WriteRewritePage/>}/>
+              
+              {/* Chat routes */}
+              <Route path="/chat" element={<Navigate to="/chat/chat-api-documentation" replace/>}/>
+              <Route path="/chat/chat-api-documentation" element={<ChatPage/>}/>
+              <Route path="/chat/chat-demo" element={<ChatPage/>}/>
+              
+              {/* Tool Calling routes */}
+              <Route path="/tool-calling" element={<Navigate to="/tool-calling/tool-calling-api-documentation" replace/>}/>
+              <Route path="/tool-calling/tool-calling-api-documentation" element={<ToolCallingPage/>}/>
+              <Route path="/tool-calling/tool-calling-demo" element={<ToolCallingPage/>}/>
+              
+              {/* Summary routes */}
+              <Route path="/summary" element={<Navigate to="/summary/summary-api-documentation" replace/>}/>
+              <Route path="/summary/summary-api-documentation" element={<Summary/>}/>
+              <Route path="/summary/summary-demo" element={<Summary/>}/>
+              
+              {/* Translate routes */}
+              <Route path="/translate" element={<Navigate to="/translate/translate-api-documentation" replace/>}/>
+              <Route path="/translate/translate-api-documentation" element={<TranslatePage/>}/>
+              <Route path="/translate/translate-demo" element={<TranslatePage/>}/>
+              
+              {/* Writer/Rewriter routes */}
+              <Route path="/writer" element={<Navigate to="/writer/writer-api-documentation" replace/>}/>
+              <Route path="/writer/writer-api-documentation" element={<WriteRewritePage/>}/>
+              <Route path="/writer/writer-demo" element={<WriteRewritePage/>}/>
               <Route path="*" element={<Navigate to="/" replace/>}/>
             </Routes>
           </main>

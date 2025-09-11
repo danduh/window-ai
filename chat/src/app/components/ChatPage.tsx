@@ -1,6 +1,7 @@
 /// <reference path="../types/dom-chromium-ai.d.ts" />
 
 import React, {useEffect, useState, useRef} from 'react';
+import { Link } from 'react-router-dom';
 import ChatBox from './ChatBox';
 import ChatInput from './ChatInput';
 import ThemeToggle from './ThemeToggle';
@@ -28,7 +29,13 @@ const ChatPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [useStream, setUseStream] = useState<boolean>(true);
   const [temperature, setTemperature] = useState<number>(1);
-  const [modelCaps, setModelCaps] = useState<any>();
+  const [modelCaps, setModelCaps] = useState<{
+    defaultTopK?: number;
+    maxTopK?: number;
+    defaultTemperature?: number;
+    maxTemperature?: number;
+    available?: boolean;
+  }>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSettings, setShowSettings] = useState<boolean>(false);
   const messageIdCounter = useRef<number>(0);
@@ -166,11 +173,23 @@ const ChatPage: React.FC = () => {
         </header>
 
         <Tabs 
-          defaultTab="demo"
+          defaultTab="docs"
+          basePath="/chat"
           tabs={[
+            {
+              id: 'docs',
+              label: 'API Documentation',
+              path: '/chat-api-documentation',
+              content: (
+                <div className="max-w-none">
+                  <DocsRenderer docFile="Chat-API.md" initOpen={true} />
+                </div>
+              )
+            },
             {
               id: 'demo',
               label: 'Demo',
+              path: '/chat-demo',
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Settings Panel */}
@@ -278,15 +297,6 @@ const ChatPage: React.FC = () => {
                       <ChatInput onSend={handleUserMessage} disabled={isLoading} />
                     </div>
                   </div>
-                </div>
-              )
-            },
-            {
-              id: 'docs',
-              label: 'API Documentation',
-              content: (
-                <div className="max-w-none">
-                  <DocsRenderer docFile="Chat-API.md" initOpen={true} />
                 </div>
               )
             }

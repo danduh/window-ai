@@ -1,18 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 interface Tab {
   id: string;
   label: string;
   content: React.ReactNode;
+  path?: string; // URL path for the tab
 }
 
 interface TabsProps {
   tabs: Tab[];
   defaultTab?: string;
+  basePath?: string; // Base path for constructing URLs
 }
 
-const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
-  const [activeTab, setActiveTab] = useState(defaultTab || tabs[0]?.id);
+const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab, basePath = '' }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine initial tab based on URL or default
+  const getInitialTab = () => {
+    if (basePath) {
+      const currentPath = location.pathname;
+      const tab = tabs.find(t => t.path && currentPath.includes(t.path));
+      if (tab) return tab.id;
+    }
+    return defaultTab || tabs[0]?.id;
+  };
+  
+  const [activeTab, setActiveTab] = useState(getInitialTab);
+  
+  // Update active tab when location changes
+  useEffect(() => {
+    if (basePath) {
+      const currentPath = location.pathname;
+      const tab = tabs.find(t => t.path && currentPath.includes(t.path));
+      if (tab) {
+        setActiveTab(tab.id);
+      }
+    }
+  }, [location.pathname, basePath, tabs]);
+  
+  const handleTabChange = (tabId: string) => {
+    setActiveTab(tabId);
+    
+    // Update URL if basePath and tab path are provided
+    const tab = tabs.find(t => t.id === tabId);
+    if (basePath && tab?.path) {
+      navigate(`${basePath}${tab.path}`);
+    }
+  };
 
   const activeTabContent = tabs.find(tab => tab.id === activeTab)?.content;
 
@@ -24,7 +61,7 @@ const Tabs: React.FC<TabsProps> = ({ tabs, defaultTab }) => {
           {tabs.map((tab) => (
             <button
               key={tab.id}
-              onClick={() => setActiveTab(tab.id)}
+              onClick={() => handleTabChange(tab.id)}
               className={`whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm transition-colors duration-200 ${
                 activeTab === tab.id
                   ? 'border-primary-500 text-primary-600 dark:text-primary-400'

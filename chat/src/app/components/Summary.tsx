@@ -171,11 +171,23 @@ export function Summary() {
         </header>
 
         <Tabs 
-          defaultTab="demo"
+          defaultTab="docs"
+          basePath="/summary"
           tabs={[
+            {
+              id: 'docs',
+              label: 'API Documentation',
+              path: '/summary-api-documentation',
+              content: (
+                <div className="max-w-none">
+                  <DocsRenderer docFile="Summary-API.md" initOpen={true} />
+                </div>
+              )
+            },
             {
               id: 'demo',
               label: 'Demo',
+              path: '/summary-demo',
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Settings Panel */}
@@ -330,15 +342,6 @@ export function Summary() {
                       </div>
                     </div>
                   </div>
-                </div>
-              )
-            },
-            {
-              id: 'docs',
-              label: 'API Documentation',
-              content: (
-                <div className="max-w-none">
-                  <DocsRenderer docFile="Summary-API.md" initOpen={true} />
                 </div>
               )
             }
