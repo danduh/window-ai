@@ -9,6 +9,7 @@ import {getModelCapabilities, zeroShot} from '../services/ChatAIService';
 import {DocsRenderer} from "../tools/DocsRenderer";
 import {isChromeCanary} from "../tools/isCanary";
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
+import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 interface Message {
   id: number;
@@ -20,6 +21,7 @@ const isCanary = isChromeCanary()
 
 const ChatPage: React.FC = () => {
   useSEOData(seoConfigs.chat, '/chat');
+  const { trackChatEvent, trackUserInteraction, trackError } = useGoogleAnalytics();
   
   const [systemMsg, setSystemMsg] = useState<string>('');
   const [destroy, setDestroy] = useState<boolean>(false);
@@ -76,16 +78,38 @@ const ChatPage: React.FC = () => {
   };
 
   const handleUserMessage = async (text: string) => {
+    const startTime = Date.now();
     setIsLoading(true);
     addMessage(text, 'User');
+    
+    // Track chat event
+    trackChatEvent('message_sent', {
+      messageLength: text.length,
+      useStream,
+      temperature,
+      hasSystemMessage: Boolean(systemMsg)
+    });
     
     try {
       const response = await zeroShot(text, useStream, systemMsg, destroy);
       if (response) {
         addMessage(response, 'Bot');
+        const responseTime = Date.now() - startTime;
+        trackChatEvent('response_received', {
+          responseTime,
+          useStream,
+          temperature,
+          hasSystemMessage: Boolean(systemMsg)
+        });
       }
     } catch (error) {
       console.error('Error getting AI response:', error);
+      trackError('chat_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        useStream,
+        temperature,
+        hasSystemMessage: Boolean(systemMsg)
+      });
       addMessage('Sorry, I encountered an error. Please try again.', 'Bot');
     } finally {
       setIsLoading(false);
@@ -95,6 +119,7 @@ const ChatPage: React.FC = () => {
   const clearChat = () => {
     setMessages([]);
     messageIdCounter.current = 0;
+    trackUserInteraction('clear_chat', 'chat_clear_button');
   };
 
   return (
@@ -115,7 +140,10 @@ const ChatPage: React.FC = () => {
           </div>
           <div className="flex items-center space-x-3">
             <button
-              onClick={() => setShowSettings(!showSettings)}
+              onClick={() => {
+                setShowSettings(!showSettings);
+                trackUserInteraction('toggle_settings', 'settings_button', { opened: !showSettings });
+              }}
               className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
               aria-label="Settings"
             >

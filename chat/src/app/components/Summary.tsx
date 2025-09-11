@@ -11,9 +11,11 @@ import { DocsRenderer } from '../tools/DocsRenderer';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
+import { useGoogleAnalytics } from '../hooks/useGoogleAnalytics';
 
 export function Summary() {
   useSEOData(seoConfigs.summary, '/summary');
+  const { trackAIToolUsage, trackUserInteraction, trackError } = useGoogleAnalytics();
   
   const [textArea, setTextArea] = useState<string>('');
   const [summary, setSummary] = useState<string>('');
@@ -29,7 +31,19 @@ export function Summary() {
   const handleSummarize = async () => {
     if (!textArea.trim()) return;
     
+    const startTime = Date.now();
     setIsLoading(true);
+    
+    // Track summary usage
+    trackAIToolUsage('summarizer', 'summarize_start', {
+      inputLength: textArea.length,
+      type,
+      format,
+      length,
+      useStreaming,
+      hasSharedContext: Boolean(sharedContext.trim())
+    });
+    
     try {
       const options: SummaryOptions = {
         type,
@@ -56,8 +70,27 @@ export function Summary() {
         const result = await summarizeText(textArea, options);
         setSummary(result);
       }
+      
+      const processingTime = Date.now() - startTime;
+      trackAIToolUsage('summarizer', 'summarize_success', {
+        processingTime,
+        inputLength: textArea.length,
+        type,
+        format,
+        length,
+        useStreaming
+      });
+      
     } catch (error) {
       console.error('Summarization error:', error);
+      trackError('summarization_error', {
+        error: error instanceof Error ? error.message : 'Unknown error',
+        inputLength: textArea.length,
+        type,
+        format,
+        length,
+        useStreaming
+      });
       setSummary('Error: ' + (error as Error).message);
     } finally {
       setIsLoading(false);
