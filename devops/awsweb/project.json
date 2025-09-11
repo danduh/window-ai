@@ -1,0 +1,97 @@
+{
+  "name": "@monorepo/awsweb",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "devops/awsweb/src",
+  "projectType": "application",
+  "tags": [],
+  "metadata": {
+    "generator": "ts#infra"
+  },
+  "targets": {
+    "bootstrap": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk bootstrap"
+      }
+    },
+    "build": {
+      "dependsOn": ["lint", "compile", "test", "synth"]
+    },
+    "cdk": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk"
+      }
+    },
+    "compile": {
+      "executor": "nx:run-commands",
+      "outputs": ["{workspaceRoot}/dist/devops/awsweb/tsc"],
+      "options": {
+        "command": "tsc --build tsconfig.lib.json",
+        "cwd": "{projectRoot}"
+      }
+    },
+    "deploy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk deploy --all --require-approval=never"
+      }
+    },
+    "deploy-windowai": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "DEPLOY_SITE=windowai npx cdk deploy static-websites-shared website-windowai --require-approval=never"
+      }
+    },
+    "deploy-shared": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk deploy static-websites-shared --require-approval=never"
+      }
+    },
+    "deploy-ci": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk deploy --require-approval=never --app ../../dist/devops/awsweb/cdk.out"
+      }
+    },
+    "destroy": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk destroy {args.stackName} --require-approval=never"
+      }
+    },
+    "destroy-ci": {
+      "executor": "nx:run-commands",
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk destroy --require-approval=never --app ../../dist/devops/awsweb/cdk.out"
+      }
+    },
+    "synth": {
+      "cache": true,
+      "executor": "nx:run-commands",
+      "inputs": ["default"],
+      "outputs": ["{workspaceRoot}/dist/devops/awsweb/cdk.out"],
+      "dependsOn": ["^build", "compile"],
+      "options": {
+        "cwd": "devops/awsweb",
+        "command": "npx cdk synth"
+      }
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": ["{options.reportsDirectory}"],
+      "options": {
+        "reportsDirectory": "../../coverage/devops/awsweb"
+      }
+    }
+  }
+}

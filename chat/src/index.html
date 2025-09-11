@@ -26,6 +26,18 @@
     <!-- Preconnect to external domains -->
     <link rel="preconnect" href="https://fonts.googleapis.com"/>
     <link rel="dns-prefetch" href="https://fonts.googleapis.com"/>
+    
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ZC3N8B4VGB"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-ZC3N8B4VGB', {
+        page_title: document.title,
+        page_location: window.location.href
+      });
+    </script>
 </head>
 <body>
 <div id="root" class="main-wrapper"></div>
