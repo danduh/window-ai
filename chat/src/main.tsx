@@ -9,8 +9,8 @@ const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 
-const basename = process.env.NODE_ENV === 'production' ? '/window-ai/' : '/';
-// const basename = '/';
+// const basename = process.env.NODE_ENV === 'production' ? '/window-ai/' : '/';
+const basename = '/';
 
 root.render(
   <StrictMode>
