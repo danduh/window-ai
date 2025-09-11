@@ -27,6 +27,7 @@ jobs:
       - name: Build Chat site
         run: |
             npx nx build chat
+            npm run prerender:chat
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
