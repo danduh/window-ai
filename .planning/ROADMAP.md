@@ -27,7 +27,10 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
   4. A typed persistence module exposes `getRecipes` / `getRecipe` / `saveRecipe` / `deleteRecipe` and is the only path that reads or writes recipe state from the page
   5. When `navigator.modelContext` is undefined, a clearly visible banner explains the Chrome 146+ Canary requirement and the `chrome://flags/#WebMCP for testing` toggle, while the rest of the page (recipe browsing) remains usable
   6. TypeScript declarations for `navigator.modelContext`, `ModelContext`, `registerTool`, `provideContext`, and tool descriptor shapes compile cleanly across `chat/` (no `any` casts at the API surface)
-**Plans**: TBD
+**Plans**: 3 plans
+- [ ] 01-01-PLAN.md — Persistence + WebMCP types (idb wrapper, recipe seeds, ambient navigator.modelContext)
+- [ ] 01-02-PLAN.md — RecipeWorkbenchPage + sub-components (header, picker, ingredients, steps, missing-flag banner)
+- [ ] 01-03-PLAN.md — Routing + nav links + SEO + prerender (mounts the page, ships nav entries, wires useSEOData)
 **UI hint**: yes
 
 ### Phase 2: WebMCP Tools + In-Page Agent
