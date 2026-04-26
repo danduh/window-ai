@@ -83,31 +83,31 @@ Which phases cover which requirements. Updated by gsd-roadmapper during roadmap 
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| NAV-01 | TBD | Pending |
-| NAV-02 | TBD | Pending |
-| NAV-03 | TBD | Pending |
-| UI-01 | TBD | Pending |
-| UI-02 | TBD | Pending |
-| UI-03 | TBD | Pending |
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| MCP-01 | TBD | Pending |
-| MCP-02 | TBD | Pending |
-| MCP-03 | TBD | Pending |
-| MCP-04 | TBD | Pending |
-| MCP-05 | TBD | Pending |
-| AGENT-01 | TBD | Pending |
-| AGENT-02 | TBD | Pending |
-| AGENT-03 | TBD | Pending |
-| DOCS-01 | TBD | Pending |
-| DOCS-02 | TBD | Pending |
+| NAV-01 | Phase 1 | Mapped |
+| NAV-02 | Phase 3 | Mapped |
+| NAV-03 | Phase 1 | Mapped |
+| UI-01 | Phase 1 | Mapped |
+| UI-02 | Phase 1 | Mapped |
+| UI-03 | Phase 1 | Mapped |
+| DATA-01 | Phase 1 | Mapped |
+| DATA-02 | Phase 1 | Mapped |
+| DATA-03 | Phase 1 | Mapped |
+| MCP-01 | Phase 1 | Mapped |
+| MCP-02 | Phase 2 | Mapped |
+| MCP-03 | Phase 2 | Mapped |
+| MCP-04 | Phase 2 | Mapped |
+| MCP-05 | Phase 2 | Mapped |
+| AGENT-01 | Phase 2 | Mapped |
+| AGENT-02 | Phase 2 | Mapped |
+| AGENT-03 | Phase 2 | Mapped |
+| DOCS-01 | Phase 3 | Mapped |
+| DOCS-02 | Phase 3 | Mapped |
 
 **Coverage:**
 - v1 requirements: 19 total
-- Mapped to phases: 0 (TBD — populated by roadmapper)
-- Unmapped: 19 ⚠️ (expected pre-roadmap)
+- Mapped to phases: 19 (100%)
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-26*
-*Last updated: 2026-04-26 after initialization*
+*Last updated: 2026-04-26 after roadmap creation*
