@@ -31,6 +31,15 @@ declare global {
       role: "system" | "user" | "assistant";
       content: string;
     }>;
+    /**
+     * Chrome 147 Canary — JSON-Schema-shaped output constraint that activates
+     * tool-use. When `tools` is also provided, the model auto-invokes the
+     * matching tool's `execute` and the prompt() response is the tool's
+     * stringified return value. See chat/src/app/components/ToolCallingPage.tsx
+     * for the working precedent (the W3C `expectedInputs/expectedOutputs`
+     * shape is not yet implemented in 147).
+     */
+    responseFormat?: object;
   }
 
   abstract class LanguageModel extends EventTarget {
