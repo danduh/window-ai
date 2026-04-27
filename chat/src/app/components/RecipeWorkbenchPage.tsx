@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
@@ -13,6 +13,11 @@ import { RecipeHeader } from './RecipeWorkbench/RecipeHeader';
 import { IngredientsList } from './RecipeWorkbench/IngredientsList';
 import { StepsList } from './RecipeWorkbench/StepsList';
 import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
+import { RECIPE_TOOLS } from '../services/recipeTools';
+import { wrapToolsWithEvents, type ToolCallEvent } from '../services/toolAdapter';
+import { subscribeRecipeStore, setActiveRecipeId } from '../services/recipeStore';
+import { ToolRegistrationPill, type ToolRegistrationStatus } from './RecipeWorkbench/ToolRegistrationPill';
+import { AgentDrawer } from './RecipeWorkbench/AgentDrawer';
 
 interface WorkbenchPanelProps {
   recipes: Recipe[];
@@ -48,11 +53,18 @@ const WorkbenchPanel: React.FC<WorkbenchPanelProps> = ({ recipes, activeId, load
   );
 };
 
+interface RegistrationState {
+  status: ToolRegistrationStatus;
+  count: number;
+}
+
 export const RecipeWorkbenchPage: React.FC = () => {
   useSEOData(seoConfigs.webmcp, '/webmcp');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [registration, setRegistration] = useState<RegistrationState>({ status: 'idle', count: 0 });
+  const [liveToolName, setLiveToolName] = useState<string | null>(null);
 
   // Mount-time: idempotent seed (count-gated in seedIfEmpty), then load.
   // The `cancelled` flag handles React 19 StrictMode double-invoke per
@@ -77,6 +89,64 @@ export const RecipeWorkbenchPage: React.FC = () => {
     return () => {
       cancelled = true;
     };
+  }, []);
+
+  // Tool registration mount-effect. Single AbortController per mount;
+  // controller.abort() in cleanup unregisters every tool atomically (per W3C
+  // WebMCP spec — there is no separate `unregisterTool` method).
+  // See 02-RESEARCH.md §Pattern 1 + §Pitfall 1 (empty deps) + §Pitfall 2 (controller inside effect).
+  useEffect(() => {
+    if (typeof navigator === 'undefined' || !navigator.modelContext) {
+      setRegistration({ status: 'unavailable', count: 0 });
+      return;
+    }
+    const controller = new AbortController();
+    // Wrap every tool with the SAME event dispatcher used by AgentDrawer's session,
+    // so external-agent calls (Tool Inspector) also fire the indicator UI.
+    // setLiveToolName is a stable React setter — satisfies AgentDrawer's
+    // `onLiveToolNameChange` "Pass a stable callback" contract (I1 fix).
+    const onToolEvent = (e: ToolCallEvent): void => {
+      if (e.kind === 'pending') {
+        setLiveToolName(e.toolName);
+      } else {
+        setLiveToolName(null);
+      }
+    };
+    const wrapped = wrapToolsWithEvents(RECIPE_TOOLS, onToolEvent);
+    const registered: string[] = [];
+    try {
+      for (const tool of wrapped) {
+        navigator.modelContext.registerTool(tool, { signal: controller.signal });
+        registered.push(tool.name);
+      }
+      setRegistration({ status: 'success', count: registered.length });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Unknown error';
+      // eslint-disable-next-line no-console
+      console.error('[RecipeWorkbench] Tool registration failed:', message);
+      setRegistration({
+        status: registered.length > 0 ? 'partial' : 'error',
+        count: registered.length,
+      });
+    }
+    return () => controller.abort();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Subscribe to recipeStore. Mutating tool handlers call notifyRecipeStore()
+  // after saveRecipe(); the listener re-fetches and updates React state.
+  // See 02-RESEARCH.md §Pattern 3 + §Pitfall #5.
+  useEffect(() => {
+    const unsub = subscribeRecipeStore(() => {
+      getRecipes()
+        .then((all) => setRecipes(all))
+        .catch((err: unknown) => {
+          const message = err instanceof Error ? err.message : 'Unknown error';
+          // eslint-disable-next-line no-console
+          console.error('[RecipeWorkbench] Failed to refresh recipes after store notify:', message);
+        });
+    });
+    return unsub;
   }, []);
 
   // Tabs ordering gotcha (PATTERNS §RecipeWorkbenchPage): the docs tab MUST be
