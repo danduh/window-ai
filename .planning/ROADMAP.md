@@ -11,7 +11,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 ## Phases
 
 - [x] **Phase 1: Foundation Skeleton** - `/webmcp` route mounts, recipe UI renders from IndexedDB-seeded data, type definitions for `navigator.modelContext` exist, missing-flag banner appears in unsupported browsers
-- [ ] **Phase 2: WebMCP Tools + In-Page Agent** - All 8 tools registered via `navigator.modelContext`, in-page LanguageModel chat panel invokes them via tool-calling, external Tool Inspector verifies discoverability
+- [x] **Phase 2: WebMCP Tools + In-Page Agent** - All 8 tools registered via `navigator.modelContext`, in-page LanguageModel chat panel invokes them via tool-calling, external Tool Inspector verifies discoverability
 - [ ] **Phase 3: Documentation + SEO** - `/webmcp/docs` markdown explainer route mirrors existing `/writer`/`/summary` doc style; SEO metadata applied to both routes
 
 ## Phase Details
@@ -63,7 +63,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Skeleton | 3/3 | Complete | 2026-04-27 |
-| 2. WebMCP Tools + In-Page Agent | 3/3 | Awaiting human UAT | - |
+| 2. WebMCP Tools + In-Page Agent | 3/3 | Complete | 2026-04-27 |
 | 3. Documentation + SEO | 0/0 | Not started | - |
 
 ## Coverage Validation
