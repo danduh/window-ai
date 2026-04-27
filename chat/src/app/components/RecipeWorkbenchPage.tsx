@@ -58,6 +58,23 @@ interface RegistrationState {
   count: number;
 }
 
+// Module-scope reference to the most recent registration controller. React
+// <StrictMode> (and Vite HMR) re-mount the page synchronously: cleanup fires
+// `controller.abort()` but Chrome 146 Canary's `navigator.modelContext` does
+// NOT synchronously remove the entries from its name-map, so the second mount
+// would throw `Duplicate tool name` on the first `registerTool` call. Eagerly
+// aborting any prior controller here — BEFORE the new mount registers — gives
+// the implementation an extra opportunity to reconcile, and the per-tool
+// try/catch below tolerates any residual desync. See debug session
+// `webmcp-duplicate-tool-name`.
+let previousRegistrationController: AbortController | null = null;
+
+// DOMException name thrown by Chrome 146 Canary's navigator.modelContext when
+// a tool with the same name is already registered. We treat this as success
+// (the tool IS registered, just from our previous-mount handler — same code,
+// same shape, same behavior, since RECIPE_TOOLS is module-static).
+const DUPLICATE_NAME_PATTERN = /duplicate tool name|already registered/i;
+
 export const RecipeWorkbenchPage: React.FC = () => {
   useSEOData(seoConfigs.webmcp, '/webmcp');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
@@ -96,12 +113,26 @@ export const RecipeWorkbenchPage: React.FC = () => {
   // controller.abort() in cleanup unregisters every tool atomically (per W3C
   // WebMCP spec — there is no separate `unregisterTool` method).
   // See 02-RESEARCH.md §Pattern 1 + §Pitfall 1 (empty deps) + §Pitfall 2 (controller inside effect).
+  //
+  // Hardening (debug `webmcp-duplicate-tool-name`):
+  //  (1) Abort any prior controller from a previous synchronous mount cycle
+  //      (StrictMode / HMR) BEFORE registering, since Canary may not have
+  //      synchronously processed the cleanup yet.
+  //  (2) Per-tool try/catch: swallow "Duplicate tool name" since it means the
+  //      same name is already mapped to our previous-mount handler. All other
+  //      errors fall through to the existing partial/error branch.
   useEffect(() => {
     if (typeof navigator === 'undefined' || !navigator.modelContext) {
       setRegistration({ status: 'unavailable', count: 0 });
       return;
     }
+    // (1) Defensive: abort any controller still hanging around from a prior
+    // mount cycle that the cleanup hasn't fully reconciled yet.
+    if (previousRegistrationController && !previousRegistrationController.signal.aborted) {
+      previousRegistrationController.abort();
+    }
     const controller = new AbortController();
+    previousRegistrationController = controller;
     // Wrap every tool with the SAME event dispatcher used by AgentDrawer's session,
     // so external-agent calls (Tool Inspector) also fire the indicator UI.
     // setLiveToolName is a stable React setter — satisfies AgentDrawer's
@@ -115,22 +146,44 @@ export const RecipeWorkbenchPage: React.FC = () => {
     };
     const wrapped = wrapToolsWithEvents(RECIPE_TOOLS, onToolEvent);
     const registered: string[] = [];
-    try {
-      for (const tool of wrapped) {
+    let fatalError: unknown = null;
+    for (const tool of wrapped) {
+      try {
         navigator.modelContext.registerTool(tool, { signal: controller.signal });
         registered.push(tool.name);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        if (DUPLICATE_NAME_PATTERN.test(message)) {
+          // (2) Already registered from a prior synchronous mount that hasn't
+          // reconciled yet. Same name → same handler shape (RECIPE_TOOLS is
+          // module-static), so treat as success. The new controller still
+          // governs the lifetime of THIS mount's registration intent; if the
+          // prior abort eventually lands the implementation will re-add via
+          // our same call, and the cleanup will catch it.
+          registered.push(tool.name);
+          continue;
+        }
+        fatalError = err;
+        break;
       }
-      setRegistration({ status: 'success', count: registered.length });
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Unknown error';
+    }
+    if (fatalError) {
+      const message = fatalError instanceof Error ? fatalError.message : 'Unknown error';
       // eslint-disable-next-line no-console
       console.error('[RecipeWorkbench] Tool registration failed:', message);
       setRegistration({
         status: registered.length > 0 ? 'partial' : 'error',
         count: registered.length,
       });
+    } else {
+      setRegistration({ status: 'success', count: registered.length });
     }
-    return () => controller.abort();
+    return () => {
+      controller.abort();
+      if (previousRegistrationController === controller) {
+        previousRegistrationController = null;
+      }
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
