@@ -71,6 +71,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [session, setSession] = useState<LanguageModel | null>(null);
   const [unavailable, setUnavailable] = useState<boolean>(false);
+  const [toolUseUnavailable, setToolUseUnavailable] = useState<boolean>(false);
   const [sessionInitFailed, setSessionInitFailed] = useState<boolean>(false);
   const messageIdCounter = useRef<number>(0);
   const eventIdCounter = useRef<number>(0);
@@ -116,9 +117,10 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
           setUnavailable(true);
           return;
         }
+        const adaptedTools = toLanguageModelTools(RECIPE_TOOLS, onToolEvent);
         const newSession = await LanguageModel.create({
           initialPrompts: [{ role: 'system', content: SYSTEM_PROMPT }],
-          tools: toLanguageModelTools(RECIPE_TOOLS, onToolEvent),
+          tools: adaptedTools,
         });
         if (cancelled) {
           newSession.destroy();
@@ -128,9 +130,22 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
         setSession(newSession);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
+        // Chrome 146 Canary gates tool-use behind a separate feature flag.
+        // When the gate is off, `create({tools})` throws with this exact
+        // message. Per RESEARCH §AGENT-01 the locked decision is to surface
+        // a banner — graceful degradation, NOT silent fallback to a no-tools
+        // chat. Detect by message-substring match (Chrome does not expose a
+        // structured error code for this gate today).
+        const isToolUseGate = /tool use feature is not enabled/i.test(message);
         // eslint-disable-next-line no-console
         console.error('[AgentDrawer] Failed to create LanguageModel session:', message);
-        if (!cancelled) setSessionInitFailed(true);
+        if (!cancelled) {
+          if (isToolUseGate) {
+            setToolUseUnavailable(true);
+          } else {
+            setSessionInitFailed(true);
+          }
+        }
       }
     })();
     return () => {
@@ -198,7 +213,8 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
           </div>
         )}
         {unavailable && <LanguageModelUnavailable />}
-        <ChatInput onSend={handleUserMessage} disabled={isLoading || unavailable || (!session && !sessionInitFailed)} />
+        {toolUseUnavailable && <LanguageModelUnavailable variant="tool-use" />}
+        <ChatInput onSend={handleUserMessage} disabled={isLoading || unavailable || toolUseUnavailable || (!session && !sessionInitFailed)} />
       </div>
     </div>
   );
