@@ -34,7 +34,19 @@ const TOOL_USE_RESPONSE_FORMAT = {
   },
 };
 
-const SYSTEM_PROMPT = `You are a recipe assistant for the WebMCP Recipe Workbench. The user is editing a saved recipe. You can call tools that operate on the workbench's IndexedDB-backed recipes. When the user asks for multiple actions in one message (e.g. "scale to 6 and swap milk for oat milk"), call ALL the relevant tools — they can run concurrently. Always confirm what you did in plain language. If a tool returns {"error": "..."}, explain the problem to the user and suggest a fix (e.g. "I couldn't find an ingredient called 'milk' — the recipe has buttermilk; should I swap that?").`;
+// Mirroring ToolCallingPage.tsx's prompt shape: lead with the role, embed
+// the tool list inline (the model uses it to choose), then closing guidance.
+const SYSTEM_PROMPT = `You are a recipe assistant for the WebMCP Recipe Workbench with access to recipe-editing tools. Use the available tools to help users with their requests. When using tools, explain what you're doing and provide clear, helpful responses based on the tool results.
+Available tools:
+- listRecipes: List all saved recipes with id, title, and serving count
+- getRecipe: Get the full details of a recipe by id
+- generateShoppingList: Generate a consolidated shopping list across recipes
+- selectRecipe: Make a recipe the currently active one in the workbench
+- scaleRecipe: Scale a recipe to a new serving count (proportional ingredient quantities)
+- swapIngredient: Replace one ingredient name with another (case-insensitive substring match)
+- addIngredient: Add a new ingredient to a recipe
+- removeIngredient: Remove an ingredient from a recipe (case-insensitive substring match)
+When the user asks for multiple actions in one message (e.g. "scale to 6 and swap milk for oat milk"), call ALL the relevant tools. Always be helpful and use the most appropriate tool for the user's request.`;
 
 interface AgentDrawerProps {
   /**
@@ -127,12 +139,11 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
         return;
       }
       try {
-        const availability = await LanguageModel.availability();
-        if (cancelled) return;
-        if (availability !== 'available') {
-          setUnavailable(true);
-          return;
-        }
+        // Mirror ToolCallingPage.tsx — call create() directly without a
+        // pre-create availability() check. The pre-check fingerprints a
+        // plain (no-tools) LanguageModel session and Chrome 147 then refuses
+        // to upgrade the next create() to tool-use mode (returns "Tool use
+        // feature is not enabled"). Dropping the check fixes this.
         const adaptedTools = toLanguageModelTools(RECIPE_TOOLS, onToolEvent);
         const newSession = await LanguageModel.create({
           responseFormat: TOOL_USE_RESPONSE_FORMAT,
