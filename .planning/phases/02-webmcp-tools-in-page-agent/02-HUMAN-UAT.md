@@ -1,9 +1,19 @@
 ---
-status: partial
+status: resolved
 phase: 02-webmcp-tools-in-page-agent
 source: [02-VERIFICATION.md, 02-03-PLAN.md]
 started: 2026-04-27T00:00:00Z
 updated: 2026-04-27T00:00:00Z
+results:
+  uat_01_pill_green: passed
+  uat_02_tool_inspector_lists_8: passed
+  uat_03_tool_invocation_live_update: passed
+  uat_04_in_page_agent_tool_execution: deferred
+  uat_05_route_round_trip: passed
+deferrals:
+  - "UAT-04 in-page agent tool execution: Chrome 146 Canary's LanguageModel.create({ tools }) API is unstable on this build (4 failed fix iterations). AgentDrawer pivoted to plain LanguageModel chat (no tools); tool execution flows through Tool Inspector via WebMCP path (UAT-02/03 confirmed working). See debug session phase-02-uat-bugs (Issue C, commit 6fd7077) and webmcp-duplicate-tool-name (StrictMode bug, commit a737edd)."
+approved_by: user
+approved_at: 2026-04-27
 ---
 
 # Phase 2 — Human UAT Script

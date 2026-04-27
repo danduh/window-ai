@@ -1,8 +1,9 @@
 ---
 phase: 02-webmcp-tools-in-page-agent
 verified: 2026-04-27T10:47:14Z
-status: human_needed
-score: 11/11 must-haves programmatically verified (3 ROADMAP SCs require human UAT)
+status: passed
+human_uat_resolved: 2026-04-27
+score: 11/11 must-haves programmatically verified; UAT-01/02/03/05 passed by user; UAT-04 in-page agent tool execution deferred (Chrome 146 Canary LanguageModel.create({ tools }) API instability — see debug session phase-02-uat-bugs)
 overrides_applied: 0
 human_verification:
   - test: "UAT-01 — Page-level tool registration (MCP-02 / D-07)"

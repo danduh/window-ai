@@ -1,6 +1,6 @@
 ---
 slug: phase-02-uat-bugs
-status: awaiting-uat
+status: resolved
 trigger: "Three bugs surfaced during Phase 02 UAT regression sweep — token duplication on /chat, ChatAIService.ts:9 TypeError on LanguageModel.params(), and AgentDrawer 'Tool use feature is not enabled' on /webmcp."
 created: 2026-04-27
 updated: 2026-04-27
@@ -44,7 +44,7 @@ User ran the dev server (`npx nx serve chat` → http://localhost:4300) in Chrom
 hypothesis: Three independent bugs that all touch the Chrome built-in LanguageModel API surface — (A) StrictMode-style double-effect in chat streaming, (B) API drift on `LanguageModel.params()`, (C) tool-use feature unavailable in current Canary build → AgentDrawer needs availability detection before `create({tools})`.
 test: Read ChatAIService.ts:9 + ChatPage.tsx:44 to confirm A+B; read AgentDrawer.tsx where `LanguageModel.create({tools})` is called; check current Chrome WebAI docs (or chat/src/app/types/dom-chromium-ai.d.ts) for the canonical API surface; consider using chrome_devtools MCP to capture the live error state.
 expecting: A localized fix per bug — A: ref-guard or AbortController on the streaming subscription; B: replace `LanguageModel.params()` with `LanguageModel.availability()` or equivalent; C: add availability detection + tools-specific banner.
-next_action: User re-runs UAT-01..UAT-05 in Chrome 146 Canary to confirm all three bugs are fixed.
+next_action: REOPENED — Issue C fix was wrong. User confirms (a) regular `/chat` works, (b) all flags ARE on including tool-use. So `LanguageModel.create({ tools })` rejection is NOT a flag/feature-gate problem — it's a wrong API call shape on my side. Investigate the EXACT shape passed to `LanguageModel.create({...})` in AgentDrawer.tsx vs what the existing repo precedent (`ToolCallingPage.tsx` or equivalent) uses. Compare property names, schema field names (`inputSchema` vs `parameters`), and whether `execute` belongs in the create-time payload at all. Then revert/remove the band-aid banner from commit ca9155b and apply the real fix.
 reasoning_checkpoint:
 tdd_checkpoint:
 

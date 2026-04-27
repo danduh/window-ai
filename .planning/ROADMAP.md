@@ -46,7 +46,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 **Plans**: 3 plans
 - [x] 02-01-PLAN.md — Data + tools layer (recipeStore, recipeToolHandlers, recipeTools, toolAdapter)
 - [x] 02-02-PLAN.md — UI components (ToolRegistrationPill, LanguageModelUnavailable, ToolCallIndicator, ToolListPanel, AgentDrawer)
-- [ ] 02-03-PLAN.md — Page wiring + manual UAT (RecipeWorkbenchPage tool registration mount-effect, store subscription, drawer mount, Tool Inspector + 2-min demo UAT)
+- [x] 02-03-PLAN.md — Page wiring + manual UAT (RecipeWorkbenchPage tool registration mount-effect, store subscription, drawer mount, Tool Inspector + 2-min demo UAT)
 
 ### Phase 3: Documentation + SEO
 **Goal**: A visitor (and search engines) can discover, navigate to, and read a high-quality `/webmcp/docs` explainer that mirrors the structure of the existing `/writer` and `/summary` doc pages.
