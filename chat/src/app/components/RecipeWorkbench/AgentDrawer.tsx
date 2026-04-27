@@ -110,12 +110,6 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
         return;
       }
       try {
-        const availability = await LanguageModel.availability();
-        if (cancelled) return;
-        if (availability !== 'available') {
-          setUnavailable(true);
-          return;
-        }
         const adaptedTools = toLanguageModelTools(RECIPE_TOOLS, onToolEvent);
         // Chrome 146 Canary's Prompt API requires `expectedInputs` to include
         // `{type: "tool-response"}` and `expectedOutputs` to include
@@ -123,11 +117,27 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
         // rejects with the misleading "Tool use feature is not enabled" — even
         // when the feature flag IS on. Per the W3C Prompt API spec
         // (https://github.com/webmachinelearning/prompt-api §Tool use).
+        //
+        // Critically: availability() must be called with the SAME tool-use
+        // options as create() — Chrome maintains separate availability for
+        // plain prompts vs tool-use sessions. Querying plain availability and
+        // then creating with tools yields "The device is unable to create a
+        // session to run the model. Please check the result of availability()
+        // first" because the device-side check rejects the tool-use config.
+        const sessionOptions = {
+          expectedInputs: [{ type: 'text' as const }, { type: 'tool-response' as const }],
+          expectedOutputs: [{ type: 'text' as const }, { type: 'tool-call' as const }],
+          tools: adaptedTools,
+        };
+        const availability = await LanguageModel.availability(sessionOptions);
+        if (cancelled) return;
+        if (availability !== 'available') {
+          setUnavailable(true);
+          return;
+        }
         const newSession = await LanguageModel.create({
           initialPrompts: [{ role: 'system', content: SYSTEM_PROMPT }],
-          expectedInputs: [{ type: 'text' }, { type: 'tool-response' }],
-          expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }],
-          tools: adaptedTools,
+          ...sessionOptions,
         });
         if (cancelled) {
           newSession.destroy();
