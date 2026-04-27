@@ -28,8 +28,8 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
   5. When `navigator.modelContext` is undefined, a clearly visible banner explains the Chrome 146+ Canary requirement and the `chrome://flags/#WebMCP for testing` toggle, while the rest of the page (recipe browsing) remains usable
   6. TypeScript declarations for `navigator.modelContext`, `ModelContext`, `registerTool`, `provideContext`, and tool descriptor shapes compile cleanly across `chat/` (no `any` casts at the API surface)
 **Plans**: 3 plans
-- [ ] 01-01-PLAN.md — Persistence + WebMCP types (idb wrapper, recipe seeds, ambient navigator.modelContext)
-- [ ] 01-02-PLAN.md — RecipeWorkbenchPage + sub-components (header, picker, ingredients, steps, missing-flag banner)
+- [x] 01-01-PLAN.md — Persistence + WebMCP types (idb wrapper, recipe seeds, ambient navigator.modelContext)
+- [x] 01-02-PLAN.md — RecipeWorkbenchPage + sub-components (header, picker, ingredients, steps, missing-flag banner)
 - [ ] 01-03-PLAN.md — Routing + nav links + SEO + prerender (mounts the page, ships nav entries, wires useSEOData)
 **UI hint**: yes
 
@@ -59,7 +59,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation Skeleton | 0/0 | Not started | - |
+| 1. Foundation Skeleton | 2/3 | In progress | - |
 | 2. WebMCP Tools + In-Page Agent | 0/0 | Not started | - |
 | 3. Documentation + SEO | 0/0 | Not started | - |
 
