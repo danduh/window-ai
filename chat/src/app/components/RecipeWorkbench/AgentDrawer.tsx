@@ -71,7 +71,6 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [session, setSession] = useState<LanguageModel | null>(null);
   const [unavailable, setUnavailable] = useState<boolean>(false);
-  const [toolUseUnavailable, setToolUseUnavailable] = useState<boolean>(false);
   const [sessionInitFailed, setSessionInitFailed] = useState<boolean>(false);
   const messageIdCounter = useRef<number>(0);
   const eventIdCounter = useRef<number>(0);
@@ -118,8 +117,16 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
           return;
         }
         const adaptedTools = toLanguageModelTools(RECIPE_TOOLS, onToolEvent);
+        // Chrome 146 Canary's Prompt API requires `expectedInputs` to include
+        // `{type: "tool-response"}` and `expectedOutputs` to include
+        // `{type: "tool-call"}` to activate tool-use. Without these, the API
+        // rejects with the misleading "Tool use feature is not enabled" — even
+        // when the feature flag IS on. Per the W3C Prompt API spec
+        // (https://github.com/webmachinelearning/prompt-api §Tool use).
         const newSession = await LanguageModel.create({
           initialPrompts: [{ role: 'system', content: SYSTEM_PROMPT }],
+          expectedInputs: [{ type: 'text' }, { type: 'tool-response' }],
+          expectedOutputs: [{ type: 'text' }, { type: 'tool-call' }],
           tools: adaptedTools,
         });
         if (cancelled) {
@@ -130,21 +137,10 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
         setSession(newSession);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        // Chrome 146 Canary gates tool-use behind a separate feature flag.
-        // When the gate is off, `create({tools})` throws with this exact
-        // message. Per RESEARCH §AGENT-01 the locked decision is to surface
-        // a banner — graceful degradation, NOT silent fallback to a no-tools
-        // chat. Detect by message-substring match (Chrome does not expose a
-        // structured error code for this gate today).
-        const isToolUseGate = /tool use feature is not enabled/i.test(message);
         // eslint-disable-next-line no-console
         console.error('[AgentDrawer] Failed to create LanguageModel session:', message);
         if (!cancelled) {
-          if (isToolUseGate) {
-            setToolUseUnavailable(true);
-          } else {
-            setSessionInitFailed(true);
-          }
+          setSessionInitFailed(true);
         }
       }
     })();
@@ -213,8 +209,7 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
           </div>
         )}
         {unavailable && <LanguageModelUnavailable />}
-        {toolUseUnavailable && <LanguageModelUnavailable variant="tool-use" />}
-        <ChatInput onSend={handleUserMessage} disabled={isLoading || unavailable || toolUseUnavailable || (!session && !sessionInitFailed)} />
+        <ChatInput onSend={handleUserMessage} disabled={isLoading || unavailable || (!session && !sessionInitFailed)} />
       </div>
     </div>
   );

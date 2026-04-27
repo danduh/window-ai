@@ -12,11 +12,11 @@ declare global {
     topK?: number;
     temperature?: number;
     expectedInputs?: Array<{
-      type: "text" | "image" | "audio";
+      type: "text" | "image" | "audio" | "tool-call" | "tool-response";
       languages?: string[];
     }>;
     expectedOutputs?: Array<{
-      type: "text" | "image" | "audio";
+      type: "text" | "image" | "audio" | "tool-call" | "tool-response";
       languages?: string[];
     }>;
     tools?: Array<{
