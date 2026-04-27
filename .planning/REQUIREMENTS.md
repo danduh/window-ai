@@ -9,9 +9,9 @@ Requirements for the WebMCP Recipe Workbench milestone. Each maps to a roadmap p
 
 ### Routing & Navigation
 
-- [ ] **NAV-01**: A new `/webmcp` route is registered in `chat/src/app/AppRouter.tsx` and renders the Recipe Workbench page
+- [x] **NAV-01**: A new `/webmcp` route is registered in `chat/src/app/AppRouter.tsx` and renders the Recipe Workbench page
 - [ ] **NAV-02**: A new `/webmcp/docs` route is registered and renders the WebMCP markdown explainer via `DocsRenderer`, matching the structure of the existing `/writer` and `/summary` doc tabs
-- [ ] **NAV-03**: A nav link to `/webmcp` is added to the main site navigation, placed alongside `/writer` and `/summary` and matching their styling
+- [x] **NAV-03**: A nav link to `/webmcp` is added to the main site navigation, placed alongside `/writer` and `/summary` and matching their styling
 
 ### Recipe Workbench UI
 
