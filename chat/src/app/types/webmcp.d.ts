@@ -49,3 +49,5 @@ declare global {
     requestUserInteraction(callback: (...args: any[]) => any): Promise<any>;
   }
 }
+
+export {};

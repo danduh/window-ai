@@ -1,0 +1,141 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import ThemeToggle from './ThemeToggle';
+import Tabs from './Tabs';
+import {
+  getRecipes,
+  seedIfEmpty,
+  type Recipe,
+} from '../services/RecipePersistence';
+import { SEED_RECIPES } from '../services/recipeSeed';
+import { RecipePicker } from './RecipeWorkbench/RecipePicker';
+import { RecipeHeader } from './RecipeWorkbench/RecipeHeader';
+import { IngredientsList } from './RecipeWorkbench/IngredientsList';
+import { StepsList } from './RecipeWorkbench/StepsList';
+import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
+
+interface WorkbenchPanelProps {
+  recipes: Recipe[];
+  activeId: string | null;
+  loading: boolean;
+  onSelect: (id: string) => void;
+}
+
+const WorkbenchPanel: React.FC<WorkbenchPanelProps> = ({ recipes, activeId, loading, onSelect }) => {
+  const active = recipes.find((r) => r.id === activeId);
+
+  return (
+    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+      <aside className="lg:col-span-1">
+        {!loading && recipes.length > 0 && (
+          <RecipePicker recipes={recipes} activeId={activeId} onSelect={onSelect} />
+        )}
+      </aside>
+      <section className="lg:col-span-3 space-y-6">
+        {loading ? (
+          <p className="text-gray-500 dark:text-gray-400">Loading your recipes&hellip;</p>
+        ) : !active ? (
+          <p className="text-gray-500 dark:text-gray-400">No recipes yet. Reload the page to seed the demo recipes.</p>
+        ) : (
+          <>
+            <RecipeHeader title={active.title} servings={active.servings} />
+            <IngredientsList ingredients={active.ingredients} />
+            <StepsList steps={active.steps} />
+          </>
+        )}
+      </section>
+    </div>
+  );
+};
+
+export const RecipeWorkbenchPage: React.FC = () => {
+  const [recipes, setRecipes] = useState<Recipe[]>([]);
+  const [activeId, setActiveId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  // Mount-time: idempotent seed (count-gated in seedIfEmpty), then load.
+  // The `cancelled` flag handles React 19 StrictMode double-invoke per
+  // RESEARCH §Pitfall 1.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await seedIfEmpty(SEED_RECIPES);
+        const all = await getRecipes();
+        if (cancelled) return;
+        setRecipes(all);
+        setActiveId(all[0]?.id ?? null);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Unknown error';
+        // eslint-disable-next-line no-console
+        console.error('[RecipeWorkbench] Failed to load recipes:', message);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Tabs ordering gotcha (PATTERNS §RecipeWorkbenchPage): the docs tab MUST be
+  // listed BEFORE the workbench tab so `/webmcp/docs` wins the
+  // `currentPath.includes(tab.path)` lookup over the workbench's empty path.
+  const tabs = useMemo(
+    () => [
+      {
+        id: 'docs',
+        label: 'Docs',
+        path: '/docs',
+        content: (
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
+            <p className="text-gray-600 dark:text-gray-400">
+              Documentation coming in Phase 3 &mdash; see{' '}
+              <code className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded font-mono text-sm">WebMCP-API.md</code>.
+            </p>
+          </div>
+        ),
+      },
+      {
+        id: 'workbench',
+        label: 'Workbench',
+        path: '',
+        content: (
+          <WorkbenchPanel
+            recipes={recipes}
+            activeId={activeId}
+            loading={loading}
+            onSelect={setActiveId}
+          />
+        ),
+      },
+    ],
+    [recipes, activeId, loading],
+  );
+
+  return (
+    <div className="min-h-screen bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-200">
+      <div className="max-w-6xl mx-auto p-4">
+        <header className="flex items-center justify-between mb-8">
+          <div className="flex items-center space-x-4">
+            <div className="bg-gradient-to-r from-primary-500 to-purple-600 text-white p-3 rounded-xl">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Recipe Workbench</h1>
+              <p className="text-gray-600 dark:text-gray-400">A WebMCP demo: tools live on the page, not on a server.</p>
+            </div>
+          </div>
+          <ThemeToggle />
+        </header>
+
+        {!navigator.modelContext && <MissingFlagBanner />}
+
+        <Tabs basePath="/webmcp" defaultTab="workbench" tabs={tabs} />
+      </div>
+    </div>
+  );
+};
+
+export default RecipeWorkbenchPage;
