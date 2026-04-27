@@ -78,6 +78,7 @@ export const RecipeWorkbenchPage: React.FC = () => {
         if (cancelled) return;
         setRecipes(all);
         setActiveId(all[0]?.id ?? null);
+        setActiveRecipeId(all[0]?.id ?? null);
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
         // eslint-disable-next-line no-console
@@ -149,6 +150,14 @@ export const RecipeWorkbenchPage: React.FC = () => {
     return unsub;
   }, []);
 
+  // Mirror activeId into recipeStore (handlers default to getActiveRecipeId()
+  // when no recipeId arg is passed by the agent). Stable callback (empty deps)
+  // — `setActiveId` and `setActiveRecipeId` are both stable references.
+  const handleSelect = useCallback((id: string): void => {
+    setActiveId(id);
+    setActiveRecipeId(id);
+  }, []);
+
   // Tabs ordering gotcha (PATTERNS §RecipeWorkbenchPage): the docs tab MUST be
   // listed BEFORE the workbench tab so `/webmcp/docs` wins the
   // `currentPath.includes(tab.path)` lookup over the workbench's empty path.
@@ -172,16 +181,24 @@ export const RecipeWorkbenchPage: React.FC = () => {
         label: 'Workbench',
         path: '',
         content: (
-          <WorkbenchPanel
-            recipes={recipes}
-            activeId={activeId}
-            loading={loading}
-            onSelect={setActiveId}
-          />
+          <>
+            <WorkbenchPanel
+              recipes={recipes}
+              activeId={activeId}
+              loading={loading}
+              onSelect={handleSelect}
+            />
+            <AgentDrawer
+              registrationStatus={registration.status}
+              registeredCount={registration.count}
+              liveToolName={liveToolName}
+              onLiveToolNameChange={setLiveToolName}
+            />
+          </>
         ),
       },
     ],
-    [recipes, activeId, loading],
+    [recipes, activeId, loading, handleSelect, registration.status, registration.count, liveToolName],
   );
 
   return (
@@ -199,7 +216,14 @@ export const RecipeWorkbenchPage: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-400">A WebMCP demo: tools live on the page, not on a server.</p>
             </div>
           </div>
-          <ThemeToggle />
+          <div className="flex items-center space-x-3">
+            <ToolRegistrationPill
+              status={registration.status}
+              registeredCount={registration.count}
+              totalCount={RECIPE_TOOLS.length}
+            />
+            <ThemeToggle />
+          </div>
         </header>
 
         {!navigator.modelContext && <MissingFlagBanner />}
