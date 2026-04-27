@@ -63,7 +63,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Skeleton | 3/3 | Complete | 2026-04-27 |
-| 2. WebMCP Tools + In-Page Agent | 2/3 | In progress | - |
+| 2. WebMCP Tools + In-Page Agent | 3/3 | Awaiting human UAT | - |
 | 3. Documentation + SEO | 0/0 | Not started | - |
 
 ## Coverage Validation

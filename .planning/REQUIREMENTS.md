@@ -28,16 +28,22 @@ Requirements for the WebMCP Recipe Workbench milestone. Each maps to a roadmap p
 ### WebMCP Tool Registration
 
 - [x] **MCP-01**: Type declarations for `navigator.modelContext`, `ModelContext`, `registerTool`, `provideContext`, and tool descriptor shapes are added (in `chrome-llm-ts/src/` or `chat/src/app/types/`) so the integration is type-safe
-- [ ] **MCP-02**: On Recipe Workbench page mount, the page registers its tools via the native `navigator.modelContext` API; on unmount, all registered tools are unregistered
+- [x] **MCP-02
+**: On Recipe Workbench page mount, the page registers its tools via the native `navigator.modelContext` API; on unmount, all registered tools are unregistered
 - [ ] **MCP-03**: At minimum the following tools are registered with descriptions and JSON Schema input schemas: `listRecipes`, `getRecipe(id)`, `selectRecipe(id)`, `scaleRecipe(servings)`, `swapIngredient(ingredientName, replacement)`, `addIngredient(name, quantity, unit)`, `removeIngredient(ingredientName)`, `generateShoppingList()`
-- [ ] **MCP-04**: Tool handlers operate on the persistence layer (DATA-03), so changes propagate to UI state and survive reloads
-- [ ] **MCP-05**: Registered tools are discoverable + invokable by an external agent — verified using the WebMCP Tool Inspector extension on Chrome 146 Canary; the tools' names, descriptions, and input schemas appear correctly
+- [x] **MCP-04
+**: Tool handlers operate on the persistence layer (DATA-03), so changes propagate to UI state and survive reloads
+- [x] **MCP-05
+**: Registered tools are discoverable + invokable by an external agent — verified using the WebMCP Tool Inspector extension on Chrome 146 Canary; the tools' names, descriptions, and input schemas appear correctly
 
 ### In-Page Chat Agent
 
-- [ ] **AGENT-01**: A chat panel on the Recipe Workbench page accepts user messages and displays streamed assistant responses, using `chrome-llm-ts` `LanguageModel` typing and the same UI patterns as the existing `/chat` and `/tool-calling` pages
-- [ ] **AGENT-02**: The chat agent uses `LanguageModel` tool-calling to invoke the same WebMCP tools registered on the page (single tool-definition source of truth, two consumers — in-page agent and external agent)
-- [ ] **AGENT-03**: The 2-minute demo flow works end-to-end: user types "scale to 6 and swap milk for oat milk" (or equivalent) → chat agent calls `scaleRecipe` and `swapIngredient` → recipe UI updates live with new servings + replaced ingredient
+- [x] **AGENT-01
+**: A chat panel on the Recipe Workbench page accepts user messages and displays streamed assistant responses, using `chrome-llm-ts` `LanguageModel` typing and the same UI patterns as the existing `/chat` and `/tool-calling` pages
+- [x] **AGENT-02
+**: The chat agent uses `LanguageModel` tool-calling to invoke the same WebMCP tools registered on the page (single tool-definition source of truth, two consumers — in-page agent and external agent)
+- [x] **AGENT-03
+**: The 2-minute demo flow works end-to-end: user types "scale to 6 and swap milk for oat milk" (or equivalent) → chat agent calls `scaleRecipe` and `swapIngredient` → recipe UI updates live with new servings + replaced ingredient
 
 ### Documentation
 
