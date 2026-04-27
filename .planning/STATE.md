@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-last_updated: "2026-04-27T07:22:34.870Z"
+last_updated: "2026-04-27T08:04:27.992Z"
 progress:
   total_phases: 3
   completed_phases: 1
@@ -85,9 +85,9 @@ None.
 
 ## Session Continuity
 
-**Resume command:** `/gsd-execute-phase 2`
+**Resume command:** `/gsd-plan-phase 2`
 
-**Last session note:** 2026-04-27 — Phase 1 complete. Plan 01-03 shipped: /webmcp and /webmcp/docs routes registered in AppRouter, desktop + mobile nav links added between Translate and Writer/Rewriter, seoConfigs.webmcp added to useSEOData.ts, useSEOData call wired into RecipeWorkbenchPage, prerender-react.js extended with 2 route entries and 2 SEO config blocks. Build passes (npx nx build chat exits 0). Ready for Phase 2: WebMCP tool registration + in-page agent.
+**Last session note:** 2026-04-27 — Phase 2 context gathered. 7 decisions locked in 02-CONTEXT.md: (D-01) WebMCP-first source of truth derive for LanguageModel; (D-02) bottom sticky chat drawer; (D-03) inline tool-use indicators; (D-04) streaming text response (researcher must verify Chrome's tool-call+streaming combo); (D-05) compact tool list panel; (D-06) graceful inline failure messages; (D-07) registration confirmation pill. Phase 1 still has 5 pending browser smoke tests in 01-HUMAN-UAT.md (non-blocking). Ready to plan Phase 2.
 
 **Files of record:**
 
