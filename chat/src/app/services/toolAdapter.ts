@@ -35,63 +35,6 @@ type LanguageModelTool = {
 };
 
 /**
- * Sanitize a JSON Schema for Chrome 147 LanguageModel tool-use. The
- * navigator.modelContext side accepts strict JSON Schema (Tool Inspector
- * works with `additionalProperties: false`, `integer` types, `minimum`
- * constraints, etc.) — but Chrome's built-in LanguageModel tool-use
- * validator is stricter and silently rejects the whole batch with "Tool
- * use feature is not enabled" when any tool's inputSchema uses these
- * advanced features. Mirroring the simpler schema shape ToolCallingPage.tsx
- * uses (the only known-working precedent on Chrome 147).
- *
- * Transformations:
- *   - drop `additionalProperties: false` (and any `additionalProperties` value)
- *   - replace `integer` type with `number` (Chrome's validator only accepts number)
- *   - drop numeric constraints: `minimum`, `maximum`, `exclusiveMinimum`,
- *     `exclusiveMaximum`, `multipleOf`
- *   - drop `enum`, `format`, `pattern` (string constraints) — the descriptions
- *     guide the model adequately
- *   - recurse into `properties.*` and `items` for nested object/array schemas
- */
-function sanitizeInputSchema(schema: object | undefined): object {
-  if (!schema || typeof schema !== 'object') {
-    return { type: 'object', properties: {} };
-  }
-  const STRIP_KEYS = new Set([
-    'additionalProperties',
-    'minimum',
-    'maximum',
-    'exclusiveMinimum',
-    'exclusiveMaximum',
-    'multipleOf',
-    'enum',
-    'format',
-    'pattern',
-    'minLength',
-    'maxLength',
-    'minItems',
-    'maxItems',
-    'uniqueItems',
-  ]);
-  const walk = (node: unknown): unknown => {
-    if (Array.isArray(node)) return node.map(walk);
-    if (!node || typeof node !== 'object') return node;
-    const obj = node as Record<string, unknown>;
-    const out: Record<string, unknown> = {};
-    for (const [key, value] of Object.entries(obj)) {
-      if (STRIP_KEYS.has(key)) continue;
-      if (key === 'type' && value === 'integer') {
-        out.type = 'number';
-        continue;
-      }
-      out[key] = walk(value);
-    }
-    return out;
-  };
-  return walk(schema) as object;
-}
-
-/**
  * Convert WebMCP tools into the shape LanguageModel.create({tools}) expects.
  * Wraps each `execute` so that:
  *   - a `pending` event fires before the handler runs,
@@ -100,9 +43,6 @@ function sanitizeInputSchema(schema: object | undefined): object {
  *   - a `done` event fires on success, OR an `error` event fires + the wrapper
  *     returns `JSON.stringify({error: message})` so the model can read and
  *     explain the failure (does NOT re-throw — the model needs to recover).
- *
- * inputSchemas are sanitized to match ToolCallingPage's working pattern on
- * Chrome 147 (see sanitizeInputSchema above).
  */
 export function toLanguageModelTools(
   tools: ModelContextTool[],
@@ -111,7 +51,7 @@ export function toLanguageModelTools(
   return tools.map((t) => ({
     name: t.name,
     description: t.description,
-    inputSchema: sanitizeInputSchema(t.inputSchema),
+    inputSchema: t.inputSchema ?? { type: 'object', properties: {} },
     execute: async (input: Record<string, unknown>): Promise<string> => {
       onEvent({ kind: 'pending', toolName: t.name, args: input ?? {} });
       try {
