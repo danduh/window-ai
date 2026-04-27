@@ -15,19 +15,19 @@ Requirements for the WebMCP Recipe Workbench milestone. Each maps to a roadmap p
 
 ### Recipe Workbench UI
 
-- [ ] **UI-01**: The page renders an active recipe with title, servings count, ingredients (name + quantity + unit), and ordered steps using the existing site's Tailwind theme and dark-mode toggle
-- [ ] **UI-02**: When `navigator.modelContext` is unavailable (flag off / wrong browser), a banner explains how to enable it (Chrome 146+ Canary, `chrome://flags/#WebMCP for testing`); the rest of the page remains usable for read-only browsing
-- [ ] **UI-03**: A list/picker shows the available recipes (1–2 seeded entries) and lets the user switch the active recipe; UI updates reflect the active recipe in real time
+- [x] **UI-01**: The page renders an active recipe with title, servings count, ingredients (name + quantity + unit), and ordered steps using the existing site's Tailwind theme and dark-mode toggle
+- [x] **UI-02**: When `navigator.modelContext` is unavailable (flag off / wrong browser), a banner explains how to enable it (Chrome 146+ Canary, `chrome://flags/#WebMCP for testing`); the rest of the page remains usable for read-only browsing
+- [x] **UI-03**: A list/picker shows the available recipes (1–2 seeded entries) and lets the user switch the active recipe; UI updates reflect the active recipe in real time
 
 ### Persistence
 
-- [ ] **DATA-01**: Recipe state persists to IndexedDB and survives page reloads
-- [ ] **DATA-02**: On first load, 1–2 sample recipes are seeded (e.g. pancakes, tomato pasta) so the demo flow works immediately
-- [ ] **DATA-03**: A persistence layer module exposes typed `getRecipes`, `getRecipe`, `saveRecipe`, `deleteRecipe` functions used by both UI and tool handlers (single source of truth for recipe state)
+- [x] **DATA-01**: Recipe state persists to IndexedDB and survives page reloads
+- [x] **DATA-02**: On first load, 1–2 sample recipes are seeded (e.g. pancakes, tomato pasta) so the demo flow works immediately
+- [x] **DATA-03**: A persistence layer module exposes typed `getRecipes`, `getRecipe`, `saveRecipe`, `deleteRecipe` functions used by both UI and tool handlers (single source of truth for recipe state)
 
 ### WebMCP Tool Registration
 
-- [ ] **MCP-01**: Type declarations for `navigator.modelContext`, `ModelContext`, `registerTool`, `provideContext`, and tool descriptor shapes are added (in `chrome-llm-ts/src/` or `chat/src/app/types/`) so the integration is type-safe
+- [x] **MCP-01**: Type declarations for `navigator.modelContext`, `ModelContext`, `registerTool`, `provideContext`, and tool descriptor shapes are added (in `chrome-llm-ts/src/` or `chat/src/app/types/`) so the integration is type-safe
 - [ ] **MCP-02**: On Recipe Workbench page mount, the page registers its tools via the native `navigator.modelContext` API; on unmount, all registered tools are unregistered
 - [ ] **MCP-03**: At minimum the following tools are registered with descriptions and JSON Schema input schemas: `listRecipes`, `getRecipe(id)`, `selectRecipe(id)`, `scaleRecipe(servings)`, `swapIngredient(ingredientName, replacement)`, `addIngredient(name, quantity, unit)`, `removeIngredient(ingredientName)`, `generateShoppingList()`
 - [ ] **MCP-04**: Tool handlers operate on the persistence layer (DATA-03), so changes propagate to UI state and survive reloads

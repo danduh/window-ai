@@ -20,20 +20,25 @@ A visitor with **Chrome 146 Canary** (WebMCP flag enabled) can, in under 2 minut
 - ✓ Theme (dark mode), SEO, Google Analytics, Tailwind v4, react-router-dom infrastructure — existing
 - ✓ Reference MCP server (`mcp/`) over stdio with payment-demo tools — existing (orthogonal to this milestone)
 
+<!-- Validated in Phase 1: Foundation Skeleton (2026-04-27) -->
+
+- ✓ **WEBMCP-01 / NAV-01 / NAV-03**: `/webmcp` and `/webmcp/docs` routes registered in `AppRouter.tsx`; WebMCP nav link added to desktop and mobile nav between Translate and Writer/Rewriter
+- ✓ **WEBMCP-03 / UI-01 / UI-03**: Recipe Workbench UI renders active recipe (title, servings, ingredients, steps) via `RecipeWorkbenchPage` + 5 sub-components; picker switches active recipe with synchronous re-render; full dark-mode coverage
+- ✓ **WEBMCP-04 / DATA-01 / DATA-02 / DATA-03**: `idb@8.0.3` + `RecipePersistence` (typed `getRecipes/getRecipe/saveRecipe/deleteRecipe/seedIfEmpty`) + `SEED_RECIPES` (Buttermilk Pancakes, Tomato Pasta); count-gated mount-time seed + `getRecipes` populate state
+- ✓ **WEBMCP-07 / UI-02**: `MissingFlagBanner` renders when `navigator.modelContext` is undefined; recipe browsing remains usable in unsupported browsers
+- ✓ **MCP-01**: Ambient `navigator.modelContext` types declared in `chat/src/app/types/webmcp.d.ts` (`ModelContext`, `ModelContextTool`, `ModelContextRegisterToolOptions`, `ModelContextToolAnnotations`, `ModelContextClient`); Phase 2 can register tools without `as` casts
+- ✓ **WEBMCP-10 (partial)**: SEO config `seoConfigs.webmcp` registered; `useSEOData(seoConfigs.webmcp, '/webmcp')` wired into the page; prerender entries appended for `/webmcp` and `/webmcp/docs`
+
 ### Active
 
 <!-- Hypotheses until shipped and validated -->
 
-- [ ] **WEBMCP-01**: A new `/webmcp` route is registered in `chat/src/app/AppRouter.tsx` and reachable from main nav (matching `/writer` and `/summary` placement)
-- [ ] **WEBMCP-02**: The page registers WebMCP tools via the native `navigator.modelContext` API on mount and unregisters on unmount
-- [ ] **WEBMCP-03**: A "Recipe Workbench" UI shows an active recipe (ingredients, steps, servings) using the existing site's Tailwind theme and dark-mode pattern
-- [ ] **WEBMCP-04**: The page seeds 1–2 sample recipes on first load (e.g. pancakes + tomato pasta) persisted to IndexedDB; recipes survive reloads
-- [ ] **WEBMCP-05**: Registered tools cover the core 2-min demo flow at minimum: `scaleRecipe(servings)`, `swapIngredient(from, to)`, `addIngredient`, `removeIngredient`, `listRecipes`, `selectRecipe(id)`, `generateShoppingList`
+- [ ] **WEBMCP-02 / MCP-02**: The page registers WebMCP tools via the native `navigator.modelContext` API on mount and unregisters on unmount
+- [ ] **WEBMCP-05 / MCP-03**: Registered tools cover the core 2-min demo flow at minimum: `scaleRecipe(servings)`, `swapIngredient(from, to)`, `addIngredient`, `removeIngredient`, `listRecipes`, `selectRecipe(id)`, `generateShoppingList`
+- [ ] **MCP-04**: Tool handlers operate on the persistence layer (DATA-03), so changes propagate to UI state and survive reloads
 - [ ] **WEBMCP-06**: An in-page chat panel uses `LanguageModel` (window.ai) tool-calling to invoke the same registered WebMCP tools — same tool definitions, two consumers
-- [ ] **WEBMCP-07**: When Chrome lacks `navigator.modelContext` (flag off / older browser), a clear banner explains how to enable it (Chrome 146+ Canary, `chrome://flags/#WebMCP for testing`); no polyfill
-- [ ] **WEBMCP-08**: A dedicated `/webmcp/docs` route renders a markdown explainer via `DocsRenderer` covering: what WebMCP is, the API surface (`registerTool`, `provideContext`, schema), the security/permission model, browser support, and code samples — matching the structure of existing `/writer` and `/summary` doc tabs
-- [ ] **WEBMCP-09**: Tools verified discoverable + invokable by an external agent (WebMCP Tool Inspector extension on Chrome 146 Canary)
-- [ ] **WEBMCP-10**: SEO/title/description updated for `/webmcp` and `/webmcp/docs` matching existing SEOProvider conventions
+- [ ] **WEBMCP-08**: A dedicated `/webmcp/docs` route renders a markdown explainer via `DocsRenderer` covering: what WebMCP is, the API surface (`registerTool`, `provideContext`, schema), the security/permission model, browser support, and code samples — matching the structure of existing `/writer` and `/summary` doc tabs (route registered in Phase 1; markdown content authored in Phase 3)
+- [ ] **WEBMCP-09 / MCP-05**: Tools verified discoverable + invokable by an external agent (WebMCP Tool Inspector extension on Chrome 146 Canary)
 
 ### Out of Scope
 
@@ -104,5 +109,9 @@ This document evolves at phase transitions and milestone boundaries.
 3. Audit Out of Scope — reasons still valid?
 4. Update Context with current state
 
+## Current State
+
+**Phase 1 (Foundation Skeleton) complete (2026-04-27)** — `/webmcp` route reachable, recipe UI renders from IndexedDB, ambient `navigator.modelContext` types declared, missing-flag banner ships in unsupported browsers. Verifier marked `human_needed`; user approved automated checks (5 browser-side smoke tests deferred to `01-HUMAN-UAT.md`). Ready to plan Phase 2 (WebMCP Tools + In-Page Agent).
+
 ---
-*Last updated: 2026-04-26 after initialization*
+*Last updated: 2026-04-27 after Phase 1 completion*
