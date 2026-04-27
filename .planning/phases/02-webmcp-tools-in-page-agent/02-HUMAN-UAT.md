@@ -1,3 +1,11 @@
+---
+status: partial
+phase: 02-webmcp-tools-in-page-agent
+source: [02-VERIFICATION.md, 02-03-PLAN.md]
+started: 2026-04-27T00:00:00Z
+updated: 2026-04-27T00:00:00Z
+---
+
 # Phase 2 — Human UAT Script
 
 **Required browser:** Chrome 146.0.7672.0+ Canary (or newer Canary). Confirm via `chrome://version`.
