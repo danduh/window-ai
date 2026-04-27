@@ -45,7 +45,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
   5. Typing "scale to 6 and swap milk for oat milk" (or equivalent) into the in-page chat causes the assistant to call `scaleRecipe` and `swapIngredient`, the recipe UI updates with new servings and the replaced ingredient, and the entire flow completes in well under 2 minutes
 **Plans**: 3 plans
 - [x] 02-01-PLAN.md — Data + tools layer (recipeStore, recipeToolHandlers, recipeTools, toolAdapter)
-- [ ] 02-02-PLAN.md — UI components (ToolRegistrationPill, LanguageModelUnavailable, ToolCallIndicator, ToolListPanel, AgentDrawer)
+- [x] 02-02-PLAN.md — UI components (ToolRegistrationPill, LanguageModelUnavailable, ToolCallIndicator, ToolListPanel, AgentDrawer)
 - [ ] 02-03-PLAN.md — Page wiring + manual UAT (RecipeWorkbenchPage tool registration mount-effect, store subscription, drawer mount, Tool Inspector + 2-min demo UAT)
 
 ### Phase 3: Documentation + SEO
@@ -63,7 +63,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Foundation Skeleton | 3/3 | Complete | 2026-04-27 |
-| 2. WebMCP Tools + In-Page Agent | 1/3 | In progress | - |
+| 2. WebMCP Tools + In-Page Agent | 2/3 | In progress | - |
 | 3. Documentation + SEO | 0/0 | Not started | - |
 
 ## Coverage Validation
