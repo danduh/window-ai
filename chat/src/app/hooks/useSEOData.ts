@@ -58,5 +58,10 @@ export const seoConfigs = {
     title: 'Writer & Rewriter APIs - AI-powered content creation | Chrome AI APIs',
     description: 'AI-powered content creation and enhancement. Writer creates new content from prompts, while Rewriter transforms existing text with tone, format, and length adjustments.',
     keywords: 'AI writing, content creation, text rewriting, writing assistant, content enhancement, AI writer, text generation'
+  },
+  webmcp: {
+    title: 'WebMCP Recipe Workbench - navigator.modelContext demo | Chrome AI APIs',
+    description: 'A page-side WebMCP demo using navigator.modelContext in Chrome 146+ Canary. Browse seeded recipes from IndexedDB and (in later phases) drive them with native browser tools — no MCP server required.',
+    keywords: 'WebMCP, navigator.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools, IndexedDB demo'
   }
 } as const;

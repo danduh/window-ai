@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
+import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import {
   getRecipes,
   seedIfEmpty,
@@ -48,6 +49,7 @@ const WorkbenchPanel: React.FC<WorkbenchPanelProps> = ({ recipes, activeId, load
 };
 
 export const RecipeWorkbenchPage: React.FC = () => {
+  useSEOData(seoConfigs.webmcp, '/webmcp');
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
