@@ -64,7 +64,7 @@ This project uses GSD (Get Shit Done) for planning + execution. Key directories:
 
 ```bash
 npm install                          # install monorepo deps
-npx nx serve chat                    # run the SPA at localhost:4200
+npx nx serve chat                    # run the SPA at localhost:4300
 npx nx build chat                    # production build
 npx nx test chat                     # run tests for chat workspace
 npx nx run-many -t test              # run all tests

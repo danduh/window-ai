@@ -452,7 +452,7 @@ function createRobotsTxt() {
   const baseUrl =
     process.env.NODE_ENV === 'production'
       ? 'https://your-domain.com/window-ai'
-      : 'http://localhost:4200';
+      : 'http://localhost:4300';
 
   const robotsTxt = `User-agent: *
 Allow: /

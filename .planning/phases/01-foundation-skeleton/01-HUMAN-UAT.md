@@ -13,11 +13,11 @@ updated: 2026-04-27T07:02:35Z
 ## Tests
 
 ### 1. Page visual rendering and dark-mode toggle
-expected: Run `npx nx serve chat`, navigate to `http://localhost:4200/webmcp`. H1 "Recipe Workbench" visible with gradient icon tile; subtitle "A WebMCP demo: tools live on the page, not on a server."; ThemeToggle flips all component bg-/text-/border- classes between light and dark.
+expected: Run `npx nx serve chat`, navigate to `http://localhost:4300/webmcp`. H1 "Recipe Workbench" visible with gradient icon tile; subtitle "A WebMCP demo: tools live on the page, not on a server."; ThemeToggle flips all component bg-/text-/border- classes between light and dark.
 result: [pending]
 
 ### 2. MissingFlagBanner rendering in standard browser
-expected: Open `http://localhost:4200/webmcp` in any non-Chrome-146-Canary browser (or Chrome without the WebMCP flag). Yellow banner appears above the Tabs wrapper with correct copy + code chips for `chrome://flags/#WebMCP`; recipe picker below the banner still shows recipes and responds to clicks.
+expected: Open `http://localhost:4300/webmcp` in any non-Chrome-146-Canary browser (or Chrome without the WebMCP flag). Yellow banner appears above the Tabs wrapper with correct copy + code chips for `chrome://flags/#WebMCP`; recipe picker below the banner still shows recipes and responds to clicks.
 result: [pending]
 
 ### 3. Recipe picker interactivity

@@ -94,7 +94,7 @@ function getSEODataForRoute(routePath) {
 }
 
 function injectSEOData(htmlTemplate, seoData) {
-  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://your-domain.com/window-ai' : 'http://localhost:4200';
+  const baseUrl = process.env.NODE_ENV === 'production' ? 'https://your-domain.com/window-ai' : 'http://localhost:4300';
   
   // Update title
   let html = htmlTemplate.replace(/<title>.*?<\/title>/, `<title>${seoData.title}</title>`);

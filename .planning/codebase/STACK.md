@@ -112,7 +112,7 @@
 
 **Build configs (frontend):**
 - `chat/vite.config.ts` — Vite for dev/test; base path `'/window-ai/'` in production, `'/'` otherwise; `manualChunks` splits `vendor` (react, react-dom) and `router` (react-router-dom).
-- `chat/webpack.config.js` — Nx React webpack plugin, custom `raw-loader` for `.md`, dev server on port 4200, baseHref `'/'`.
+- `chat/webpack.config.js` — Nx React webpack plugin, custom `raw-loader` for `.md`, dev server on port 4300, baseHref `'/'`.
 - `chat/tailwind.config.js` — Custom `primary` palette, animations `fade-in` / `slide-up`.
 - `chat/postcss.config.js` — Tailwind + Autoprefixer.
 
