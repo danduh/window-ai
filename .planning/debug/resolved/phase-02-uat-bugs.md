@@ -74,6 +74,14 @@ tdd_checkpoint:
 - "Issue A is NOT caused by a duplicate `getReader()` subscription — `addMessage` is called once per response (ChatPage.tsx:103). The doubling is purely the in-place mutation under StrictMode."
 - "Issue B is NOT caused by missing types — the `.d.ts` DOES declare `params()`. The drift is purely runtime-vs-declared-type."
 
+## Environment Note (added at closeout)
+
+**Tested on Chrome 147.0.7727.117 Canary**, NOT Chrome 146 as the Phase 02 plan/RESEARCH.md/UAT script assumed. The 146→147 transition is the actual driver of all three bugs touching `LanguageModel`:
+- Issue B: `LanguageModel.params()` was a 146-era surface; removed/renamed in 147.
+- Issue C resolution path: `LanguageModel.create({ tools, expectedInputs, expectedOutputs })` rejects in 147 even with all flags on AND `availability()` returning `'available'`. After 4 fix iterations the in-page tool-use path was abandoned; AgentDrawer pivoted to plain LanguageModel chat (commit 6fd7077). The canonical webmcp-tools demos (GoogleChromeLabs/webmcp-tools — confirmed by orchestrator inspection) do NOT use an in-page LanguageModel session at all; the WebMCP design is page-registers / external-agent-consumes.
+
+**Lesson for future phases**: pin a single Chrome Canary version in PROJECT.md / RESEARCH.md and verify it via `chrome://version` BEFORE writing the API-shape contracts. The 146→147 step shipped breaking changes to `LanguageModel.params()` and `LanguageModel.create({ tools })` despite both being "experimental" — type definitions in `dom-chromium-ai.d.ts` lag the runtime by at least a Canary release.
+
 ## Resolution
 
 root_cause: "Three independent bugs, each touching the Chrome built-in LanguageModel API surface: (A) ChatPage.tsx streaming reducer mutates state in place via `prevMessages.pop()` + `lastMessage.text +=`, which doubles every chunk under React StrictMode (the updater is invoked twice with the same `prev` reference). (B) ChatAIService.ts:9 calls `LanguageModel.params()`, which is declared in dom-chromium-ai.d.ts but does NOT exist at runtime in Chrome 146 Canary — the type drifted ahead of the runtime. (C) AgentDrawer.tsx calls `LanguageModel.create({ tools })` without first checking whether the tool-use feature gate is enabled in the user's Canary build; when the gate is off, Chrome throws 'Tool use feature is not enabled' and the agent fails to start."

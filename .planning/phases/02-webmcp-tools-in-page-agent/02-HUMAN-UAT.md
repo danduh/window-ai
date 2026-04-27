@@ -11,7 +11,7 @@ results:
   uat_04_in_page_agent_tool_execution: deferred
   uat_05_route_round_trip: passed
 deferrals:
-  - "UAT-04 in-page agent tool execution: Chrome 146 Canary's LanguageModel.create({ tools }) API is unstable on this build (4 failed fix iterations). AgentDrawer pivoted to plain LanguageModel chat (no tools); tool execution flows through Tool Inspector via WebMCP path (UAT-02/03 confirmed working). See debug session phase-02-uat-bugs (Issue C, commit 6fd7077) and webmcp-duplicate-tool-name (StrictMode bug, commit a737edd)."
+  - "UAT-04 in-page agent tool execution: Tested on Chrome 147.0.7727.117 Canary (newer than the 146.0.7672.0+ that Phase 02 RESEARCH.md was written against). The 146→147 transition introduced API drift — LanguageModel.params() was removed and LanguageModel.create({ tools, expectedInputs, expectedOutputs }) rejects with 'device unable to create a session' even with all flags enabled and availability() reporting available. AgentDrawer pivoted to plain LanguageModel chat (no tools); tool execution flows through Tool Inspector via WebMCP path (UAT-02/03 confirmed working). See debug session phase-02-uat-bugs (Issue C, commit 6fd7077) and webmcp-duplicate-tool-name (StrictMode bug, commit a737edd)."
 approved_by: user
 approved_at: 2026-04-27
 ---
