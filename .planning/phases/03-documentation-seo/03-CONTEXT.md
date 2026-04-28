@@ -1,7 +1,8 @@
 ---
 phase: 03-documentation-seo
 context_gathered: 2026-04-28
-locked_decisions: 11
+context_updated: 2026-04-28
+locked_decisions: 14
 ---
 
 # Phase 3: Documentation + SEO — Context
@@ -35,10 +36,11 @@ Out of scope (do NOT touch):
 - **D-01: Hybrid depth (~300-400 lines).** Lean enough to honor the milestone DoD ("2-min demo, not reference-quality") but long enough to cover all 4 DOCS-01 sections with substance. Splits the difference between Translate-API.md (316 lines, lean) and Writer-ReWriter-API.md (490 lines, exhaustive).
 - **D-02: Filename `WebMCP-API.md`.** Matches site convention (`Chat-API.md`, `Tool-Calling-API.md`, `Summary-API.md`, `Translate-API.md`, `Writer-ReWriter-API.md`). Already referenced by the placeholder copy at `RecipeWorkbenchPage.tsx:253`. **Closes** the inconsistency where REQUIREMENTS.md DOCS-01 mentioned `webmcp.md` as an alternate location.
 - **D-03: Required sections (all 4 from DOCS-01).** Doc MUST contain:
-  1. **Overview** — What WebMCP is + W3C Draft Feb 2026 status callout.
-  2. **API surface** — `navigator.modelContext.registerTool`, `provideContext`, `unregisterTool`. Descriptor shape (`{name, description, inputSchema, handler, annotations?}`). JSON Schema input pattern.
+  1. **Overview** — What WebMCP is + W3C Draft April 23, 2026 status callout. Include a one-line "Spec history" note: earlier drafts (≤ Feb 2026) defined `provideContext` / `unregisterTool` on `ModelContext`; both were removed in March 2026, leaving only `registerTool`.
+  2. **API surface** — `navigator.modelContext.registerTool` (the ONLY method on the current `ModelContext` IDL). Descriptor shape (`{name, description, inputSchema, handler, annotations?}`). JSON Schema input pattern.
   3. **Security / permission model** — Inherits the user's browser session, no OAuth, user-mediated, runs only on the page that registered the tool.
   4. **Browser support + flag** — Chrome 146+ Canary, Edge 147+, `chrome://flags/#WebMCP for testing`, fallback messaging (point at `MissingFlagBanner` for context).
+  *Resolution 2026-04-28 (post-research):* The original D-03 listed `provideContext` and `unregisterTool` as required API-surface coverage. Research confirmed both methods were dropped from the W3C draft in March 2026. Doc now covers only the current IDL (`registerTool`) with a one-line history sentence. See D-12.
 
 ### Code Samples (DOCS-01: ≥2)
 
@@ -49,15 +51,28 @@ Out of scope (do NOT touch):
 
 ### SEO per-tab differentiation (DOCS-02)
 
-- **D-08: Add `seoConfigs.webmcpDocs` to `chat/src/app/hooks/useSEOData.ts`.** Title and description MUST match the existing prerender mapping at `chat/scripts/prerender-react.js:357-367` verbatim:
+- **D-08: Add `seoConfigs.webmcpDocs` to `chat/src/app/hooks/useSEOData.ts`.** Title and description MUST match the prerender mapping at `chat/scripts/prerender-react.js:357-367` verbatim. Per the D-12 spec-drift resolution, BOTH the runtime config and the prerender copy MUST drop `provideContext` references. Final strings:
   - title: `WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs`
-  - description: `Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and provideContext.`
-  - keywords: `WebMCP documentation, navigator.modelContext API, registerTool, provideContext, page-side tools docs`
+  - description: `Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.`
+  - keywords: `WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools`
 
-  Single source of truth: prerender copy is canonical; runtime config matches it.
+  Single source of truth: prerender copy and runtime config MUST match. The prerender file at `chat/scripts/prerender-react.js:359-360` currently still references `provideContext` — the planner MUST update it to the strings above as part of this phase, alongside the new runtime config.
 - **D-09: Path-aware `useSEOData` in `RecipeWorkbenchPage.tsx`.** Replace the unconditional `useSEOData(seoConfigs.webmcp, '/webmcp')` at line 105 with a `useLocation()`-driven switch: `/webmcp/docs` → `seoConfigs.webmcpDocs` + `'/webmcp/docs'`; anything else under `/webmcp` → `seoConfigs.webmcp` + `'/webmcp'`. The existing `Tabs` component already navigates between the two URLs on tab click (Phase 2 verified — see `RecipeWorkbenchPage.tsx:240-243` ordering note), so the `<head>` will swap automatically when the user clicks the Docs tab.
 - **D-10: No URL plumbing changes.** Tab → URL → re-render chain already works (proven in Phase 2). Planner does NOT need to touch `Tabs.tsx`, the route definitions, or the URL handling.
-- **D-11: Wire the Docs tab content.** Replace the placeholder in `RecipeWorkbenchPage.tsx:249-256` with `<DocsRenderer docFile="WebMCP-API.md" initOpen={true} />`, mirroring the dark-mode-aware container styling used in `WriteRewritePage.tsx:261` (white bg / dark:gray-800, rounded, shadow). DOCS-01 will not pass UAT unless this swap happens.
+- **D-11: Wire the Docs tab content.** Replace the placeholder in `RecipeWorkbenchPage.tsx:249-256` with `<DocsRenderer docFile="WebMCP-API.md" initOpen={true} />`, mirroring the container shape used at `WriteRewritePage.tsx:259-262`. **Important (per RESEARCH.md):** `DocsRenderer.tsx:41` already renders its own `bg-white dark:bg-gray-800 rounded-xl shadow-lg ...` card — do NOT wrap it in another card. Use a thin `<div className="max-w-none">` (or no wrapper at all) to match the Writer/Translate pattern. DOCS-01 will not pass UAT unless this swap happens.
+
+### Spec Drift Resolution (added 2026-04-28 post-research)
+
+- **D-12: WebMCP API surface in the doc covers only the current IDL.** Research surfaced that `provideContext`, `unregisterTool`, and `clearContext` were removed from `ModelContext` in March 2026; the W3C draft (now dated April 23, 2026) defines exactly one method: `registerTool`. Resolution:
+  1. The doc body covers ONLY `registerTool` (Sample 1 + Sample 2 + the API-surface section).
+  2. The Overview section adds a one-line "Spec history" note: `Earlier drafts (≤ Feb 2026) included provideContext / unregisterTool on ModelContext — both were removed in March 2026; only registerTool remains.`
+  3. SEO strings updated to drop `provideContext` (see D-08).
+  4. `chat/src/app/types/webmcp.d.ts` is OUT of scope for this phase — its `provideContext` declaration is dead code that doesn't affect samples (samples don't call it). A separate cleanup phase can prune it without blocking the milestone DoD.
+  5. Spec-version pin in the doc body MUST read "Chrome 146+ Canary, W3C Draft Community Group Report (April 23, 2026)" — not Feb 2026 — so future readers see the snapshot the doc captures.
+
+- **D-13: Sample 2 stays aspirational per D-07 fidelity allowance.** Research confirmed `AgentDrawer.tsx` does NOT use `LanguageModel.create({ tools })` — it uses a `responseFormat` JSON dispatch loop as a workaround for a Chrome 147 codepath issue. CONTEXT.md D-06 makes "one definition, two consumers" the headline narrative. Resolution: Sample 2 still shows the canonical narrative (same `RECIPE_TOOLS` array feeding `navigator.modelContext.registerTool` AND `LanguageModel.create({ tools })`) because that IS the WebMCP value proposition. To stay honest, follow Sample 2 with a one-paragraph aside (NOT a third sample) noting that the in-page Recipe Agent currently uses a `responseFormat` dispatch path while the broader Chrome `LanguageModel` tools API stabilizes — a one-line link to AgentDrawer.tsx is fine; no detailed code dump.
+
+- **D-14: Adapter export name is `toLanguageModelTools` (plural), not `toLanguageModelTool`.** The samples should either import the real `toLanguageModelTools` from `chat/src/app/services/toolAdapter.ts:47` OR hand-roll the conversion inline. Recommended: hand-roll in Sample 2 for pedagogical clarity (so the reader sees the descriptor → tool transformation explicitly). Either approach is fine; planner picks.
 
 ### Claude's Discretion
 
