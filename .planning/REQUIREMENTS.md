@@ -10,7 +10,8 @@ Requirements for the WebMCP Recipe Workbench milestone. Each maps to a roadmap p
 ### Routing & Navigation
 
 - [x] **NAV-01**: A new `/webmcp` route is registered in `chat/src/app/AppRouter.tsx` and renders the Recipe Workbench page
-- [ ] **NAV-02**: A new `/webmcp/docs` route is registered and renders the WebMCP markdown explainer via `DocsRenderer`, matching the structure of the existing `/writer` and `/summary` doc tabs
+- [x] **NAV-02
+**: A new `/webmcp/docs` route is registered and renders the WebMCP markdown explainer via `DocsRenderer`, matching the structure of the existing `/writer` and `/summary` doc tabs
 - [x] **NAV-03**: A nav link to `/webmcp` is added to the main site navigation, placed alongside `/writer` and `/summary` and matching their styling
 
 ### Recipe Workbench UI
@@ -47,8 +48,10 @@ Requirements for the WebMCP Recipe Workbench milestone. Each maps to a roadmap p
 
 ### Documentation
 
-- [ ] **DOCS-01**: A markdown explainer at `chat/src/app/docs/webmcp.md` (or equivalent location matching existing pattern) covers: what WebMCP is, the W3C spec status, the `navigator.modelContext.registerTool` API surface, the security/permission model, browser support (Chrome 146+ / Edge 147+), and at least 2 code samples
-- [ ] **DOCS-02**: SEO metadata (title, description) is set for both `/webmcp` and `/webmcp/docs` routes via the existing `SEOProvider` pattern
+- [x] **DOCS-01
+**: A markdown explainer at `chat/src/app/docs/webmcp.md` (or equivalent location matching existing pattern) covers: what WebMCP is, the W3C spec status, the `navigator.modelContext.registerTool` API surface, the security/permission model, browser support (Chrome 146+ / Edge 147+), and at least 2 code samples
+- [x] **DOCS-02
+**: SEO metadata (title, description) is set for both `/webmcp` and `/webmcp/docs` routes via the existing `SEOProvider` pattern
 
 ## v2 Requirements
 

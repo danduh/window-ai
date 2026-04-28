@@ -63,5 +63,12 @@ export const seoConfigs = {
     title: 'WebMCP Recipe Workbench - navigator.modelContext demo | Chrome AI APIs',
     description: 'A page-side WebMCP demo using navigator.modelContext in Chrome 146+ Canary. Browse seeded recipes from IndexedDB and (in later phases) drive them with native browser tools — no MCP server required.',
     keywords: 'WebMCP, navigator.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools, IndexedDB demo'
+  },
+  // Must match prerender-react.js:357-367 verbatim — single source of truth
+  // is the prerender file (crawler parity). See Phase 3 D-08 + D-12.
+  webmcpDocs: {
+    title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
+    description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
+    keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools'
   }
 } as const;

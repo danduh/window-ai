@@ -356,8 +356,8 @@ function getSEODataForRoute(routePath) {
     },
     '/webmcp/docs': {
       title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
-      description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and provideContext.',
-      keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, provideContext, page-side tools docs',
+      description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
+      keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools',
       structuredData: {
         '@context': 'https://schema.org',
         '@type': 'TechArticle',
