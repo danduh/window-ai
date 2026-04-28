@@ -347,8 +347,8 @@ export const AgentDrawer: React.FC<AgentDrawerProps> = (props) => {
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200 mt-6 h-72 lg:h-72 max-lg:h-[60vh] max-lg:max-h-96">
-      <div className="flex flex-col gap-3 h-full">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200 h-full min-h-[60vh] lg:min-h-[600px] flex flex-col">
+      <div className="flex flex-col gap-3 h-full min-h-0">
         <ToolListPanel status={registrationStatus} registeredCount={registeredCount} liveToolName={incomingLiveToolName ?? null} />
         <div className="flex-1 min-h-0 overflow-y-auto">
           <ChatBox messages={messages} />
