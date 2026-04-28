@@ -14,7 +14,7 @@ progress:
 
 # State: window-ai — WebMCP Recipe Workbench
 
-**Last updated:** 2026-04-27 (Phase 1 complete — all 3 plans shipped: persistence + UI shell + routing/nav/SEO)
+**Last updated:** 2026-04-28 — Quick task 260428-fam (webmcp layout rework) shipped; UAT-04 in-page tool-calling resolved (commit 4c704f7)
 
 ## Project Reference
 
@@ -76,6 +76,12 @@ Plan: 3 of 3 (all 3 plans executor-complete; Plan 02-03 Task 3 step 2 awaits hum
 
 None.
 
+### Quick Tasks Completed
+
+| # | Description | Date | Commit | Directory |
+|---|-------------|------|--------|-----------|
+| 260428-fam | Rework /webmcp Recipe Workbench layout: ingredients under recipes on left, chat panel pulled up to dominant area | 2026-04-28 | 38e7b73 | [260428-fam-rework-webmcp-recipe-workbench-layout-in](./quick/260428-fam-rework-webmcp-recipe-workbench-layout-in/) |
+
 ### Risks Watched
 
 | Risk | Mitigation |
@@ -86,9 +92,9 @@ None.
 
 ## Session Continuity
 
-**Resume command:** `/gsd-plan-phase 2`
+**Resume command:** `/gsd-plan-phase 3`
 
-**Last session note:** 2026-04-27 — Phase 2 context gathered. 7 decisions locked in 02-CONTEXT.md: (D-01) WebMCP-first source of truth derive for LanguageModel; (D-02) bottom sticky chat drawer; (D-03) inline tool-use indicators; (D-04) streaming text response (researcher must verify Chrome's tool-call+streaming combo); (D-05) compact tool list panel; (D-06) graceful inline failure messages; (D-07) registration confirmation pill. Phase 1 still has 5 pending browser smoke tests in 01-HUMAN-UAT.md (non-blocking). Ready to plan Phase 2.
+**Last session note:** 2026-04-27 — Session resumed; Phase 2 closed (UAT-04 deferred as cannot-resolve, approved by user; commit dd3ae99). Phase 3 (Documentation + SEO) is the next phase to plan — `/webmcp/docs` markdown explainer + SEO metadata. No CONTEXT.md exists yet for Phase 3; consider `/gsd-discuss-phase 3` first or plan directly. Phase 1 still has 5 pending browser smoke tests in 01-HUMAN-UAT.md (non-blocking).
 
 **Files of record:**
 
