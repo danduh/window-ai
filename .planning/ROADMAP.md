@@ -56,7 +56,9 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
   1. Navigating to `/webmcp/docs` renders a markdown explainer through `DocsRenderer` covering: what WebMCP is, W3C spec status, the `navigator.modelContext.registerTool` API surface, security/permission model, browser support (Chrome 146+ / Edge 147+), and at least 2 code samples
   2. The `/webmcp/docs` page layout, navigation chrome, and tab structure match the existing `/writer` and `/summary` doc tabs (no bespoke layout)
   3. Both `/webmcp` and `/webmcp/docs` set page-specific titles and meta descriptions through the existing `SEOProvider` pattern, observable in the rendered `<head>`
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 03-01-PLAN.md — Author WebMCP-API.md markdown explainer (4 DOCS-01 sections + 2 typed code samples from RECIPE_TOOLS)
+- [ ] 03-02-PLAN.md — Path-aware SEO + DocsRenderer mount + prerender drift fix (wires the Docs tab and swaps <head>)
 
 ## Progress
 
