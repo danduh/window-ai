@@ -24,30 +24,56 @@ interface WorkbenchPanelProps {
   activeId: string | null;
   loading: boolean;
   onSelect: (id: string) => void;
+  registrationStatus: ToolRegistrationStatus;
+  registeredCount: number;
+  liveToolName: string | null;
+  onLiveToolNameChange: (name: string | null) => void;
 }
 
-const WorkbenchPanel: React.FC<WorkbenchPanelProps> = ({ recipes, activeId, loading, onSelect }) => {
+const WorkbenchPanel: React.FC<WorkbenchPanelProps> = ({
+  recipes,
+  activeId,
+  loading,
+  onSelect,
+  registrationStatus,
+  registeredCount,
+  liveToolName,
+  onLiveToolNameChange,
+}) => {
   const active = recipes.find((r) => r.id === activeId);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-      <aside className="lg:col-span-1">
+    <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:min-h-[calc(100vh-14rem)]">
+      {/* LEFT column: recipe content stacked top-to-bottom */}
+      <aside className="lg:col-span-4 space-y-6">
         {!loading && recipes.length > 0 && (
           <RecipePicker recipes={recipes} activeId={activeId} onSelect={onSelect} />
         )}
-      </aside>
-      <section className="lg:col-span-3 space-y-6">
         {loading ? (
           <p className="text-gray-500 dark:text-gray-400">Loading your recipes&hellip;</p>
         ) : !active ? (
           <p className="text-gray-500 dark:text-gray-400">No recipes yet. Reload the page to seed the demo recipes.</p>
         ) : (
           <>
-            <RecipeHeader title={active.title} servings={active.servings} />
             <IngredientsList ingredients={active.ingredients} />
             <StepsList steps={active.steps} />
           </>
         )}
+      </aside>
+
+      {/* RIGHT column: compact recipe header + dominant chat panel */}
+      <section className="lg:col-span-8 flex flex-col gap-6 min-h-[60vh] lg:min-h-0">
+        {!loading && active && (
+          <RecipeHeader title={active.title} servings={active.servings} />
+        )}
+        <div className="flex-1 min-h-[60vh] lg:min-h-0">
+          <AgentDrawer
+            registrationStatus={registrationStatus}
+            registeredCount={registeredCount}
+            liveToolName={liveToolName}
+            onLiveToolNameChange={onLiveToolNameChange}
+          />
+        </div>
       </section>
     </div>
   );
@@ -234,20 +260,16 @@ export const RecipeWorkbenchPage: React.FC = () => {
         label: 'Workbench',
         path: '',
         content: (
-          <>
-            <WorkbenchPanel
-              recipes={recipes}
-              activeId={activeId}
-              loading={loading}
-              onSelect={handleSelect}
-            />
-            <AgentDrawer
-              registrationStatus={registration.status}
-              registeredCount={registration.count}
-              liveToolName={liveToolName}
-              onLiveToolNameChange={setLiveToolName}
-            />
-          </>
+          <WorkbenchPanel
+            recipes={recipes}
+            activeId={activeId}
+            loading={loading}
+            onSelect={handleSelect}
+            registrationStatus={registration.status}
+            registeredCount={registration.count}
+            liveToolName={liveToolName}
+            onLiveToolNameChange={setLiveToolName}
+          />
         ),
       },
     ],
