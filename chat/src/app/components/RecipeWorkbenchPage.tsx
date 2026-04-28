@@ -1,6 +1,8 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useLocation } from 'react-router-dom';
 import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
+import { DocsRenderer } from '../tools/DocsRenderer';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import {
   getRecipes,
@@ -102,7 +104,19 @@ let previousRegistrationController: AbortController | null = null;
 const DUPLICATE_NAME_PATTERN = /duplicate tool name|already registered/i;
 
 export const RecipeWorkbenchPage: React.FC = () => {
-  useSEOData(seoConfigs.webmcp, '/webmcp');
+  // Path-aware SEO: when the user is on /webmcp/docs, the rendered <head> swaps
+  // to seoConfigs.webmcpDocs; everything else under /webmcp gets seoConfigs.webmcp.
+  // useLocation() is order-stable; useSEOData remains the first SEO write so
+  // the Rules of Hooks invariant is preserved. The two seoConfigs.* references
+  // are stable module-scope objects → useSEOData's [config, path, updateSEO]
+  // deps only re-fire when the branch flips, not on every render.
+  // Use startsWith (NOT includes) per RESEARCH Pitfall 6 — exact-prefix match.
+  const location = useLocation();
+  const isDocs = location.pathname.startsWith('/webmcp/docs');
+  useSEOData(
+    isDocs ? seoConfigs.webmcpDocs : seoConfigs.webmcp,
+    isDocs ? '/webmcp/docs' : '/webmcp',
+  );
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -247,11 +261,8 @@ export const RecipeWorkbenchPage: React.FC = () => {
         label: 'Docs',
         path: '/docs',
         content: (
-          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
-            <p className="text-gray-600 dark:text-gray-400">
-              Documentation coming in Phase 3 &mdash; see{' '}
-              <code className="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded font-mono text-sm">WebMCP-API.md</code>.
-            </p>
+          <div className="max-w-none">
+            <DocsRenderer docFile="WebMCP-API.md" initOpen={true} />
           </div>
         ),
       },
