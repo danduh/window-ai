@@ -57,8 +57,8 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
   2. The `/webmcp/docs` page layout, navigation chrome, and tab structure match the existing `/writer` and `/summary` doc tabs (no bespoke layout)
   3. Both `/webmcp` and `/webmcp/docs` set page-specific titles and meta descriptions through the existing `SEOProvider` pattern, observable in the rendered `<head>`
 **Plans**: 2 plans
-- [ ] 03-01-PLAN.md — Author WebMCP-API.md markdown explainer (4 DOCS-01 sections + 2 typed code samples from RECIPE_TOOLS)
-- [ ] 03-02-PLAN.md — Path-aware SEO + DocsRenderer mount + prerender drift fix (wires the Docs tab and swaps <head>)
+- [x] 03-01-PLAN.md — Author WebMCP-API.md markdown explainer (4 DOCS-01 sections + 2 typed code samples from RECIPE_TOOLS)
+- [x] 03-02-PLAN.md — Path-aware SEO + DocsRenderer mount + prerender drift fix (wires the Docs tab and swaps <head>)
 
 ## Progress
 
@@ -66,7 +66,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 |-------|----------------|--------|-----------|
 | 1. Foundation Skeleton | 3/3 | Complete | 2026-04-27 |
 | 2. WebMCP Tools + In-Page Agent | 3/3 | Complete | 2026-04-27 |
-| 3. Documentation + SEO | 0/0 | Not started | - |
+| 3. Documentation + SEO | 2/2 | Complete (code; runtime UAT pending) | 2026-04-28 |
 
 ## Coverage Validation
 
