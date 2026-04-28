@@ -51,10 +51,10 @@ export const zeroShot = async (
   }
   debugger
   if (!session) {
-    const createOptions: any = systemPrompt 
-      ? { initialPrompts: [{ role: "system", content: systemPrompt }] }
-      : {};
-    
+    const createOptions: any = systemPrompt
+      ? { outputLanguage: 'en', initialPrompts: [{ role: "system", content: systemPrompt }] }
+      : { outputLanguage: 'en' };
+
     session = await LanguageModel.create(createOptions);
   }
 

@@ -32,7 +32,7 @@ const schema = {
   };
 const ToolCallingPage: React.FC = () => {
   useSEOData(seoConfigs.toolCalling, '/tool-calling');
-  
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [session, setSession] = useState<any>(null);
@@ -168,6 +168,7 @@ const ToolCallingPage: React.FC = () => {
       }
 
       const newSession = await LanguageModel.create({
+        outputLanguage: 'en',
         responseFormat: schema,
         initialPrompts: [
           {
