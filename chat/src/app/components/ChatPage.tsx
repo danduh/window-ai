@@ -72,10 +72,20 @@ const ChatPage: React.FC = () => {
           if (done) break;
           
           setMessages((prevMessages) => {
-            const lastMessage: Message = prevMessages.pop() as Message;
-            lastMessage.text = isCanary ? lastMessage.text + value : value;
-            prevMessages.push(lastMessage);
-            return [...prevMessages];
+            // Immutable update: under React StrictMode the setState updater is
+            // invoked twice with the same `prev` reference. The previous
+            // implementation mutated `lastMessage.text` in place which caused
+            // every chunk to be appended twice ("HiHi there there!!"). This
+            // form mirrors the canonical pattern used by WriteRewritePage,
+            // Summary, and TranslatePage (`setX(prev => prev + value)`).
+            if (prevMessages.length === 0) return prevMessages;
+            const lastIdx = prevMessages.length - 1;
+            const lastMessage = prevMessages[lastIdx];
+            const updatedLast: Message = {
+              ...lastMessage,
+              text: isCanary ? lastMessage.text + value : value,
+            };
+            return [...prevMessages.slice(0, lastIdx), updatedLast];
           });
         }
       } finally {

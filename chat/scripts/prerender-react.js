@@ -49,6 +49,10 @@ const routes = [
   { path: '/writer', filename: 'writer.html' },
   { path: '/writer/writer-api-documentation', filename: 'writer-api-documentation.html' },
   { path: '/writer/writer-demo', filename: 'writer-demo.html' },
+
+  // WebMCP routes
+  { path: '/webmcp', filename: 'webmcp.html' },
+  { path: '/webmcp/docs', filename: 'webmcp-docs.html' },
 ];
 
 // Build configuration
@@ -339,6 +343,28 @@ function getSEODataForRoute(routePath) {
         description: 'Interactive AI-powered writing and rewriting tool',
       },
     },
+    '/webmcp': {
+      title: 'WebMCP Recipe Workbench - navigator.modelContext demo | Chrome AI APIs',
+      description: 'A page-side WebMCP demo using navigator.modelContext in Chrome 146+ Canary. Browse seeded recipes from IndexedDB.',
+      keywords: 'WebMCP, navigator.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'WebMCP Recipe Workbench',
+        description: 'Page-side tools demo built on navigator.modelContext',
+      },
+    },
+    '/webmcp/docs': {
+      title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
+      description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
+      keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'WebMCP API Documentation',
+        description: 'Technical documentation for the WebMCP Recipe Workbench',
+      },
+    },
   };
 
   return seoConfigs[routePath] || seoConfigs['/'];
@@ -426,7 +452,7 @@ function createRobotsTxt() {
   const baseUrl =
     process.env.NODE_ENV === 'production'
       ? 'https://your-domain.com/window-ai'
-      : 'http://localhost:4200';
+      : 'http://localhost:4300';
 
   const robotsTxt = `User-agent: *
 Allow: /

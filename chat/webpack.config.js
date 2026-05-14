@@ -20,7 +20,7 @@ module.exports = {
         path: join(__dirname, '../dist/chat'),
     },
     devServer: {
-        port: 4200,
+        port: 4300,
         historyApiFallback: {
             index: '/index.html',
             disableDotRule: true,

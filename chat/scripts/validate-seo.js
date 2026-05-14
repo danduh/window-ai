@@ -86,7 +86,7 @@ if (fs.existsSync(sitemapPath)) {
   // Check if all routes are included
   const routes = ['/', '/chat', '/tool-calling', '/summary', '/translate', '/writer'];
   routes.forEach(route => {
-    if (sitemapContent.includes(`<loc>http://localhost:4200${route}</loc>`)) {
+    if (sitemapContent.includes(`<loc>http://localhost:4300${route}</loc>`)) {
       console.log(`  ✅ Route ${route} included`);
     } else {
       console.log(`  ❌ Route ${route} missing`);
