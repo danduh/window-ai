@@ -55,11 +55,11 @@ Source: observed classes in `RecipeWorkbenchPage.tsx`, `HomePage.tsx`, `AppRoute
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px (`text-sm`) | 400 (`font-normal` / default) | 1.5 (Tailwind default for `text-sm`) |
-| Label / nav link | 14px (`text-sm`) — desktop nav; 16px (`text-base`) — mobile nav | 500 (`font-medium`) | 1.5 |
+| Label / nav link | 14px (`text-sm`) — desktop nav; 16px (`text-base`) — mobile nav | 400 (`font-normal` / default) | 1.5 |
 | Heading (page title) | 30px (`text-3xl`) | 700 (`font-bold`) | 1.2 (`leading-tight` or browser default) |
 | Subheading / tagline | 16px (`text-base`) | 400 (`font-normal`) | 1.5 |
 
-Sizes are exactly 4 values. Weights are exactly 2 (400 regular + 700 bold; `font-medium` (500) is used only for nav links and pills — counts as part of the label role). All sizes match what is already in use project-wide; no new type sizes are introduced in Phase 4.
+Sizes are exactly 4 values. Weights are exactly 2 (400 regular + 700 bold). Nav link distinction from body text is achieved via color contrast (`text-gray-600 dark:text-gray-300`) rather than weight — this matches the plain-weight nav pattern used across existing pages. All sizes match what is already in use project-wide; no new type sizes are introduced in Phase 4.
 
 ---
 
@@ -155,7 +155,7 @@ Error states visible in Phase 4:
 
 ### Nav Link
 
-- **Desktop:** `<Link to="/generative-ui">` inserted immediately after the `/webmcp` `<Link>` in `AppRouter.tsx` desktop nav block (lines ~70–72). Class: `text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200`. Includes `onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link')}`.
+- **Desktop:** `<Link to="/generative-ui">` inserted immediately after the `/webmcp` `<Link>` in `AppRouter.tsx` desktop nav block (lines ~70–72). Class: `text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-normal transition-colors duration-200`. Includes `onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link')}`.
 - **Mobile:** Identical `<Link>` in mobile nav block (lines ~160–162). Class adds `block` prefix. Includes matching `trackUserInteraction` call.
 
 ### MissingFlagBanner
@@ -209,6 +209,7 @@ No third-party component registries are used in this phase. All components are h
 | `primary-500` accent only on header icon | Code scan — RecipeWorkbenchPage.tsx:295, HomePage.tsx:20 |
 | `max-w-7xl mx-auto` container | Code scan — AppRouter.tsx:43,204 |
 | No shadcn | Code scan — no components.json in repo root |
+| `font-normal` for nav links (not `font-medium`) | Typography fix — 2-weight constraint; color contrast handles distinction |
 | Tagline copy | Claude's Discretion (CONTEXT.md) — no tagline specified in REQUIREMENTS or CONTEXT |
 | Chat placeholder copy | Claude's Discretion (CONTEXT.md) — exact placeholder copy delegated to researcher |
 | Meal-plan empty state copy | Claude's Discretion (CONTEXT.md) — exact treatment delegated to researcher |
