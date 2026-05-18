@@ -54,6 +54,12 @@ export const seoConfigs = {
     description: 'On-device language detection and translation between multiple language pairs. Features automatic language detection, streaming translation, and downloadable language packs.',
     keywords: 'language translation, language detection, multi-language, on-device translation, browser translation, AI translation'
   },
+  // Must match prerender-react.js seoConfigs['/live-translate'] verbatim — single source of truth.
+  liveTranslate: {
+    title: 'Live Voice Translation - Chrome Speech + Translator demo | Chrome AI APIs',
+    description: 'Speak live in your browser and watch your words translated simultaneously into two languages. Combines the Web Speech API with Chrome\'s on-device Translator API — no server, no upload.',
+    keywords: 'live translation, voice translation, Web Speech API, speech recognition, real-time translation, Chrome AI, on-device translation, dual translation, simultaneous translation'
+  },
   writer: {
     title: 'Writer & Rewriter APIs - AI-powered content creation | Chrome AI APIs',
     description: 'AI-powered content creation and enhancement. Writer creates new content from prompts, while Rewriter transforms existing text with tone, format, and length adjustments.',

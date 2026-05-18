@@ -44,7 +44,10 @@ const routes = [
   { path: '/translate', filename: 'translate.html' },
   { path: '/translate/translate-api-documentation', filename: 'translate-api-documentation.html' },
   { path: '/translate/translate-demo', filename: 'translate-demo.html' },
-  
+
+  // Live Translate route (single-page, no docs/demo split)
+  { path: '/live-translate', filename: 'live-translate.html' },
+
   // Writer routes
   { path: '/writer', filename: 'writer.html' },
   { path: '/writer/writer-api-documentation', filename: 'writer-api-documentation.html' },
@@ -299,6 +302,21 @@ function getSEODataForRoute(routePath) {
         '@type': 'WebPage',
         name: 'Translation Demo',
         description: 'Interactive multi-language translation tool',
+      },
+    },
+    '/live-translate': {
+      title:
+        'Live Voice Translation - Chrome Speech + Translator demo | Chrome AI APIs',
+      description:
+        'Speak live in your browser and watch your words translated simultaneously into two languages. Combines the Web Speech API with Chrome\'s on-device Translator API — no server, no upload.',
+      keywords:
+        'live translation, voice translation, Web Speech API, speech recognition, real-time translation, Chrome AI, on-device translation, dual translation, simultaneous translation',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Live Voice Translation Demo',
+        description:
+          'Live speech-to-text fanned into dual simultaneous translations',
       },
     },
     '/writer': {

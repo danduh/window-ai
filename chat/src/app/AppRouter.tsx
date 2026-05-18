@@ -4,6 +4,7 @@ import ChatPage from './components/ChatPage';
 import ToolCallingPage from './components/ToolCallingPage';
 import Summary from "./components/Summary";
 import TranslatePage from "./components/TranslatePage";
+import LiveTranslatePage from "./components/LiveTranslatePage";
 import WriteRewritePage from "./components/WriteRewritePage";
 import {HomePage} from "./components/HomePage";
 import {RecipeWorkbenchPage} from "./components/RecipeWorkbenchPage";
@@ -63,6 +64,9 @@ const AppRouter: React.FC = () => {
                     <Link to="/translate"
                           onClick={() => trackUserInteraction('navigation_click', 'translate_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Translate</Link>
+                    <Link to="/live-translate"
+                          onClick={() => trackUserInteraction('navigation_click', 'live_translate_link')}
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Live Translate</Link>
                     <Link to="/webmcp"
                           onClick={() => trackUserInteraction('navigation_click', 'webmcp_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">WebMCP</Link>
@@ -150,6 +154,9 @@ const AppRouter: React.FC = () => {
                 <Link to="/translate"
                       onClick={() => trackUserInteraction('navigation_click', 'translate_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Translate</Link>
+                <Link to="/live-translate"
+                      onClick={() => trackUserInteraction('navigation_click', 'live_translate_link_mobile')}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Live Translate</Link>
                 <Link to="/webmcp"
                       onClick={() => trackUserInteraction('navigation_click', 'webmcp_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">WebMCP</Link>
@@ -217,7 +224,10 @@ const AppRouter: React.FC = () => {
               <Route path="/translate" element={<Navigate to="/translate/translate-api-documentation" replace/>}/>
               <Route path="/translate/translate-api-documentation" element={<TranslatePage/>}/>
               <Route path="/translate/translate-demo" element={<TranslatePage/>}/>
-              
+
+              {/* Live Translate routes */}
+              <Route path="/live-translate" element={<LiveTranslatePage/>}/>
+
               {/* WebMCP routes */}
               <Route path="/webmcp" element={<RecipeWorkbenchPage/>}/>
               <Route path="/webmcp/docs" element={<RecipeWorkbenchPage/>}/>
