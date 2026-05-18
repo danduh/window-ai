@@ -76,5 +76,12 @@ export const seoConfigs = {
     title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
     description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
     keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools'
+  },
+  // Must match prerender-react.js seoConfigs['/generative-ui'] verbatim.
+  // See Phase 3 D-08 + D-12 — prerender drift caused a Phase 3 hotfix.
+  generativeUI: {
+    title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
+    description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
+    keywords: 'MCP Apps, generative UI, navigator.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan'
   }
 } as const;
