@@ -29,7 +29,6 @@ export const useMealPlan = (): UseMealPlanResult => {
       })
       .catch((err) => {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        // eslint-disable-next-line no-console
         console.error('[useMealPlan] Failed to load plan:', message);
         if (!cancelled) setLoading(false);
       });
@@ -45,7 +44,6 @@ export const useMealPlan = (): UseMealPlanResult => {
         .then((entries) => setPlan(entries))
         .catch((err: unknown) => {
           const message = err instanceof Error ? err.message : 'Unknown error';
-          // eslint-disable-next-line no-console
           console.error('[useMealPlan] Failed to refresh plan after store notify:', message);
         });
     });

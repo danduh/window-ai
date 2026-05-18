@@ -61,7 +61,6 @@ export const getDB = (): Promise<IDBPDatabase<RecipeDB>> => {
           db.createObjectStore('meal-plan', { keyPath: 'id' });
         }
       },
-      // eslint-disable-next-line no-console
       blocked(currentVersion) {
         console.warn(
           `[RecipePersistence] IDB upgrade blocked — another tab has version ${currentVersion} open. ` +
