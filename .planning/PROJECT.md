@@ -2,9 +2,31 @@
 
 ## What This Is
 
-`window-ai` is a public showcase site (windowai.danduh.me) demonstrating Chrome's experimental built-in AI APIs (`window.ai` / `LanguageModel`, `Summarizer`, `Translator`/`LanguageDetector`, `Writer`/`Rewriter`) plus a Model Context Protocol (MCP) reference implementation. This milestone adds a new in-browser **WebMCP** demo — a Recipe Workbench page where the page registers tools via `navigator.modelContext` and an in-page chat agent (powered by Chrome's `LanguageModel`) calls them, alongside an external Chrome 146 Canary agent.
+`window-ai` is a public showcase site (windowai.danduh.me) demonstrating Chrome's experimental built-in AI APIs (`window.ai` / `LanguageModel`, `Summarizer`, `Translator`/`LanguageDetector`, `Writer`/`Rewriter`) plus a Model Context Protocol (MCP) reference implementation. v1.0 shipped the WebMCP Recipe Workbench at `/webmcp`. v1.1 adds **Generative UI on WebMCP** at `/generative-ui` — a tool returns an interactive UI resource rendered in a sandboxed iframe inside the chat bubble, and the iframe invokes page-side helper tools via postMessage (MCP Apps SEP-1865 pattern).
 
-## Core Value
+## Current Milestone: v1.1 Generative UI on WebMCP
+
+**Goal:** A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a recipe, sees an interactive recipe-card carousel render *inside the chat bubble* (sandboxed iframe + JSON-RPC postMessage bridge), clicks Pick, and watches the page's meal-plan column update live — all in under 90 seconds, zero outbound network requests.
+
+**Target features:**
+- New `/generative-ui` route (additive to shipped `/webmcp` Recipe Workbench)
+- In-page chat panel powered by Chrome `LanguageModel` (responseFormat JSON dispatch, Phase 2 pattern)
+- WebMCP tool `searchRecipes` returns an MCP Apps `_meta.ui.resourceUri` UI resource
+- Sandboxed iframe renderer in the chat bubble (double-iframe sandbox per spec)
+- JSON-RPC over postMessage bridge — host ↔ iframe
+- Page-side helper tools (`commitRecipeToPlan`) registered with `visibility:["app"]`, invoked by the iframe via `tools/call` (iframes cannot `registerTool` directly per SEP-1865)
+- Meal-plan column on the right updates live from helper-tool effects
+- 12 seeded recipes (extends v1.0's 2)
+- SEO config + nav link; `MissingFlagBanner` if `navigator.modelContext` absent
+
+**Key context:**
+- Research artifacts in `.planning/research/` (mcp-apps-spec.md, mcp-ui-webmcp-tictactoe-analysis.md, webmcp-rich-content-status.md, codebase-integration-map.md)
+- Source handoff at `.planning/HANDOFF_WEBMCP_GENERATIVE_UI.md`
+- Hard constraint: **native `navigator.modelContext` only** — no `@mcp-b/global` polyfill (carries from v1.0)
+- **Chrome only** — fully in-Chrome demo, no Claude Desktop (open interop bugs forwarding `_meta.ui.resourceUri`)
+- All v1.0 demos at `/chat`, `/summary`, `/translate`, `/writer`, `/tool-calling`, `/webmcp` remain untouched
+
+## Core Value (v1.0 — shipped)
 
 A visitor with **Chrome 146 Canary** (WebMCP flag enabled) can, in under 2 minutes: open `/webmcp`, see a preloaded recipe, type *"scale to 6 and swap milk for oat milk"* into the in-page chat, watch the recipe state update live, and see the registered tools listed in the WebMCP Tool Inspector extension.
 

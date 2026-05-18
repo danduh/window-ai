@@ -1,15 +1,16 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: complete
-last_updated: "2026-04-28T13:30:00.000Z"
+milestone: v1.1
+milestone_name: Generative UI on WebMCP
+status: planning
+last_updated: "2026-05-18T19:48:43.438Z"
+last_activity: 2026-05-18
 progress:
-  total_phases: 3
-  completed_phases: 3
-  total_plans: 8
-  completed_plans: 8
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # State: window-ai — WebMCP Recipe Workbench
@@ -24,17 +25,10 @@ progress:
 
 ## Current Position
 
-Phase: 3 (Documentation + SEO) — COMPLETE (code-level verification 9/9; runtime/visual UAT pending)
-**Phase:** 3
-**Plan:** 2/2 complete
-**Status:** Phase 3 complete
-**Progress:** [██████████] 100%
-
-**Roadmap snapshot:**
-
-- [x] Phase 1: Foundation Skeleton
-- [x] Phase 2: WebMCP Tools + In-Page Agent
-- [x] Phase 3: Documentation + SEO
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-05-18 — Milestone v1.1 started
 
 ## Performance Metrics
 
