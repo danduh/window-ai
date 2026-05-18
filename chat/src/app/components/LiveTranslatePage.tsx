@@ -23,10 +23,25 @@ const languages = [
   { code: 'ar', name: 'Arabic' },
 ];
 
+// BCP-47 tags for Web Speech API. The short prefix (before the '-') doubles as
+// the Translator API source code, so picking en-US here both sets recognition
+// to American English AND tells the Translator to translate from `en`.
+const speechLanguages = [
+  { code: 'en-US', name: 'English (US)' },
+  { code: 'en-GB', name: 'English (UK)' },
+  { code: 'es-ES', name: 'Spanish' },
+  { code: 'fr-FR', name: 'French' },
+  { code: 'de-DE', name: 'German' },
+  { code: 'uk-UA', name: 'Ukrainian' },
+  { code: 'ru-RU', name: 'Russian' },
+  { code: 'ja-JP', name: 'Japanese' },
+  { code: 'he-IL', name: 'Hebrew' },
+  { code: 'ar-SA', name: 'Arabic' },
+];
+
 type Mode = 'final' | 'interim';
 const INTERIM_DEBOUNCE_MS = 300;
-const SOURCE_LANGUAGE = 'en';
-const RECOGNITION_LANG = 'en-US';
+const DEFAULT_SPEECH_LANG = 'en-US';
 
 const LiveTranslatePage: React.FC = () => {
   useSEOData(seoConfigs.liveTranslate, '/live-translate');
@@ -37,6 +52,7 @@ const LiveTranslatePage: React.FC = () => {
   const [mode, setMode] = useState<Mode>('final');
   const [transcript, setTranscript] = useState<string[]>([]);
   const [interimText, setInterimText] = useState<string>('');
+  const [speechLang, setSpeechLang] = useState<string>(DEFAULT_SPEECH_LANG);
   const [targetA, setTargetA] = useState<string>('es');
   const [targetB, setTargetB] = useState<string>('fr');
   const [translationA, setTranslationA] = useState<string>('');
@@ -44,6 +60,9 @@ const LiveTranslatePage: React.FC = () => {
   const [errorA, setErrorA] = useState<string | null>(null);
   const [errorB, setErrorB] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
+
+  // Translator wants the language portion of the BCP-47 tag (e.g. "en", not "en-US").
+  const sourceLang = speechLang.split('-')[0];
 
   const handleRef = useRef<LiveTranscriptionHandle | null>(null);
   const abortARef = useRef<AbortController | null>(null);
@@ -53,30 +72,37 @@ const LiveTranslatePage: React.FC = () => {
   const modeRef = useRef<Mode>(mode);
   const targetARef = useRef<string>(targetA);
   const targetBRef = useRef<string>(targetB);
+  const sourceLangRef = useRef<string>(sourceLang);
   const didMountARef = useRef<boolean>(false);
   const didMountBRef = useRef<boolean>(false);
+  const didMountSpeechLangRef = useRef<boolean>(false);
 
   // Keep refs in sync so the speech-recognition callbacks always see the
   // latest mode/target values without re-binding the recognition session.
   useEffect(() => { modeRef.current = mode; }, [mode]);
   useEffect(() => { targetARef.current = targetA; }, [targetA]);
   useEffect(() => { targetBRef.current = targetB; }, [targetB]);
+  useEffect(() => { sourceLangRef.current = sourceLang; }, [sourceLang]);
 
   // Pane A: fan-out target. Translates with availability check + AbortController
   // cancellation so a fresh sentence cancels any in-flight translation for this pane.
-  const translatePaneA = useCallback(async (text: string, target: string) => {
+  const translatePaneA = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
     abortARef.current?.abort();
     const ctrl = new AbortController();
     abortARef.current = ctrl;
     setErrorA(null);
+    if (source === target) {
+      setTranslationA(text);
+      return;
+    }
     try {
-      const avail = await checkTranslationAvailability(SOURCE_LANGUAGE, target);
+      const avail = await checkTranslationAvailability(source, target);
       if (avail === 'unavailable') {
-        setErrorA(`Language pair ${SOURCE_LANGUAGE}->${target} unavailable on this Chrome build`);
+        setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
-      const out = await translate(text, SOURCE_LANGUAGE, target, { signal: ctrl.signal });
+      const out = await translate(text, source, target, { signal: ctrl.signal });
       if (!ctrl.signal.aborted) setTranslationA(out);
     } catch (e) {
       const msg = (e as Error).message ?? '';
@@ -87,19 +113,23 @@ const LiveTranslatePage: React.FC = () => {
 
   // Pane B: fan-out target. Symmetric with translatePaneA but writes to its own
   // state + AbortController so the two panes cancel/update independently.
-  const translatePaneB = useCallback(async (text: string, target: string) => {
+  const translatePaneB = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
     abortBRef.current?.abort();
     const ctrl = new AbortController();
     abortBRef.current = ctrl;
     setErrorB(null);
+    if (source === target) {
+      setTranslationB(text);
+      return;
+    }
     try {
-      const avail = await checkTranslationAvailability(SOURCE_LANGUAGE, target);
+      const avail = await checkTranslationAvailability(source, target);
       if (avail === 'unavailable') {
-        setErrorB(`Language pair ${SOURCE_LANGUAGE}->${target} unavailable on this Chrome build`);
+        setErrorB(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
-      const out = await translate(text, SOURCE_LANGUAGE, target, { signal: ctrl.signal });
+      const out = await translate(text, source, target, { signal: ctrl.signal });
       if (!ctrl.signal.aborted) setTranslationB(out);
     } catch (e) {
       const msg = (e as Error).message ?? '';
@@ -113,8 +143,8 @@ const LiveTranslatePage: React.FC = () => {
       setTranscript((prev) => [...prev, text]);
       setInterimText('');
       latestSourceRef.current = text;
-      void translatePaneA(text, targetARef.current);
-      void translatePaneB(text, targetBRef.current);
+      void translatePaneA(text, sourceLangRef.current, targetARef.current);
+      void translatePaneB(text, sourceLangRef.current, targetBRef.current);
     },
     [translatePaneA, translatePaneB]
   );
@@ -128,19 +158,19 @@ const LiveTranslatePage: React.FC = () => {
         }
         debounceRef.current = window.setTimeout(() => {
           latestSourceRef.current = text;
-          void translatePaneA(text, targetARef.current);
-          void translatePaneB(text, targetBRef.current);
+          void translatePaneA(text, sourceLangRef.current, targetARef.current);
+          void translatePaneB(text, sourceLangRef.current, targetBRef.current);
         }, INTERIM_DEBOUNCE_MS);
       }
     },
     [translatePaneA, translatePaneB]
   );
 
-  const handleStart = () => {
+  const handleStart = useCallback(() => {
     setGlobalError(null);
     try {
       handleRef.current = startLiveTranscription(handleInterim, handleFinal, {
-        lang: RECOGNITION_LANG,
+        lang: speechLang,
         onError: (err) => {
           setGlobalError(err.message);
           setIsListening(false);
@@ -151,7 +181,7 @@ const LiveTranslatePage: React.FC = () => {
     } catch (e) {
       setGlobalError((e as Error).message);
     }
-  };
+  }, [handleFinal, handleInterim, speechLang]);
 
   const handleStop = () => {
     handleRef.current?.stop();
@@ -176,7 +206,7 @@ const LiveTranslatePage: React.FC = () => {
       return;
     }
     if (latestSourceRef.current.trim().length > 0) {
-      void translatePaneA(latestSourceRef.current, targetA);
+      void translatePaneA(latestSourceRef.current, sourceLangRef.current, targetA);
     }
   }, [targetA, translatePaneA]);
 
@@ -187,9 +217,37 @@ const LiveTranslatePage: React.FC = () => {
       return;
     }
     if (latestSourceRef.current.trim().length > 0) {
-      void translatePaneB(latestSourceRef.current, targetB);
+      void translatePaneB(latestSourceRef.current, sourceLangRef.current, targetB);
     }
   }, [targetB, translatePaneB]);
+
+  // When the speech (source) language changes:
+  // - if listening, restart recognition with the new language so it takes effect immediately
+  // - clear the transcript and panes (the prior content was a different language; keeping it
+  //   would mix scripts in the same view and confuse the demo)
+  useEffect(() => {
+    if (!didMountSpeechLangRef.current) {
+      didMountSpeechLangRef.current = true;
+      return;
+    }
+    setTranscript([]);
+    setInterimText('');
+    setTranslationA('');
+    setTranslationB('');
+    setErrorA(null);
+    setErrorB(null);
+    latestSourceRef.current = '';
+
+    if (handleRef.current) {
+      handleRef.current.stop();
+      handleRef.current = null;
+      // Defer restart to the next tick so onend can fire first.
+      const id = window.setTimeout(() => {
+        handleStart();
+      }, 50);
+      return () => window.clearTimeout(id);
+    }
+  }, [speechLang, handleStart]);
 
   // Cleanup on unmount.
   useEffect(() => {
@@ -236,9 +294,28 @@ const LiveTranslatePage: React.FC = () => {
           <>
             {/* Section 1 — Source transcript */}
             <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 transition-colors duration-200">
-              <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-3">
-                Source (English)
-              </h2>
+              <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+                  Source ({speechLanguages.find((l) => l.code === speechLang)?.name ?? speechLang})
+                </h2>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="speechLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    I'll speak in
+                  </label>
+                  <select
+                    id="speechLang"
+                    value={speechLang}
+                    onChange={(e) => setSpeechLang(e.target.value)}
+                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  >
+                    {speechLanguages.map((lang) => (
+                      <option key={lang.code} value={lang.code}>
+                        {lang.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
               <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
                 {transcript.length === 0 && !interimText && !globalError && (
                   <p className="text-gray-500 dark:text-gray-400 italic">
