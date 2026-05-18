@@ -114,7 +114,7 @@ export const start = (
         interimBuffer += transcript;
       }
     }
-    if (interimBuffer.length > 0) {
+    if (interimBuffer.trim().length > 0) {
       onInterim(interimBuffer);
     }
   };

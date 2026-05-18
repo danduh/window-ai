@@ -76,6 +76,12 @@ const LiveTranslatePage: React.FC = () => {
   const didMountARef = useRef<boolean>(false);
   const didMountBRef = useRef<boolean>(false);
   const didMountSpeechLangRef = useRef<boolean>(false);
+  // Last-write-wins request IDs — each translate call gets a monotonically
+  // increasing id; only the most recent caller writes to its pane. Defends
+  // against races between handleFinal, the post-final debounce flush, and
+  // rapid interim updates in Rolling Interim mode.
+  const requestIdARef = useRef<number>(0);
+  const requestIdBRef = useRef<number>(0);
 
   // Keep refs in sync so the speech-recognition callbacks always see the
   // latest mode/target values without re-binding the recognition session.
@@ -84,71 +90,80 @@ const LiveTranslatePage: React.FC = () => {
   useEffect(() => { targetBRef.current = targetB; }, [targetB]);
   useEffect(() => { sourceLangRef.current = sourceLang; }, [sourceLang]);
 
-  // Pane A: fan-out target. Translates with availability check + AbortController
-  // cancellation so a fresh sentence cancels any in-flight translation for this pane.
-  //
-  // Sticky write: we ONLY overwrite the pane when the new output has non-empty
-  // content. Rolling interim mode produces frequent short translations and the
-  // Translator can briefly return an empty string for transient/edge inputs;
-  // without this guard the pane would flash empty between sentences. Pane only
-  // clears on the explicit Clear button.
+  // Pane A: last-write-wins. Each call grabs a fresh id; only the highest id
+  // writes to the pane. Sticky-write: don't overwrite with empty/whitespace
+  // output (Translator can briefly return "" for transient interim text).
+  // Pane only clears on the explicit Clear button.
   const translatePaneA = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
+    const myId = ++requestIdARef.current;
     abortARef.current?.abort();
     const ctrl = new AbortController();
     abortARef.current = ctrl;
     setErrorA(null);
     if (source === target) {
-      setTranslationA(text);
+      if (myId === requestIdARef.current) setTranslationA(text);
       return;
     }
     try {
       const avail = await checkTranslationAvailability(source, target);
+      if (myId !== requestIdARef.current) return;
       if (avail === 'unavailable') {
         setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (!ctrl.signal.aborted && out && out.trim().length > 0) {
+      if (myId !== requestIdARef.current) return;
+      if (out && out.trim().length > 0) {
         setTranslationA(out);
       }
     } catch (e) {
       const msg = (e as Error).message ?? '';
       if (msg.toLowerCase().includes('aborted')) return;
-      setErrorA(msg || 'Translation failed');
+      if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
     }
   }, []);
 
-  // Pane B: symmetric with translatePaneA — same sticky-write guard.
+  // Pane B: symmetric — same last-write-wins + sticky-write guards.
   const translatePaneB = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
+    const myId = ++requestIdBRef.current;
     abortBRef.current?.abort();
     const ctrl = new AbortController();
     abortBRef.current = ctrl;
     setErrorB(null);
     if (source === target) {
-      setTranslationB(text);
+      if (myId === requestIdBRef.current) setTranslationB(text);
       return;
     }
     try {
       const avail = await checkTranslationAvailability(source, target);
+      if (myId !== requestIdBRef.current) return;
       if (avail === 'unavailable') {
         setErrorB(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (!ctrl.signal.aborted && out && out.trim().length > 0) {
+      if (myId !== requestIdBRef.current) return;
+      if (out && out.trim().length > 0) {
         setTranslationB(out);
       }
     } catch (e) {
       const msg = (e as Error).message ?? '';
       if (msg.toLowerCase().includes('aborted')) return;
-      setErrorB(msg || 'Translation failed');
+      if (myId === requestIdBRef.current) setErrorB(msg || 'Translation failed');
     }
   }, []);
 
   const handleFinal = useCallback(
     (text: string) => {
+      // Cancel any pending interim-mode debounce — the final is authoritative
+      // and we don't want a stale interim flush firing 50-300ms later and
+      // racing against the final's translation.
+      if (debounceRef.current !== null) {
+        clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
       setTranscript((prev) => [...prev, text]);
       setInterimText('');
       latestSourceRef.current = text;
