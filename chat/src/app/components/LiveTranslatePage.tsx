@@ -1,17 +1,17 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {
-  checkTranslationAvailability,
-  translate,
-} from '../services/TranslateService';
-import {
   isSupported as isLiveTranscriptionSupported,
   start as startLiveTranscription,
   LiveTranscriptionHandle,
 } from '../services/LiveTranscriptionService';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import ThemeToggle from './ThemeToggle';
+import AutoScrollFeed from './LiveTranslate/AutoScrollFeed';
+import TranslationPane from './LiveTranslate/TranslationPane';
 
-const languages = [
+// All target languages we offer for translation. Short ISO codes match what
+// the Chrome Translator API expects.
+const TARGET_LANGUAGES = [
   { code: 'en', name: 'English' },
   { code: 'es', name: 'Spanish' },
   { code: 'fr', name: 'French' },
@@ -23,10 +23,10 @@ const languages = [
   { code: 'ar', name: 'Arabic' },
 ];
 
-// BCP-47 tags for Web Speech API. The short prefix (before the '-') doubles as
-// the Translator API source code, so picking en-US here both sets recognition
-// to American English AND tells the Translator to translate from `en`.
-const speechLanguages = [
+// BCP-47 tags for the Web Speech API. The short prefix (before the '-')
+// doubles as the Translator source language, so picking en-US here both sets
+// recognition to American English AND tells panes to translate from `en`.
+const SPEECH_LANGUAGES = [
   { code: 'en-US', name: 'English (US)' },
   { code: 'en-GB', name: 'English (UK)' },
   { code: 'es-ES', name: 'Spanish' },
@@ -39,267 +39,84 @@ const speechLanguages = [
   { code: 'ar-SA', name: 'Arabic' },
 ];
 
-type Mode = 'final' | 'interim';
-const INTERIM_DEBOUNCE_MS = 300;
 const DEFAULT_SPEECH_LANG = 'en-US';
 
+type Mode = 'final' | 'interim';
+
+interface TargetPane {
+  id: string;
+  lang: string;
+}
+
+const langName = (code: string) =>
+  TARGET_LANGUAGES.find((l) => l.code === code)?.name ?? code;
+
+const newPaneId = () =>
+  `pane-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`;
+
+/**
+ * LiveTranslatePage — orchestrates the speech recognizer and N translation
+ * panes.
+ *
+ * State ownership:
+ *  - `transcript` and `interimText` are the source of truth for what the user
+ *    said. Append-only — once a sentence finalizes it's never mutated.
+ *  - `targetPanes` is the list of translation pane configs (id + target lang).
+ *    Each TranslationPane child owns its own translation state internally and
+ *    subscribes to `transcript` / `interimText` via props.
+ *
+ * No translation logic lives at this level. The page is purely the recognizer
+ * driver + the pane configurator.
+ */
 const LiveTranslatePage: React.FC = () => {
   useSEOData(seoConfigs.liveTranslate, '/live-translate');
 
   const supported = isLiveTranscriptionSupported();
 
+  // ── Recognizer state ──
   const [isListening, setIsListening] = useState<boolean>(false);
   const [mode, setMode] = useState<Mode>('final');
+  const [speechLang, setSpeechLang] = useState<string>(DEFAULT_SPEECH_LANG);
+
+  // ── Source transcript (append-only) ──
   const [transcript, setTranscript] = useState<string[]>([]);
   const [interimText, setInterimText] = useState<string>('');
-  const [speechLang, setSpeechLang] = useState<string>(DEFAULT_SPEECH_LANG);
-  const [targetA, setTargetA] = useState<string>('es');
-  const [targetB, setTargetB] = useState<string>('fr');
-  // Mirrors the source transcript shape: a list of completed sentence
-  // translations, plus an in-progress translation rendered below (italic),
-  // just like transcript[] + interimText for the source pane. Translations
-  // accumulate across sentences; only the Clear button wipes them.
-  const [translationLinesA, setTranslationLinesA] = useState<string[]>([]);
-  const [translationLinesB, setTranslationLinesB] = useState<string[]>([]);
-  const [currentTranslationA, setCurrentTranslationA] = useState<string>('');
-  const [currentTranslationB, setCurrentTranslationB] = useState<string>('');
-  const [errorA, setErrorA] = useState<string | null>(null);
-  const [errorB, setErrorB] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
 
-  // Refs that mirror the "current in-progress" translation so handleFinal can
-  // read the latest value without depending on stale state (a final fires
-  // very soon after the last interim translation completes).
-  const currentTranslationARef = useRef<string>('');
-  const currentTranslationBRef = useRef<string>('');
+  // ── User-configurable translation panes ──
+  const [targetPanes, setTargetPanes] = useState<TargetPane[]>([
+    { id: newPaneId(), lang: 'es' },
+    { id: newPaneId(), lang: 'fr' },
+  ]);
+  const [addLang, setAddLang] = useState<string>('de');
 
-  // Translator wants the language portion of the BCP-47 tag (e.g. "en", not "en-US").
+  // Translator wants the short language code; speech API wants BCP-47.
   const sourceLang = speechLang.split('-')[0];
 
+  // ── Refs ──
+  // Web Speech recognition handle.
   const handleRef = useRef<LiveTranscriptionHandle | null>(null);
-  const abortARef = useRef<AbortController | null>(null);
-  const abortBRef = useRef<AbortController | null>(null);
-  const debounceRef = useRef<number | null>(null);
-  const latestSourceRef = useRef<string>('');
+  // Track whether `mode` changes mid-session so we know to leave the
+  // recognizer alone on certain re-renders.
   const modeRef = useRef<Mode>(mode);
-  const targetARef = useRef<string>(targetA);
-  const targetBRef = useRef<string>(targetB);
-  const sourceLangRef = useRef<string>(sourceLang);
-  const didMountARef = useRef<boolean>(false);
-  const didMountBRef = useRef<boolean>(false);
-  const didMountSpeechLangRef = useRef<boolean>(false);
-  // Last-write-wins request IDs — each translate call gets a monotonically
-  // increasing id; only the most recent caller writes to its pane. Defends
-  // against races between handleFinal, the post-final debounce flush, and
-  // rapid interim updates in Rolling Interim mode.
-  const requestIdARef = useRef<number>(0);
-  const requestIdBRef = useRef<number>(0);
+  useEffect(() => {
+    modeRef.current = mode;
+  }, [mode]);
 
-  // Keep refs in sync so the speech-recognition callbacks always see the
-  // latest mode/target values without re-binding the recognition session.
-  useEffect(() => { modeRef.current = mode; }, [mode]);
-  useEffect(() => { targetARef.current = targetA; }, [targetA]);
-  useEffect(() => { targetBRef.current = targetB; }, [targetB]);
-  useEffect(() => { sourceLangRef.current = sourceLang; }, [sourceLang]);
+  // ── Recognizer callbacks. handleFinal appends to transcript; handleInterim
+  //    updates interimText. Translation panes pick up changes via props. ──
 
-  // Interim translation (rolling interim mode): writes to the "in-progress"
-  // slot for the current sentence. Last-write-wins via request id; sticky
-  // write skips empty/whitespace output so the pane never flashes empty.
-  const translateInterimA = useCallback(async (text: string, source: string, target: string) => {
+  const handleFinal = useCallback((text: string) => {
     if (!text.trim()) return;
-    const myId = ++requestIdARef.current;
-    abortARef.current?.abort();
-    const ctrl = new AbortController();
-    abortARef.current = ctrl;
-    setErrorA(null);
-    if (source === target) {
-      if (myId === requestIdARef.current) {
-        currentTranslationARef.current = text;
-        setCurrentTranslationA(text);
-      }
-      return;
-    }
-    try {
-      const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdARef.current) return;
-      if (avail === 'unavailable') {
-        setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
-        return;
-      }
-      const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdARef.current) return;
-      if (out && out.trim().length > 0) {
-        currentTranslationARef.current = out;
-        setCurrentTranslationA(out);
-      }
-    } catch (e) {
-      const msg = (e as Error).message ?? '';
-      if (msg.toLowerCase().includes('aborted')) return;
-      if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
-    }
+    setTranscript((prev) => [...prev, text]);
+    setInterimText('');
   }, []);
 
-  const translateInterimB = useCallback(async (text: string, source: string, target: string) => {
-    if (!text.trim()) return;
-    const myId = ++requestIdBRef.current;
-    abortBRef.current?.abort();
-    const ctrl = new AbortController();
-    abortBRef.current = ctrl;
-    setErrorB(null);
-    if (source === target) {
-      if (myId === requestIdBRef.current) {
-        currentTranslationBRef.current = text;
-        setCurrentTranslationB(text);
-      }
-      return;
-    }
-    try {
-      const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdBRef.current) return;
-      if (avail === 'unavailable') {
-        setErrorB(`Language pair ${source}->${target} unavailable on this Chrome build`);
-        return;
-      }
-      const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdBRef.current) return;
-      if (out && out.trim().length > 0) {
-        currentTranslationBRef.current = out;
-        setCurrentTranslationB(out);
-      }
-    } catch (e) {
-      const msg = (e as Error).message ?? '';
-      if (msg.toLowerCase().includes('aborted')) return;
-      if (myId === requestIdBRef.current) setErrorB(msg || 'Translation failed');
-    }
+  const handleInterim = useCallback((text: string) => {
+    setInterimText(text);
   }, []);
 
-  // Final translation (Per finalized sentence mode, or replacing the trusted
-  // interim translation when a final fires): appends to the linesA list.
-  const translateFinalA = useCallback(async (text: string, source: string, target: string) => {
-    if (!text.trim()) return;
-    const myId = ++requestIdARef.current;
-    abortARef.current?.abort();
-    const ctrl = new AbortController();
-    abortARef.current = ctrl;
-    setErrorA(null);
-    if (source === target) {
-      if (myId === requestIdARef.current) {
-        setTranslationLinesA((prev) => [...prev, text]);
-      }
-      return;
-    }
-    try {
-      const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdARef.current) return;
-      if (avail === 'unavailable') {
-        setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
-        return;
-      }
-      const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdARef.current) return;
-      if (out && out.trim().length > 0) {
-        setTranslationLinesA((prev) => [...prev, out]);
-      }
-    } catch (e) {
-      const msg = (e as Error).message ?? '';
-      if (msg.toLowerCase().includes('aborted')) return;
-      if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
-    }
-  }, []);
-
-  const translateFinalB = useCallback(async (text: string, source: string, target: string) => {
-    if (!text.trim()) return;
-    const myId = ++requestIdBRef.current;
-    abortBRef.current?.abort();
-    const ctrl = new AbortController();
-    abortBRef.current = ctrl;
-    setErrorB(null);
-    if (source === target) {
-      if (myId === requestIdBRef.current) {
-        setTranslationLinesB((prev) => [...prev, text]);
-      }
-      return;
-    }
-    try {
-      const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdBRef.current) return;
-      if (avail === 'unavailable') {
-        setErrorB(`Language pair ${source}->${target} unavailable on this Chrome build`);
-        return;
-      }
-      const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdBRef.current) return;
-      if (out && out.trim().length > 0) {
-        setTranslationLinesB((prev) => [...prev, out]);
-      }
-    } catch (e) {
-      const msg = (e as Error).message ?? '';
-      if (msg.toLowerCase().includes('aborted')) return;
-      if (myId === requestIdBRef.current) setErrorB(msg || 'Translation failed');
-    }
-  }, []);
-
-  const handleFinal = useCallback(
-    (text: string) => {
-      // Cancel any pending interim-mode debounce — the final is authoritative.
-      if (debounceRef.current !== null) {
-        clearTimeout(debounceRef.current);
-        debounceRef.current = null;
-      }
-      setTranscript((prev) => [...prev, text]);
-      setInterimText('');
-      latestSourceRef.current = text;
-
-      if (modeRef.current === 'interim') {
-        // The last interim debounce already translated this sentence (or
-        // something very close to it) into the "current" slot. Promote that
-        // in-progress translation into the lines list and clear the slot so
-        // the next sentence starts fresh.
-        const currentA = currentTranslationARef.current;
-        const currentB = currentTranslationBRef.current;
-        if (currentA.trim().length > 0) {
-          setTranslationLinesA((prev) => [...prev, currentA]);
-        } else {
-          // Edge case: paused before any interim debounce fired. Translate
-          // the final text directly into the lines list.
-          void translateFinalA(text, sourceLangRef.current, targetARef.current);
-        }
-        if (currentB.trim().length > 0) {
-          setTranslationLinesB((prev) => [...prev, currentB]);
-        } else {
-          void translateFinalB(text, sourceLangRef.current, targetBRef.current);
-        }
-        currentTranslationARef.current = '';
-        currentTranslationBRef.current = '';
-        setCurrentTranslationA('');
-        setCurrentTranslationB('');
-      } else {
-        // Per finalized sentence mode: no interim translations happen, so
-        // translate the final text now and append to lines.
-        void translateFinalA(text, sourceLangRef.current, targetARef.current);
-        void translateFinalB(text, sourceLangRef.current, targetBRef.current);
-      }
-    },
-    [translateFinalA, translateFinalB]
-  );
-
-  const handleInterim = useCallback(
-    (text: string) => {
-      setInterimText(text);
-      if (modeRef.current === 'interim') {
-        if (debounceRef.current !== null) {
-          clearTimeout(debounceRef.current);
-        }
-        debounceRef.current = window.setTimeout(() => {
-          latestSourceRef.current = text;
-          void translateInterimA(text, sourceLangRef.current, targetARef.current);
-          void translateInterimB(text, sourceLangRef.current, targetBRef.current);
-        }, INTERIM_DEBOUNCE_MS);
-      }
-    },
-    [translateInterimA, translateInterimB]
-  );
-
+  // ── Start / Stop ──
   const handleStart = useCallback(() => {
     setGlobalError(null);
     try {
@@ -317,65 +134,27 @@ const LiveTranslatePage: React.FC = () => {
     }
   }, [handleFinal, handleInterim, speechLang]);
 
-  const handleStop = () => {
+  const handleStop = useCallback(() => {
     handleRef.current?.stop();
     handleRef.current = null;
     setIsListening(false);
-  };
+  }, []);
 
-  const handleClear = () => {
-    setTranscript([]);
-    setInterimText('');
-    setTranslationLinesA([]);
-    setTranslationLinesB([]);
-    setCurrentTranslationA('');
-    setCurrentTranslationB('');
-    currentTranslationARef.current = '';
-    currentTranslationBRef.current = '';
-    setErrorA(null);
-    setErrorB(null);
-    latestSourceRef.current = '';
-  };
-
-  // Re-translate the latest source line when target A changes. Routes to
-  // interim translation (writing to the in-progress slot) so the visible
-  // pane updates without clobbering accumulated history.
-  useEffect(() => {
-    if (!didMountARef.current) {
-      didMountARef.current = true;
-      return;
-    }
-    if (latestSourceRef.current.trim().length > 0) {
-      void translateInterimA(latestSourceRef.current, sourceLangRef.current, targetA);
-    }
-  }, [targetA, translateInterimA]);
-
-  useEffect(() => {
-    if (!didMountBRef.current) {
-      didMountBRef.current = true;
-      return;
-    }
-    if (latestSourceRef.current.trim().length > 0) {
-      void translateInterimB(latestSourceRef.current, sourceLangRef.current, targetB);
-    }
-  }, [targetB, translateInterimB]);
-
-  // When the speech (source) language changes, restart recognition if listening
-  // so the new language takes effect immediately. Do NOT clear transcript or
-  // panes — by user contract, only the Clear button wipes UI state.
+  // When speech language changes mid-session, restart the recognizer with the
+  // new language. Don't clear transcript or panes — panes drive themselves
+  // from sourceLang, so they'll start translating from the new language
+  // automatically. (Old translations remain in each pane's list — they were
+  // valid translations of valid source, just from a different language now.)
+  const didMountSpeechLangRef = useRef<boolean>(false);
   useEffect(() => {
     if (!didMountSpeechLangRef.current) {
       didMountSpeechLangRef.current = true;
       return;
     }
-    setInterimText('');
-    setErrorA(null);
-    setErrorB(null);
-
     if (handleRef.current) {
       handleRef.current.stop();
       handleRef.current = null;
-      // Defer restart to the next tick so onend can fire first.
+      setInterimText('');
       const id = window.setTimeout(() => {
         handleStart();
       }, 50);
@@ -387,13 +166,24 @@ const LiveTranslatePage: React.FC = () => {
   useEffect(() => {
     return () => {
       handleRef.current?.stop();
-      abortARef.current?.abort();
-      abortBRef.current?.abort();
-      if (debounceRef.current !== null) {
-        clearTimeout(debounceRef.current);
-      }
     };
   }, []);
+
+  // ── Pane management ──
+  const addPane = () => {
+    setTargetPanes((prev) => [...prev, { id: newPaneId(), lang: addLang }]);
+  };
+  const removePane = (id: string) => {
+    setTargetPanes((prev) => prev.filter((p) => p.id !== id));
+  };
+
+  // ── Clear: wipes source transcript + interim. Translation panes detect
+  //    sourceLines.length dropping to 0 and reset themselves. ──
+  const handleClear = () => {
+    setTranscript([]);
+    setInterimText('');
+    setGlobalError(null);
+  };
 
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-200">
@@ -426,11 +216,11 @@ const LiveTranslatePage: React.FC = () => {
           </div>
         ) : (
           <>
-            {/* Section 1 — Source transcript */}
+            {/* Section 1 — Source transcript (live captions) */}
             <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 transition-colors duration-200">
               <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
                 <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Source ({speechLanguages.find((l) => l.code === speechLang)?.name ?? speechLang})
+                  Source ({SPEECH_LANGUAGES.find((l) => l.code === speechLang)?.name ?? speechLang})
                 </h2>
                 <div className="flex items-center gap-2">
                   <label htmlFor="speechLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -442,7 +232,7 @@ const LiveTranslatePage: React.FC = () => {
                     onChange={(e) => setSpeechLang(e.target.value)}
                     className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   >
-                    {speechLanguages.map((lang) => (
+                    {SPEECH_LANGUAGES.map((lang) => (
                       <option key={lang.code} value={lang.code}>
                         {lang.name}
                       </option>
@@ -450,140 +240,68 @@ const LiveTranslatePage: React.FC = () => {
                   </select>
                 </div>
               </div>
-              <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                {transcript.length === 0 && !interimText && !globalError && (
-                  <p className="text-gray-500 dark:text-gray-400 italic">
-                    Click "Start Listening" and speak — your words will appear here.
-                  </p>
-                )}
-                <ul className="space-y-1">
-                  {transcript.map((line, idx) => (
-                    <li
-                      key={idx}
-                      className={
-                        idx === transcript.length - 1
-                          ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-gray-100 rounded px-2 py-1'
-                          : 'text-gray-800 dark:text-gray-200 px-2 py-1'
-                      }
-                    >
-                      {line}
-                    </li>
-                  ))}
-                </ul>
-                {interimText && (
-                  <p className="italic text-gray-500 dark:text-gray-400 mt-2 px-2">
-                    {interimText}
-                  </p>
-                )}
-                {globalError && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-3 px-2">
-                    {globalError}
-                  </p>
-                )}
-              </div>
+              <AutoScrollFeed
+                lines={transcript}
+                inProgress={interimText}
+                placeholder='Click "Start Listening" and speak — your words will appear here.'
+                error={globalError}
+              />
             </section>
 
-            {/* Section 2 — Two side-by-side translation panes */}
-            <section className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-              {/* Pane A */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <label htmlFor="targetA" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Pane A — Target Language
+            {/* Section 2 — Translation panes (one per target language) */}
+            <section className="mb-6">
+              <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
+                  {targetPanes.length === 0
+                    ? 'No translation panes yet — add one to start translating.'
+                    : `${targetPanes.length} translation pane${targetPanes.length === 1 ? '' : 's'}`}
+                </p>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="addLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    Add translation in
                   </label>
                   <select
-                    id="targetA"
-                    value={targetA}
-                    onChange={(e) => setTargetA(e.target.value)}
+                    id="addLang"
+                    value={addLang}
+                    onChange={(e) => setAddLang(e.target.value)}
                     className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
                   >
-                    {languages.map((lang) => (
+                    {TARGET_LANGUAGES.map((lang) => (
                       <option key={lang.code} value={lang.code}>
                         {lang.name}
                       </option>
                     ))}
                   </select>
+                  <button
+                    type="button"
+                    onClick={addPane}
+                    className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+                  >
+                    + Add
+                  </button>
                 </div>
-                <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 min-h-[120px]">
-                  {translationLinesA.length === 0 && !currentTranslationA && (
-                    <p className="text-gray-500 dark:text-gray-400 italic">
-                      Translation will appear here...
-                    </p>
-                  )}
-                  <ul className="space-y-1">
-                    {translationLinesA.map((line, idx) => (
-                      <li
-                        key={idx}
-                        className={
-                          idx === translationLinesA.length - 1
-                            ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-gray-100 rounded px-2 py-1 whitespace-pre-wrap break-words'
-                            : 'text-gray-800 dark:text-gray-200 px-2 py-1 whitespace-pre-wrap break-words'
-                        }
-                      >
-                        {line}
-                      </li>
-                    ))}
-                  </ul>
-                  {currentTranslationA && (
-                    <p className="italic text-gray-500 dark:text-gray-400 mt-2 px-2 whitespace-pre-wrap break-words">
-                      {currentTranslationA}
-                    </p>
-                  )}
-                </div>
-                {errorA && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-2">{errorA}</p>
-                )}
               </div>
 
-              {/* Pane B */}
-              <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
-                <div className="flex items-center justify-between mb-3">
-                  <label htmlFor="targetB" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Pane B — Target Language
-                  </label>
-                  <select
-                    id="targetB"
-                    value={targetB}
-                    onChange={(e) => setTargetB(e.target.value)}
-                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    {languages.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.name}
-                      </option>
-                    ))}
-                  </select>
+              {targetPanes.length > 0 && (
+                <div
+                  className="grid gap-4"
+                  style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+                >
+                  {targetPanes.map((pane) => (
+                    <TranslationPane
+                      key={pane.id}
+                      id={pane.id}
+                      sourceLang={sourceLang}
+                      targetLang={pane.lang}
+                      targetLabel={langName(pane.lang)}
+                      sourceLines={transcript}
+                      liveInterim={interimText}
+                      previewInterim={mode === 'interim'}
+                      onRemove={() => removePane(pane.id)}
+                    />
+                  ))}
                 </div>
-                <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 min-h-[120px]">
-                  {translationLinesB.length === 0 && !currentTranslationB && (
-                    <p className="text-gray-500 dark:text-gray-400 italic">
-                      Translation will appear here...
-                    </p>
-                  )}
-                  <ul className="space-y-1">
-                    {translationLinesB.map((line, idx) => (
-                      <li
-                        key={idx}
-                        className={
-                          idx === translationLinesB.length - 1
-                            ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-gray-100 rounded px-2 py-1 whitespace-pre-wrap break-words'
-                            : 'text-gray-800 dark:text-gray-200 px-2 py-1 whitespace-pre-wrap break-words'
-                        }
-                      >
-                        {line}
-                      </li>
-                    ))}
-                  </ul>
-                  {currentTranslationB && (
-                    <p className="italic text-gray-500 dark:text-gray-400 mt-2 px-2 whitespace-pre-wrap break-words">
-                      {currentTranslationB}
-                    </p>
-                  )}
-                </div>
-                {errorB && (
-                  <p className="text-sm text-red-600 dark:text-red-400 mt-2">{errorB}</p>
-                )}
-              </div>
+              )}
             </section>
 
             {/* Section 3 — Controls */}
@@ -636,7 +354,7 @@ const LiveTranslatePage: React.FC = () => {
                       onChange={() => setMode('interim')}
                       className="mr-2"
                     />
-                    Rolling interim (debounced)
+                    Rolling interim (live preview)
                   </label>
                 </fieldset>
 
