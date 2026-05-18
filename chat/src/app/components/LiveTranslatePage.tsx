@@ -55,11 +55,23 @@ const LiveTranslatePage: React.FC = () => {
   const [speechLang, setSpeechLang] = useState<string>(DEFAULT_SPEECH_LANG);
   const [targetA, setTargetA] = useState<string>('es');
   const [targetB, setTargetB] = useState<string>('fr');
-  const [translationA, setTranslationA] = useState<string>('');
-  const [translationB, setTranslationB] = useState<string>('');
+  // Mirrors the source transcript shape: a list of completed sentence
+  // translations, plus an in-progress translation rendered below (italic),
+  // just like transcript[] + interimText for the source pane. Translations
+  // accumulate across sentences; only the Clear button wipes them.
+  const [translationLinesA, setTranslationLinesA] = useState<string[]>([]);
+  const [translationLinesB, setTranslationLinesB] = useState<string[]>([]);
+  const [currentTranslationA, setCurrentTranslationA] = useState<string>('');
+  const [currentTranslationB, setCurrentTranslationB] = useState<string>('');
   const [errorA, setErrorA] = useState<string | null>(null);
   const [errorB, setErrorB] = useState<string | null>(null);
   const [globalError, setGlobalError] = useState<string | null>(null);
+
+  // Refs that mirror the "current in-progress" translation so handleFinal can
+  // read the latest value without depending on stale state (a final fires
+  // very soon after the last interim translation completes).
+  const currentTranslationARef = useRef<string>('');
+  const currentTranslationBRef = useRef<string>('');
 
   // Translator wants the language portion of the BCP-47 tag (e.g. "en", not "en-US").
   const sourceLang = speechLang.split('-')[0];
@@ -90,61 +102,44 @@ const LiveTranslatePage: React.FC = () => {
   useEffect(() => { targetBRef.current = targetB; }, [targetB]);
   useEffect(() => { sourceLangRef.current = sourceLang; }, [sourceLang]);
 
-  // Pane A: last-write-wins. Each call grabs a fresh id; only the highest id
-  // writes to the pane. Sticky-write: don't overwrite with empty/whitespace
-  // output (Translator can briefly return "" for transient interim text).
-  // Pane only clears on the explicit Clear button.
-  const translatePaneA = useCallback(async (text: string, source: string, target: string) => {
-    if (!text.trim()) {
-      console.log('[A] skip: empty text', { text });
-      return;
-    }
+  // Interim translation (rolling interim mode): writes to the "in-progress"
+  // slot for the current sentence. Last-write-wins via request id; sticky
+  // write skips empty/whitespace output so the pane never flashes empty.
+  const translateInterimA = useCallback(async (text: string, source: string, target: string) => {
+    if (!text.trim()) return;
     const myId = ++requestIdARef.current;
-    console.log('[A] start', myId, { text: text.slice(0, 60), source, target });
     abortARef.current?.abort();
     const ctrl = new AbortController();
     abortARef.current = ctrl;
     setErrorA(null);
     if (source === target) {
       if (myId === requestIdARef.current) {
-        console.log('[A]', myId, 'set (passthrough)', text.slice(0, 60));
-        setTranslationA(text);
+        currentTranslationARef.current = text;
+        setCurrentTranslationA(text);
       }
       return;
     }
     try {
       const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdARef.current) {
-        console.log('[A]', myId, 'superseded after availability check (latest=', requestIdARef.current, ')');
-        return;
-      }
+      if (myId !== requestIdARef.current) return;
       if (avail === 'unavailable') {
-        console.log('[A]', myId, 'unavailable');
         setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdARef.current) {
-        console.log('[A]', myId, 'superseded after translate (latest=', requestIdARef.current, ')');
-        return;
-      }
-      console.log('[A]', myId, 'resolved out=', JSON.stringify(out));
+      if (myId !== requestIdARef.current) return;
       if (out && out.trim().length > 0) {
-        console.log('[A]', myId, 'WRITE');
-        setTranslationA(out);
-      } else {
-        console.log('[A]', myId, 'sticky-skip: empty/whitespace out');
+        currentTranslationARef.current = out;
+        setCurrentTranslationA(out);
       }
     } catch (e) {
       const msg = (e as Error).message ?? '';
-      console.log('[A]', myId, 'catch msg=', msg);
       if (msg.toLowerCase().includes('aborted')) return;
       if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
     }
   }, []);
 
-  // Pane B: symmetric — same last-write-wins + sticky-write guards.
-  const translatePaneB = useCallback(async (text: string, source: string, target: string) => {
+  const translateInterimB = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
     const myId = ++requestIdBRef.current;
     abortBRef.current?.abort();
@@ -152,7 +147,10 @@ const LiveTranslatePage: React.FC = () => {
     abortBRef.current = ctrl;
     setErrorB(null);
     if (source === target) {
-      if (myId === requestIdBRef.current) setTranslationB(text);
+      if (myId === requestIdBRef.current) {
+        currentTranslationBRef.current = text;
+        setCurrentTranslationB(text);
+      }
       return;
     }
     try {
@@ -165,7 +163,74 @@ const LiveTranslatePage: React.FC = () => {
       const out = await translate(text, source, target, { signal: ctrl.signal });
       if (myId !== requestIdBRef.current) return;
       if (out && out.trim().length > 0) {
-        setTranslationB(out);
+        currentTranslationBRef.current = out;
+        setCurrentTranslationB(out);
+      }
+    } catch (e) {
+      const msg = (e as Error).message ?? '';
+      if (msg.toLowerCase().includes('aborted')) return;
+      if (myId === requestIdBRef.current) setErrorB(msg || 'Translation failed');
+    }
+  }, []);
+
+  // Final translation (Per finalized sentence mode, or replacing the trusted
+  // interim translation when a final fires): appends to the linesA list.
+  const translateFinalA = useCallback(async (text: string, source: string, target: string) => {
+    if (!text.trim()) return;
+    const myId = ++requestIdARef.current;
+    abortARef.current?.abort();
+    const ctrl = new AbortController();
+    abortARef.current = ctrl;
+    setErrorA(null);
+    if (source === target) {
+      if (myId === requestIdARef.current) {
+        setTranslationLinesA((prev) => [...prev, text]);
+      }
+      return;
+    }
+    try {
+      const avail = await checkTranslationAvailability(source, target);
+      if (myId !== requestIdARef.current) return;
+      if (avail === 'unavailable') {
+        setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
+        return;
+      }
+      const out = await translate(text, source, target, { signal: ctrl.signal });
+      if (myId !== requestIdARef.current) return;
+      if (out && out.trim().length > 0) {
+        setTranslationLinesA((prev) => [...prev, out]);
+      }
+    } catch (e) {
+      const msg = (e as Error).message ?? '';
+      if (msg.toLowerCase().includes('aborted')) return;
+      if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
+    }
+  }, []);
+
+  const translateFinalB = useCallback(async (text: string, source: string, target: string) => {
+    if (!text.trim()) return;
+    const myId = ++requestIdBRef.current;
+    abortBRef.current?.abort();
+    const ctrl = new AbortController();
+    abortBRef.current = ctrl;
+    setErrorB(null);
+    if (source === target) {
+      if (myId === requestIdBRef.current) {
+        setTranslationLinesB((prev) => [...prev, text]);
+      }
+      return;
+    }
+    try {
+      const avail = await checkTranslationAvailability(source, target);
+      if (myId !== requestIdBRef.current) return;
+      if (avail === 'unavailable') {
+        setErrorB(`Language pair ${source}->${target} unavailable on this Chrome build`);
+        return;
+      }
+      const out = await translate(text, source, target, { signal: ctrl.signal });
+      if (myId !== requestIdBRef.current) return;
+      if (out && out.trim().length > 0) {
+        setTranslationLinesB((prev) => [...prev, out]);
       }
     } catch (e) {
       const msg = (e as Error).message ?? '';
@@ -176,10 +241,7 @@ const LiveTranslatePage: React.FC = () => {
 
   const handleFinal = useCallback(
     (text: string) => {
-      console.log('[FINAL]', JSON.stringify(text.slice(0, 80)), 'mode=', modeRef.current);
-      // Cancel any pending interim-mode debounce — the final is authoritative
-      // and we don't want a stale interim flush firing 50-300ms later and
-      // racing against the final's translation.
+      // Cancel any pending interim-mode debounce — the final is authoritative.
       if (debounceRef.current !== null) {
         clearTimeout(debounceRef.current);
         debounceRef.current = null;
@@ -187,29 +249,55 @@ const LiveTranslatePage: React.FC = () => {
       setTranscript((prev) => [...prev, text]);
       setInterimText('');
       latestSourceRef.current = text;
-      void translatePaneA(text, sourceLangRef.current, targetARef.current);
-      void translatePaneB(text, sourceLangRef.current, targetBRef.current);
+
+      if (modeRef.current === 'interim') {
+        // The last interim debounce already translated this sentence (or
+        // something very close to it) into the "current" slot. Promote that
+        // in-progress translation into the lines list and clear the slot so
+        // the next sentence starts fresh.
+        const currentA = currentTranslationARef.current;
+        const currentB = currentTranslationBRef.current;
+        if (currentA.trim().length > 0) {
+          setTranslationLinesA((prev) => [...prev, currentA]);
+        } else {
+          // Edge case: paused before any interim debounce fired. Translate
+          // the final text directly into the lines list.
+          void translateFinalA(text, sourceLangRef.current, targetARef.current);
+        }
+        if (currentB.trim().length > 0) {
+          setTranslationLinesB((prev) => [...prev, currentB]);
+        } else {
+          void translateFinalB(text, sourceLangRef.current, targetBRef.current);
+        }
+        currentTranslationARef.current = '';
+        currentTranslationBRef.current = '';
+        setCurrentTranslationA('');
+        setCurrentTranslationB('');
+      } else {
+        // Per finalized sentence mode: no interim translations happen, so
+        // translate the final text now and append to lines.
+        void translateFinalA(text, sourceLangRef.current, targetARef.current);
+        void translateFinalB(text, sourceLangRef.current, targetBRef.current);
+      }
     },
-    [translatePaneA, translatePaneB]
+    [translateFinalA, translateFinalB]
   );
 
   const handleInterim = useCallback(
     (text: string) => {
-      console.log('[INTERIM]', JSON.stringify(text.slice(0, 80)), 'mode=', modeRef.current);
       setInterimText(text);
       if (modeRef.current === 'interim') {
         if (debounceRef.current !== null) {
           clearTimeout(debounceRef.current);
         }
         debounceRef.current = window.setTimeout(() => {
-          console.log('[DEBOUNCE-FIRE]', JSON.stringify(text.slice(0, 80)));
           latestSourceRef.current = text;
-          void translatePaneA(text, sourceLangRef.current, targetARef.current);
-          void translatePaneB(text, sourceLangRef.current, targetBRef.current);
+          void translateInterimA(text, sourceLangRef.current, targetARef.current);
+          void translateInterimB(text, sourceLangRef.current, targetBRef.current);
         }, INTERIM_DEBOUNCE_MS);
       }
     },
-    [translatePaneA, translatePaneB]
+    [translateInterimA, translateInterimB]
   );
 
   const handleStart = useCallback(() => {
@@ -238,34 +326,39 @@ const LiveTranslatePage: React.FC = () => {
   const handleClear = () => {
     setTranscript([]);
     setInterimText('');
-    setTranslationA('');
-    setTranslationB('');
+    setTranslationLinesA([]);
+    setTranslationLinesB([]);
+    setCurrentTranslationA('');
+    setCurrentTranslationB('');
+    currentTranslationARef.current = '';
+    currentTranslationBRef.current = '';
     setErrorA(null);
     setErrorB(null);
     latestSourceRef.current = '';
   };
 
-  // Re-translate the latest source line when target A changes (skip initial mount).
+  // Re-translate the latest source line when target A changes. Routes to
+  // interim translation (writing to the in-progress slot) so the visible
+  // pane updates without clobbering accumulated history.
   useEffect(() => {
     if (!didMountARef.current) {
       didMountARef.current = true;
       return;
     }
     if (latestSourceRef.current.trim().length > 0) {
-      void translatePaneA(latestSourceRef.current, sourceLangRef.current, targetA);
+      void translateInterimA(latestSourceRef.current, sourceLangRef.current, targetA);
     }
-  }, [targetA, translatePaneA]);
+  }, [targetA, translateInterimA]);
 
-  // Re-translate the latest source line when target B changes (skip initial mount).
   useEffect(() => {
     if (!didMountBRef.current) {
       didMountBRef.current = true;
       return;
     }
     if (latestSourceRef.current.trim().length > 0) {
-      void translatePaneB(latestSourceRef.current, sourceLangRef.current, targetB);
+      void translateInterimB(latestSourceRef.current, sourceLangRef.current, targetB);
     }
-  }, [targetB, translatePaneB]);
+  }, [targetB, translateInterimB]);
 
   // When the speech (source) language changes, restart recognition if listening
   // so the new language takes effect immediately. Do NOT clear transcript or
@@ -411,10 +504,31 @@ const LiveTranslatePage: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                  <pre className="whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-sans min-h-[120px]">
-                    {translationA || 'Translation will appear here...'}
-                  </pre>
+                <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 min-h-[120px]">
+                  {translationLinesA.length === 0 && !currentTranslationA && (
+                    <p className="text-gray-500 dark:text-gray-400 italic">
+                      Translation will appear here...
+                    </p>
+                  )}
+                  <ul className="space-y-1">
+                    {translationLinesA.map((line, idx) => (
+                      <li
+                        key={idx}
+                        className={
+                          idx === translationLinesA.length - 1
+                            ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-gray-100 rounded px-2 py-1 whitespace-pre-wrap break-words'
+                            : 'text-gray-800 dark:text-gray-200 px-2 py-1 whitespace-pre-wrap break-words'
+                        }
+                      >
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                  {currentTranslationA && (
+                    <p className="italic text-gray-500 dark:text-gray-400 mt-2 px-2 whitespace-pre-wrap break-words">
+                      {currentTranslationA}
+                    </p>
+                  )}
                 </div>
                 {errorA && (
                   <p className="text-sm text-red-600 dark:text-red-400 mt-2">{errorA}</p>
@@ -440,10 +554,31 @@ const LiveTranslatePage: React.FC = () => {
                     ))}
                   </select>
                 </div>
-                <div className="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600">
-                  <pre className="whitespace-pre-wrap break-words text-gray-900 dark:text-gray-100 font-sans min-h-[120px]">
-                    {translationB || 'Translation will appear here...'}
-                  </pre>
+                <div className="max-h-48 overflow-y-auto bg-gray-50 dark:bg-gray-700 rounded-lg p-4 border border-gray-200 dark:border-gray-600 min-h-[120px]">
+                  {translationLinesB.length === 0 && !currentTranslationB && (
+                    <p className="text-gray-500 dark:text-gray-400 italic">
+                      Translation will appear here...
+                    </p>
+                  )}
+                  <ul className="space-y-1">
+                    {translationLinesB.map((line, idx) => (
+                      <li
+                        key={idx}
+                        className={
+                          idx === translationLinesB.length - 1
+                            ? 'bg-primary-50 dark:bg-primary-900/30 text-gray-900 dark:text-gray-100 rounded px-2 py-1 whitespace-pre-wrap break-words'
+                            : 'text-gray-800 dark:text-gray-200 px-2 py-1 whitespace-pre-wrap break-words'
+                        }
+                      >
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                  {currentTranslationB && (
+                    <p className="italic text-gray-500 dark:text-gray-400 mt-2 px-2 whitespace-pre-wrap break-words">
+                      {currentTranslationB}
+                    </p>
+                  )}
                 </div>
                 {errorB && (
                   <p className="text-sm text-red-600 dark:text-red-400 mt-2">{errorB}</p>
