@@ -56,6 +56,9 @@ const routes = [
   // WebMCP routes
   { path: '/webmcp', filename: 'webmcp.html' },
   { path: '/webmcp/docs', filename: 'webmcp-docs.html' },
+
+  // Generative UI route
+  { path: '/generative-ui', filename: 'generative-ui.html' },
 ];
 
 // Build configuration
@@ -381,6 +384,17 @@ function getSEODataForRoute(routePath) {
         '@type': 'TechArticle',
         name: 'WebMCP API Documentation',
         description: 'Technical documentation for the WebMCP Recipe Workbench',
+      },
+    },
+    '/generative-ui': {
+      title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
+      description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
+      keywords: 'MCP Apps, generative UI, navigator.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Generative UI — MCP Apps Demo',
+        description: 'On-device recipe-card carousel via sandboxed iframe and WebMCP tool results',
       },
     },
   };
