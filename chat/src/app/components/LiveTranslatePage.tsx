@@ -86,6 +86,12 @@ const LiveTranslatePage: React.FC = () => {
 
   // Pane A: fan-out target. Translates with availability check + AbortController
   // cancellation so a fresh sentence cancels any in-flight translation for this pane.
+  //
+  // Sticky write: we ONLY overwrite the pane when the new output has non-empty
+  // content. Rolling interim mode produces frequent short translations and the
+  // Translator can briefly return an empty string for transient/edge inputs;
+  // without this guard the pane would flash empty between sentences. Pane only
+  // clears on the explicit Clear button.
   const translatePaneA = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
     abortARef.current?.abort();
@@ -103,7 +109,9 @@ const LiveTranslatePage: React.FC = () => {
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (!ctrl.signal.aborted) setTranslationA(out);
+      if (!ctrl.signal.aborted && out && out.trim().length > 0) {
+        setTranslationA(out);
+      }
     } catch (e) {
       const msg = (e as Error).message ?? '';
       if (msg.toLowerCase().includes('aborted')) return;
@@ -111,8 +119,7 @@ const LiveTranslatePage: React.FC = () => {
     }
   }, []);
 
-  // Pane B: fan-out target. Symmetric with translatePaneA but writes to its own
-  // state + AbortController so the two panes cancel/update independently.
+  // Pane B: symmetric with translatePaneA — same sticky-write guard.
   const translatePaneB = useCallback(async (text: string, source: string, target: string) => {
     if (!text.trim()) return;
     abortBRef.current?.abort();
@@ -130,7 +137,9 @@ const LiveTranslatePage: React.FC = () => {
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (!ctrl.signal.aborted) setTranslationB(out);
+      if (!ctrl.signal.aborted && out && out.trim().length > 0) {
+        setTranslationB(out);
+      }
     } catch (e) {
       const msg = (e as Error).message ?? '';
       if (msg.toLowerCase().includes('aborted')) return;
@@ -221,22 +230,17 @@ const LiveTranslatePage: React.FC = () => {
     }
   }, [targetB, translatePaneB]);
 
-  // When the speech (source) language changes:
-  // - if listening, restart recognition with the new language so it takes effect immediately
-  // - clear the transcript and panes (the prior content was a different language; keeping it
-  //   would mix scripts in the same view and confuse the demo)
+  // When the speech (source) language changes, restart recognition if listening
+  // so the new language takes effect immediately. Do NOT clear transcript or
+  // panes — by user contract, only the Clear button wipes UI state.
   useEffect(() => {
     if (!didMountSpeechLangRef.current) {
       didMountSpeechLangRef.current = true;
       return;
     }
-    setTranscript([]);
     setInterimText('');
-    setTranslationA('');
-    setTranslationB('');
     setErrorA(null);
     setErrorB(null);
-    latestSourceRef.current = '';
 
     if (handleRef.current) {
       handleRef.current.stop();
