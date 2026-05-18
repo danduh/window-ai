@@ -67,7 +67,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 | 1. Foundation Skeleton | 3/3 | Complete | 2026-04-27 |
 | 2. WebMCP Tools + In-Page Agent | 3/3 | Complete | 2026-04-27 |
 | 3. Documentation + SEO | 2/2 | Complete (code; runtime UAT pending) | 2026-04-28 |
-| 4. v1.1 Foundation: /generative-ui shell + MealPlanStore + 12-recipe seed | 0/? | Not started | — |
+| 4. v1.1 Foundation: /generative-ui shell + MealPlanStore + 12-recipe seed | 0/2 | Planned | — |
 | 5. v1.1 MCP Apps Host: sandboxed iframe + postMessage bridge + carousel | 0/? | Not started | — |
 | 6. v1.1 In-Page Chat + Tool Wiring: searchRecipes + commitRecipeToPlan + live meal plan | 0/? | Not started | — |
 | 7. v1.1 Docs + Demo Polish: explainer + SEO + 5-cold-run + zero-network verification | 0/? | Not started | — |
@@ -123,7 +123,9 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
   3. When `navigator.modelContext` is undefined the `MissingFlagBanner` renders at the top of the page while the rest of the layout (including the meal-plan column) remains usable for read-only browsing
   4. A user inspecting IndexedDB sees ≥12 recipes available for `searchRecipes` (the existing 2 from v1.0 are preserved — additive seed), and the meal-plan IDB store exists with the documented schema
   5. A typed `MealPlanStore` module exposes `getPlan` / `addToPlan` / `removeFromPlan` / `clearPlan` and is the only path the page reads or writes meal-plan state — plan entries survive a hard reload
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 04-01-PLAN.md — Persistence foundation (RecipePersistence v2 schema + seedIfMissing + 12-recipe seed + MealPlanStore + useMealPlan)
+- [ ] 04-02-PLAN.md — Page shell + routing (GenerativeUIPage + 3 subcomponents + AppRouter route/nav + useSEOData + prerender drift mirror)
 **UI hint**: yes
 
 ### Phase 5: MCP Apps Host — Sandboxed iframe + postMessage bridge
@@ -167,7 +169,7 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 4. v1.1 Foundation — Page shell, store, seed | 0/? | Not started | — |
+| 4. v1.1 Foundation — Page shell, store, seed | 0/2 | Planned | — |
 | 5. MCP Apps Host — Sandboxed iframe + bridge | 0/? | Not started | — |
 | 6. In-Page Chat + Tool Wiring | 0/? | Not started | — |
 | 7. Docs + SEO + Demo Polish | 0/? | Not started | — |
