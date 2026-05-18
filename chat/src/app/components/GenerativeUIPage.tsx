@@ -18,12 +18,10 @@ export const GenerativeUIPage: React.FC = () => {
       try {
         const inserted = await seedIfMissing(SEED_RECIPES);
         if (inserted > 0 && !cancelled) {
-          // eslint-disable-next-line no-console
           console.log(`[GenerativeUI] seedIfMissing: inserted ${inserted} new recipes`);
         }
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
-        // eslint-disable-next-line no-console
         console.error('[GenerativeUI] Failed to seed recipe library:', message);
       }
     })();
