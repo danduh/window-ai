@@ -95,30 +95,49 @@ const LiveTranslatePage: React.FC = () => {
   // output (Translator can briefly return "" for transient interim text).
   // Pane only clears on the explicit Clear button.
   const translatePaneA = useCallback(async (text: string, source: string, target: string) => {
-    if (!text.trim()) return;
+    if (!text.trim()) {
+      console.log('[A] skip: empty text', { text });
+      return;
+    }
     const myId = ++requestIdARef.current;
+    console.log('[A] start', myId, { text: text.slice(0, 60), source, target });
     abortARef.current?.abort();
     const ctrl = new AbortController();
     abortARef.current = ctrl;
     setErrorA(null);
     if (source === target) {
-      if (myId === requestIdARef.current) setTranslationA(text);
+      if (myId === requestIdARef.current) {
+        console.log('[A]', myId, 'set (passthrough)', text.slice(0, 60));
+        setTranslationA(text);
+      }
       return;
     }
     try {
       const avail = await checkTranslationAvailability(source, target);
-      if (myId !== requestIdARef.current) return;
+      if (myId !== requestIdARef.current) {
+        console.log('[A]', myId, 'superseded after availability check (latest=', requestIdARef.current, ')');
+        return;
+      }
       if (avail === 'unavailable') {
+        console.log('[A]', myId, 'unavailable');
         setErrorA(`Language pair ${source}->${target} unavailable on this Chrome build`);
         return;
       }
       const out = await translate(text, source, target, { signal: ctrl.signal });
-      if (myId !== requestIdARef.current) return;
+      if (myId !== requestIdARef.current) {
+        console.log('[A]', myId, 'superseded after translate (latest=', requestIdARef.current, ')');
+        return;
+      }
+      console.log('[A]', myId, 'resolved out=', JSON.stringify(out));
       if (out && out.trim().length > 0) {
+        console.log('[A]', myId, 'WRITE');
         setTranslationA(out);
+      } else {
+        console.log('[A]', myId, 'sticky-skip: empty/whitespace out');
       }
     } catch (e) {
       const msg = (e as Error).message ?? '';
+      console.log('[A]', myId, 'catch msg=', msg);
       if (msg.toLowerCase().includes('aborted')) return;
       if (myId === requestIdARef.current) setErrorA(msg || 'Translation failed');
     }
@@ -157,6 +176,7 @@ const LiveTranslatePage: React.FC = () => {
 
   const handleFinal = useCallback(
     (text: string) => {
+      console.log('[FINAL]', JSON.stringify(text.slice(0, 80)), 'mode=', modeRef.current);
       // Cancel any pending interim-mode debounce — the final is authoritative
       // and we don't want a stale interim flush firing 50-300ms later and
       // racing against the final's translation.
@@ -175,12 +195,14 @@ const LiveTranslatePage: React.FC = () => {
 
   const handleInterim = useCallback(
     (text: string) => {
+      console.log('[INTERIM]', JSON.stringify(text.slice(0, 80)), 'mode=', modeRef.current);
       setInterimText(text);
       if (modeRef.current === 'interim') {
         if (debounceRef.current !== null) {
           clearTimeout(debounceRef.current);
         }
         debounceRef.current = window.setTimeout(() => {
+          console.log('[DEBOUNCE-FIRE]', JSON.stringify(text.slice(0, 80)));
           latestSourceRef.current = text;
           void translatePaneA(text, sourceLangRef.current, targetARef.current);
           void translatePaneB(text, sourceLangRef.current, targetBRef.current);
