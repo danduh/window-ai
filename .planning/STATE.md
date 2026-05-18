@@ -81,6 +81,7 @@ None.
 | # | Description | Date | Commit | Directory |
 |---|-------------|------|--------|-----------|
 | 260428-fam | Rework /webmcp Recipe Workbench layout: ingredients under recipes on left, chat panel pulled up to dominant area | 2026-04-28 | 38e7b73 | [260428-fam-rework-webmcp-recipe-workbench-layout-in](./quick/260428-fam-rework-webmcp-recipe-workbench-layout-in/) |
+| 260518-lig | Add `/live-translate` demo: Web Speech API transcribes speaker live, each result fans out to two user-selectable target languages via the existing TranslateService (mode toggle: per-sentence vs rolling-interim) | 2026-05-18 | 6a5a0e2 | [260518-lig-live-voice-transcription-dual-translator](./quick/260518-lig-live-voice-transcription-dual-translator/) |
 
 ### Risks Watched
 
