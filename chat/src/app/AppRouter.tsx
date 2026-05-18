@@ -8,6 +8,7 @@ import LiveTranslatePage from "./components/LiveTranslatePage";
 import WriteRewritePage from "./components/WriteRewritePage";
 import {HomePage} from "./components/HomePage";
 import {RecipeWorkbenchPage} from "./components/RecipeWorkbenchPage";
+import {GenerativeUIPage} from "./components/GenerativeUIPage";
 import {AppContext} from "./context";
 import {ThemeProvider} from "./context/ThemeContext";
 import {useGoogleAnalytics} from "./hooks/useGoogleAnalytics";
@@ -70,6 +71,9 @@ const AppRouter: React.FC = () => {
                     <Link to="/webmcp"
                           onClick={() => trackUserInteraction('navigation_click', 'webmcp_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">WebMCP</Link>
+                    <Link to="/generative-ui"
+                          onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link')}
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Generative UI</Link>
                     <Link to="/writer"
                           onClick={() => trackUserInteraction('navigation_click', 'writer_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Writer/Rewriter</Link>
@@ -160,6 +164,9 @@ const AppRouter: React.FC = () => {
                 <Link to="/webmcp"
                       onClick={() => trackUserInteraction('navigation_click', 'webmcp_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">WebMCP</Link>
+                <Link to="/generative-ui"
+                      onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link_mobile')}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Generative UI</Link>
                 <Link to="/writer"
                       onClick={() => trackUserInteraction('navigation_click', 'writer_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Writer/Rewriter</Link>
@@ -231,6 +238,9 @@ const AppRouter: React.FC = () => {
               {/* WebMCP routes */}
               <Route path="/webmcp" element={<RecipeWorkbenchPage/>}/>
               <Route path="/webmcp/docs" element={<RecipeWorkbenchPage/>}/>
+
+              {/* Generative UI routes */}
+              <Route path="/generative-ui" element={<GenerativeUIPage/>}/>
 
               {/* Writer/Rewriter routes */}
               <Route path="/writer" element={<Navigate to="/writer/writer-api-documentation" replace/>}/>
