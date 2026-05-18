@@ -154,12 +154,30 @@ Which phases cover which requirements. Updated by gsd-roadmapper during roadmap 
 | AGENT-03 | Phase 2 | Mapped |
 | DOCS-01 | Phase 3 | Mapped |
 | DOCS-02 | Phase 3 | Mapped |
+| GENUI-01 | Phase 4 | Mapped |
+| GENUI-02 | Phase 4 | Mapped |
+| GENUI-03 | Phase 4 | Mapped |
+| GENUI-06 | Phase 5 | Mapped |
+| GENUI-07 | Phase 5 | Mapped |
+| GENUI-08 | Phase 5 | Mapped |
+| GENUI-04 | Phase 6 | Mapped |
+| GENUI-05 | Phase 6 | Mapped |
+| GENUI-09 | Phase 6 | Mapped |
+| GENUI-10 | Phase 6 | Mapped |
+| GENUI-11 | Phase 6 | Mapped |
+| GENUI-12 | Phase 7 | Mapped |
+| GENUI-13 | Phase 7 | Mapped |
+| GENUI-14 | Phase 7 | Mapped |
+| GENUI-15 | Phase 7 | Mapped |
 
 **Coverage:**
 - v1 requirements: 19 total
-- Mapped to phases: 19 (100%)
-- Unmapped: 0
+- v1 mapped to phases: 19 (100%)
+- v1 unmapped: 0
+- v1.1 requirements: 15 total (GENUI-01..GENUI-15)
+- v1.1 mapped to phases: 15 (100%)
+- v1.1 unmapped: 0
 
 ---
 *Requirements defined: 2026-04-26*
-*Last updated: 2026-04-26 after roadmap creation*
+*Last updated: 2026-05-18 after v1.1 roadmap creation (GENUI-01..GENUI-15 traceability added)*
