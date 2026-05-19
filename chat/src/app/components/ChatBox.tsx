@@ -1,14 +1,35 @@
 import React, {useEffect, useState, useRef} from 'react';
 import Markdown from "react-markdown";
+import { ChatBubbleContainer } from './GenerativeUI/ChatBubbleContainer';
+import { UIResourceFrame } from './GenerativeUI/UIResourceFrame';
+import { renderCarouselHTML } from './GenerativeUI/iframe/carouselTemplate';
+import * as recipeCarouselRegistry from '../services/recipeCarouselRegistry';
 
 export interface Message {
   id: number;
   text: string;
   sender: string;
+  /** v1.1 GENUI: when set, the bubble renders <ChatBubbleContainer><UIResourceFrame .../></ChatBubbleContainer>
+   *  with `text` shown as a small caption. The URI format is `ui://gen-ui/carousel/<token>`
+   *  resolved via `recipeCarouselRegistry.getRecipes(token)`. */
+  uiResourceUri?: string;
 }
 
 interface ChatBoxProps {
   messages: Message[];
+}
+
+/**
+ * Resolve a `ui://gen-ui/carousel/<token>` URI to the carousel's srcdoc HTML.
+ * Returns null if the token is not in the registry (registry cleared after nav, or forged token).
+ * This is synchronous because the registry is in-memory.
+ */
+function resolveCarouselHTML(uri: string): string | null {
+  const token = uri.replace(/^ui:\/\/gen-ui\/carousel\//, '');
+  if (!token) return null;
+  const recipes = recipeCarouselRegistry.getRecipes(token);
+  if (recipes === undefined) return null;
+  return renderCarouselHTML(recipes);
 }
 
 const ChatBox: React.FC<ChatBoxProps> = ({messages}) => {
@@ -44,17 +65,51 @@ const ChatBox: React.FC<ChatBoxProps> = ({messages}) => {
               className={`flex ${message.sender.toLowerCase() === 'user' ? 'justify-end' : 'justify-start'} animate-slide-up`}
               style={{ animationDelay: `${index * 0.1}s` }}
             >
-              <div
-                className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
-                  message.sender.toLowerCase() === 'user'
-                    ? 'bg-primary-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                } break-words`}
-              >
-                <div className="prose prose-sm dark:prose-invert max-w-none">
-                  <Markdown>{message.text}</Markdown>
+              {message.uiResourceUri ? (
+                // v1.1 GENUI: iframe carousel bubble — wider to accommodate carousel width
+                <div
+                  className={`max-w-[95%] p-2 rounded-2xl shadow-sm ${
+                    message.sender.toLowerCase() === 'user'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                  } break-words`}
+                >
+                  {(() => {
+                    const html = resolveCarouselHTML(message.uiResourceUri);
+                    if (html !== null) {
+                      return (
+                        <div className="flex flex-col gap-2">
+                          {message.text && (
+                            <p className="text-sm text-gray-700 dark:text-gray-300">{message.text}</p>
+                          )}
+                          <ChatBubbleContainer>
+                            <UIResourceFrame html={html} />
+                          </ChatBubbleContainer>
+                        </div>
+                      );
+                    }
+                    // Registry miss (cleared after nav or forged token) — fallback to text
+                    return (
+                      <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <Markdown>{message.text || 'Carousel unavailable.'}</Markdown>
+                      </div>
+                    );
+                  })()}
                 </div>
-              </div>
+              ) : (
+                // Standard text bubble — pixel-identical to v1.0
+                <div
+                  className={`max-w-[80%] p-4 rounded-2xl shadow-sm ${
+                    message.sender.toLowerCase() === 'user'
+                      ? 'bg-primary-500 text-white'
+                      : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
+                  } break-words`}
+                >
+                  <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <Markdown>{message.text}</Markdown>
+                  </div>
+                </div>
+              )}
             </div>
           ))
         )}
