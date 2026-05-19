@@ -13,6 +13,8 @@
 
 import * as MealPlanStore from './MealPlanStore';
 import { wrapToolsWithEvents, type ToolCallEvent } from './toolAdapter';
+import { getRecipes } from './RecipePersistence';
+import * as recipeCarouselRegistry from './recipeCarouselRegistry';
 
 // ── Module-scope state (persists across React StrictMode remounts) ─────────────
 // Pitfall 1: use module-scope ref so StrictMode double-mount abort reaches the same variable.
@@ -22,6 +24,22 @@ let previousGenUIRegistrationController: AbortController | null = null;
 
 // 05-RESEARCH.md Pattern 1: swallow duplicate-tool-name errors on StrictMode second mount.
 const DUPLICATE_NAME_PATTERN = /duplicate tool name|already registered/i;
+
+// ── Commit-listener slot ──────────────────────────────────────────────────────
+// Single-slot pub-sub pattern: only one chat panel is mounted at a time on
+// /generative-ui, so a single callback slot is sufficient.
+// Source: 06-RESEARCH.md Finding 6, 06-CONTEXT.md §commitRecipeToPlan visibility annotation.
+
+let onCommitCallback: ((recipeId: string) => void) | null = null;
+
+/**
+ * Register a callback invoked after commitRecipeToPlan resolves MealPlanStore.addToPlan.
+ * Pass `null` to clear (called on unmount by the chat panel).
+ * The callback is fire-and-forget — the tool handler does NOT await it.
+ */
+export function setCommitListener(cb: ((recipeId: string) => void) | null): void {
+  onCommitCallback = cb;
+}
 
 // ── GEN_UI_TOOLS ──────────────────────────────────────────────────────────────
 
@@ -49,6 +67,8 @@ export const GEN_UI_TOOLS: ModelContextTool[] = [
       },
       required: ['recipeId'],
     },
+    // GENUI-05: hidden from LLM; only the iframe Pick button calls this via the bridge.
+    annotations: { visibility: ['app'] },
     // execute receives input as unknown and narrows internally (no any at public API surface).
     execute: async (input: unknown): Promise<unknown> => {
       const typedInput = input as { recipeId: string; servings?: number };
@@ -59,7 +79,62 @@ export const GEN_UI_TOOLS: ModelContextTool[] = [
         addedAt: Date.now(),
         servings,
       });
+      // Fire-and-forget: notify the chat panel a recipe was committed. Do NOT await.
+      onCommitCallback?.(recipeId);
       return { content: [{ type: 'text', text: 'Added to plan' }] };
+    },
+  },
+  {
+    name: 'searchRecipes',
+    description:
+      'Search the recipe library by optional ingredient and optional max cooking time. Returns a recipe-card carousel UI resource for the user to pick from.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        ingredient: {
+          type: 'string',
+          description: 'Filter by ingredient name (case-insensitive partial match)',
+        },
+        maxMinutes: {
+          type: 'number',
+          description: 'Filter by maximum total cooking time in minutes',
+        },
+      },
+      required: [],
+    },
+    // No annotations.visibility — this tool is visible to the LLM (GENUI-04).
+    execute: async (input: unknown): Promise<unknown> => {
+      const args = (input as Record<string, unknown>) ?? {};
+
+      // Fetch full library from IndexedDB
+      let filtered = await getRecipes();
+
+      // Apply ingredient filter (case-insensitive contains against searchableIngredients)
+      if (args['ingredient']) {
+        const needle = (args['ingredient'] as string).toLowerCase();
+        filtered = filtered.filter((r) =>
+          r.searchableIngredients?.some((i) => i.toLowerCase().includes(needle)),
+        );
+      }
+
+      // Apply maxMinutes filter (recipes without totalMinutes are treated as Infinity → excluded)
+      if (args['maxMinutes'] != null) {
+        const max = args['maxMinutes'] as number;
+        filtered = filtered.filter((r) => (r.totalMinutes ?? Infinity) <= max);
+      }
+
+      // Store results in registry so ChatBox can look them up by token
+      const token = crypto.randomUUID();
+      recipeCarouselRegistry.setRecipes(token, filtered);
+
+      // Return MCP-Apps shape: content for model + _meta for the host UI layer
+      return {
+        content: [{ type: 'text', text: `Found ${filtered.length} recipes` }],
+        _meta: {
+          'ui.resourceUri': `ui://gen-ui/carousel/${token}`,
+          'genUI.recipeCount': filtered.length,
+        },
+      };
     },
   },
 ];
