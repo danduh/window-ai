@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: false
 preset: none
 created: 2026-05-19
+revised: 2026-05-19
 ---
 
 # Phase 5 — UI Design Contract
@@ -49,9 +50,9 @@ Inherited from Phase 4. No new tokens introduced.
 Phase 5 additions:
 - `ChatBubbleContainer` inner padding: `p-2` (8px) — intentionally tight so the iframe content reads as "inside" the bubble without excessive whitespace.
 - `UIResourceFrame` initial height: 320px — set via inline style `style={{ height: '320px' }}` until the first `ui/notifications/size-changed` fires.
-- Carousel card padding (iframe): 16px (`padding: 1rem`) per card. Gap between cards: 12px (`gap: 0.75rem`) — falls between sm and md; justified because card row scrolls horizontally and 12px is the tightest readable gap for this content density.
+- Carousel card padding (iframe): 16px (`padding: 1rem`) per card. Gap between cards: 8px (`gap: 0.5rem`) — uses the `sm` token, consistent with the bubble's `p-2` outer padding.
 
-Exceptions: none beyond the above.
+Exceptions: none.
 
 ---
 
@@ -68,13 +69,15 @@ Inherited from Phase 4. No new type sizes or weights.
 
 **Iframe-side typography (inline CSS subset):**
 
+Two sizes only. Weight (400 vs 600) carries all differentiation within the 15px level.
+
 | Role | CSS | Weight | Line Height |
 |------|-----|--------|-------------|
 | Card title | `font-size: 0.9375rem` (15px) | `font-weight: 600` | `1.3` |
+| "Pick" button label | `font-size: 0.9375rem` (15px) | `font-weight: 600` | `1` |
 | Card meta (minutes badge, ingredient text) | `font-size: 0.8125rem` (13px) | `font-weight: 400` | `1.4` |
-| "Pick" button label | `font-size: 0.875rem` (14px) | `font-weight: 600` | `1` |
 
-The iframe uses a 2-weight system: 400 (normal) and 600 (semibold). 600 replaces the outer system's 700 bold because card titles at 15px are more readable at semibold than full bold. No italic, no other weights.
+The iframe uses a 2-size / 2-weight system: 13px at 400 (meta) and 15px at 600 (title + button). No italic, no other sizes, no other weights.
 
 ---
 
@@ -160,6 +163,8 @@ Modified existing components (additive only):
 
 The two-column shell from Phase 4 is unchanged. Phase 5 adds content inside the left column only.
 
+**Primary visual anchor:** the "Show demo carousel" `bg-primary-600` button — the sole accent-colored element before the iframe mounts.
+
 **ChatPlaceholder augmented layout:**
 
 ```
@@ -217,7 +222,7 @@ Height is managed via inline `style={{ height: '320px' }}` initially, then updat
 
 ```
 <div class="carousel">          /* display:flex; overflow-x:auto; scroll-snap-type:x mandatory;
-                                   gap:0.75rem; padding:0.75rem; */
+                                   gap:0.5rem; padding:0.5rem; */
   <div class="card">            /* flex-shrink:0; width:220px; scroll-snap-align:start;
                                    background:var(--c-surface); border:1px solid var(--c-border);
                                    border-radius:0.75rem; padding:1rem; display:flex;
@@ -225,7 +230,7 @@ Height is managed via inline `style={{ height: '320px' }}` initially, then updat
     <div class="card-title">    /* font-size:0.9375rem; font-weight:600; color:var(--c-text-primary) */
     <div class="badge">         /* font-size:0.8125rem; color:var(--c-badge-text);
                                    background:var(--c-badge-bg); border-radius:9999px;
-                                   padding:0.125rem 0.5rem; display:inline-block; */
+                                   padding:0.25rem 0.5rem; display:inline-block; */
     <ul class="ingredients">    /* font-size:0.8125rem; color:var(--c-text-secondary);
                                    list-style:none; margin:0; padding:0; */
     <button class="pick-btn">   /* see Pick button spec below */
@@ -277,7 +282,7 @@ Phase 4 copy is inherited unchanged. New copy introduced only for Phase 5 surfac
 | Tools-unavailable fallback (inside card, replaces Pick button) | `Tools unavailable` |
 | Post-pick confirmation (replaces Pick button, 2s then reverts) | `Added!` |
 
-**"Pick" rationale:** single word, imperative, fits the narrow card layout at 14px. "Choose", "Select", and "Add to plan" are all wider. Phase 6 will show the plan update live so additional confirmation text in the button is not needed beyond the 2s flash.
+**"Pick" rationale:** single word, imperative, fits the narrow card layout at 15px. "Choose", "Select", and "Add to plan" are all wider. Phase 6 will show the plan update live so additional confirmation text in the button is not needed beyond the 2s flash.
 
 ### Error states
 
@@ -363,7 +368,7 @@ The `<iframe>` element is shown at full width. Height adjusts via `ui/notificati
 
 ### "Pick" button interaction (inside iframe)
 
-- **Default state:** `background: var(--c-btn-bg); color: var(--c-btn-text); border-radius: 0.375rem; padding: 0.375rem 0.75rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: none; width: 100%; transition: background 0.15s;`
+- **Default state:** `background: var(--c-btn-bg); color: var(--c-btn-text); border-radius: 0.375rem; padding: 0.5rem 1rem; font-size: 0.9375rem; font-weight: 600; cursor: pointer; border: none; width: 100%; transition: background 0.15s; line-height: 1;`
 - **Hover:** `background: var(--c-btn-hover)`
 - **Focus:** `outline: 2px solid var(--c-btn-bg); outline-offset: 2px`
 - **In-flight (after click, before JSON-RPC response):** button disabled, text stays `Pick`, opacity: 0.6, `cursor: not-allowed`
@@ -412,12 +417,12 @@ The complete set of CSS class names that `carouselTemplate.ts` must emit in its 
 
 | Class | CSS |
 |-------|-----|
-| `.carousel` | `display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:0.75rem; padding:0.75rem; scrollbar-width:thin; scrollbar-color:var(--c-border) transparent;` |
+| `.carousel` | `display:flex; overflow-x:auto; scroll-snap-type:x mandatory; gap:0.5rem; padding:0.5rem; scrollbar-width:thin; scrollbar-color:var(--c-border) transparent;` |
 | `.card` | `flex-shrink:0; width:220px; scroll-snap-align:start; background:var(--c-surface); border:1px solid var(--c-border); border-radius:0.75rem; padding:1rem; display:flex; flex-direction:column; gap:0.5rem;` |
 | `.card-title` | `font-size:0.9375rem; font-weight:600; color:var(--c-text-primary); line-height:1.3; margin:0;` |
-| `.badge` | `font-size:0.8125rem; color:var(--c-badge-text); background:var(--c-badge-bg); border-radius:9999px; padding:0.125rem 0.5rem; display:inline-block; width:fit-content;` |
-| `.ingredients` | `font-size:0.8125rem; color:var(--c-text-secondary); list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.125rem;` |
-| `.pick-btn` | `margin-top:auto; background:var(--c-btn-bg); color:var(--c-btn-text); border:none; border-radius:0.375rem; padding:0.375rem 0.75rem; font-size:0.875rem; font-weight:600; cursor:pointer; width:100%; transition:background 0.15s; line-height:1;` |
+| `.badge` | `font-size:0.8125rem; color:var(--c-badge-text); background:var(--c-badge-bg); border-radius:9999px; padding:0.25rem 0.5rem; display:inline-block; width:fit-content;` |
+| `.ingredients` | `font-size:0.8125rem; color:var(--c-text-secondary); list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:0.25rem;` |
+| `.pick-btn` | `margin-top:auto; background:var(--c-btn-bg); color:var(--c-btn-text); border:none; border-radius:0.375rem; padding:0.5rem 1rem; font-size:0.9375rem; font-weight:600; cursor:pointer; width:100%; transition:background 0.15s; line-height:1;` |
 | `.pick-btn:hover` | `background:var(--c-btn-hover);` |
 | `.pick-btn:focus` | `outline:2px solid var(--c-btn-bg); outline-offset:2px;` |
 | `.pick-btn:disabled` | `opacity:0.6; cursor:not-allowed;` |
@@ -480,7 +485,7 @@ No third-party component registries used. All components are hand-rolled Tailwin
 | `animate-fade-in` on ChatBubbleContainer mount | Code scan — `tailwind.config.js` custom animations |
 | `animate-pulse` loading skeleton | Tailwind built-in; standard project pattern |
 | CSS custom properties for iframe color tokens | Claude's Discretion (CONTEXT.md) — exact iframe CSS implementation left to researcher/planner |
-| `.card` width 220px | Claude's Discretion — fits 3 cards visible at `max-w-2xl` (672px) with 12px gaps |
+| `.card` width 220px | Claude's Discretion — fits 3 cards visible at `max-w-2xl` (672px) with 8px gaps |
 | "Show demo carousel" button copy | Claude's Discretion (CONTEXT.md) — researcher selects from options |
 | "Pick" button copy | Claude's Discretion (CONTEXT.md) |
 | Handshake error copy | Claude's Discretion (CONTEXT.md) |
@@ -489,6 +494,13 @@ No third-party component registries used. All components are hand-rolled Tailwin
 | Typography sizes and weights | Inherited from Phase 4 UI-SPEC |
 | Color 60/30/10 split | Inherited from Phase 4 UI-SPEC |
 | No shadcn | Code scan — no `components.json` in repo root |
+| Iframe gap/padding fixed to 8px (sm token) | Revision 2026-05-19 — checker BLOCK: 12px (0.75rem) is outside standard set {4,8,16,24,32,48,64} |
+| Badge vertical padding fixed to 4px (xs token) | Revision 2026-05-19 — checker BLOCK: 2px (0.125rem) is non-multiple-of-4 |
+| Ingredients gap fixed to 4px (xs token) | Revision 2026-05-19 — checker BLOCK: 2px (0.125rem) is non-multiple-of-4 |
+| Pick button padding fixed to 8px/16px (sm/md tokens) | Revision 2026-05-19 — checker BLOCK: 6px/12px both invalid; 8px/16px matches host `py-2 px-4` |
+| Iframe type scale collapsed to 2 sizes (13px, 15px) | Revision 2026-05-19 — checker FLAG Dimension 4: 3-size scale (13/14/15) collapsed; weight differentiates within 15px |
+| Pick button font-size unified to 15px (0.9375rem) | Revision 2026-05-19 — previously 14px (0.875rem); now matches card-title size, weight 600 distinguishes both |
+| Focal point sentence added to Layout Contract | Revision 2026-05-19 — checker FLAG Dimension 2: pre-click visual anchor now declared |
 
 ---
 
