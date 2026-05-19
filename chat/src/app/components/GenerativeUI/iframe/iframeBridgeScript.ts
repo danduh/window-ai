@@ -26,7 +26,7 @@ export const outerShellHTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <style>
     html, body { margin: 0; padding: 0; overflow: hidden; }
-    iframe { width: 100%; border: 0; display: block; }
+    iframe { width: 100%; border: 0; display: block; height: 100%; }
   </style>
 </head>
 <body>
@@ -43,6 +43,15 @@ export const outerShellHTML = `<!DOCTYPE html>
   // outer shell relays to ITS parent (React host).
   window.addEventListener('message', function(event) {
     if (event.source !== inner.contentWindow) return;
+    // Side effect: when the inner iframe reports its content size, ALSO grow the
+    // inner iframe element so its content isn't clipped. User-agent default is
+    // ~150-200px which clipped the carousel until this was added.
+    try {
+      var data = event.data;
+      if (data && data.method === 'ui/notifications/size-changed' && data.params && typeof data.params.height === 'number') {
+        inner.style.height = data.params.height + 'px';
+      }
+    } catch (_) { /* ignore malformed */ }
     window.parent.postMessage(event.data, '*');
   });
 
