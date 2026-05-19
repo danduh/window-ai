@@ -14,7 +14,7 @@ import { RecipePicker } from './RecipeWorkbench/RecipePicker';
 import { RecipeHeader } from './RecipeWorkbench/RecipeHeader';
 import { IngredientsList } from './RecipeWorkbench/IngredientsList';
 import { StepsList } from './RecipeWorkbench/StepsList';
-import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
+import { MissingFlagBanner } from './MissingFlagBanner';
 import { RECIPE_TOOLS } from '../services/recipeTools';
 import { wrapToolsWithEvents, type ToolCallEvent } from '../services/toolAdapter';
 import { subscribeRecipeStore, setActiveRecipeId } from '../services/recipeStore';

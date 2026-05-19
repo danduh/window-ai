@@ -3,7 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import { seedIfMissing } from '../services/RecipePersistence';
 import { SEED_RECIPES } from '../services/recipeSeed';
-import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
+import { MissingFlagBanner } from './MissingFlagBanner';
 import { GenerativeUIHeader } from './GenerativeUI/GenerativeUIHeader';
 import { GenUIChatPanel } from './GenerativeUI/GenUIChatPanel';
 import { MealPlanColumn } from './GenerativeUI/MealPlanColumn';
