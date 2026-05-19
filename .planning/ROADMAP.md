@@ -138,7 +138,9 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
   3. Within 1 second of iframe mount the JSON-RPC `ui/initialize` handshake completes (host responds with `hostInfo` + `hostContext` including theme, displayMode, dimensions); the iframe then sends `ui/notifications/initialized`
   4. When the iframe's content height changes, it posts `ui/notifications/size-changed` and the host iframe element resizes accordingly without a feedback loop; when the page toggles dark mode, the host posts `ui/notifications/host-context-changed` and the iframe re-themes its content
   5. Clicking "Pick" inside the iframe issues a JSON-RPC `tools/call` over postMessage targeting a registered WebMCP tool; the host bridge proxies the call into `navigator.modelContext` and returns the result through the JSON-RPC response — observable end-to-end via console logs even before chat is wired
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 05-01-PLAN.md — Bridge core + iframe templates + tool registration helper (bridge.ts, iframeBridgeScript.ts, carouselTemplate.ts, genUITools.ts)
+- [ ] 05-02-PLAN.md — Frame component + page wiring (ChatBubbleContainer, UIResourceFrame, ChatPlaceholder update, GenerativeUIPage effect, browser smoke check)
 **UI hint**: yes
 
 ### Phase 6: In-Page Chat + Tool Wiring
@@ -170,7 +172,7 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 4. v1.1 Foundation — Page shell, store, seed | 0/2 | Planned | — |
-| 5. MCP Apps Host — Sandboxed iframe + bridge | 0/? | Not started | — |
+| 5. MCP Apps Host — Sandboxed iframe + bridge | 0/2 | Planned | — |
 | 6. In-Page Chat + Tool Wiring | 0/? | Not started | — |
 | 7. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
