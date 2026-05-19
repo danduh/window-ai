@@ -167,7 +167,9 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
   2. Both `/generative-ui` and `/generative-ui/docs` set page-specific titles and meta descriptions through `SEOProvider`; the entries in `chat/src/app/hooks/useSEOData.ts` (`seoConfigs.generativeUI`) and in `chat/scripts/prerender-react.js` are byte-identical (verifiable via `grep -F` cross-check)
   3. The canonical 90-second demo flow completes successfully on 5 cold runs in a fresh Chrome 146 Canary profile with no failed inferences and no manual interventions; any flake observed in the 5 runs is fixed before the phase closes
   4. During the demo flow the DevTools Network tab shows zero outbound network requests (no fetch, no XHR, no resource loads beyond initial page paint) — verifiable by recording the demo with Network capture on
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 07-01-PLAN.md — Generative-UI-API.md docs + /generative-ui/docs route + SEO mirror + Tabs (Docs first)
+- [ ] 07-02-PLAN.md — Pick-button clipping fix + MealPlanColumn polish (titles, Clear plan) + Thinking… loader + dev-gated debug + zero-network kicker + REHEARSAL.md template
 
 ## Progress (v1.1)
 
@@ -176,7 +178,7 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
 | 4. v1.1 Foundation — Page shell, store, seed | 0/2 | Planned | — |
 | 5. MCP Apps Host — Sandboxed iframe + bridge | 0/2 | Planned | — |
 | 6. In-Page Chat + Tool Wiring | 0/2 | Planned | — |
-| 7. Docs + SEO + Demo Polish | 0/? | Not started | — |
+| 7. Docs + SEO + Demo Polish | 0/2 | Planned | — |
 
 ## Coverage Validation (v1.1)
 
