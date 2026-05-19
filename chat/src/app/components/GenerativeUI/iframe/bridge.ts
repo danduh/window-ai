@@ -8,6 +8,11 @@
 // component calls handleMessage from a window listener. All state lives in closures.
 // No React imports — pure TS, framework-free.
 
+// IS_DEV — dev-only logging gate. Webpack DefinePlugin replaces process.env.NODE_ENV
+// at build time; the typeof guard keeps it safe inside the iframe srcdoc context.
+const IS_DEV =
+  typeof process !== 'undefined' && process.env.NODE_ENV !== 'production';
+
 // ── Core JSON-RPC 2.0 types ──────────────────────────────────────────────────
 
 export interface JsonRpcRequest {
@@ -228,11 +233,11 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
           handshakeTimer = null;
           if (!destroyed) {
             // onLog is dev-only — production builds skip logging entirely (07-CONTEXT.md Polish items).
-            if (import.meta.env.DEV) onLog?.('host', 'handshake timeout', { handshakeTimeoutMs });
+            if (IS_DEV) onLog?.('host', 'handshake timeout', { handshakeTimeoutMs });
             onHandshakeTimeout?.();
           }
         }, handshakeTimeoutMs);
-        if (import.meta.env.DEV) onLog?.('host', 'iframe loaded, queue flushed, handshake timer started', {
+        if (IS_DEV) onLog?.('host', 'iframe loaded, queue flushed, handshake timer started', {
           pendingFlushed: pendingOutbound.length,
         });
       },
@@ -277,13 +282,13 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
     }
 
     if (isRequest && method) {
-      if (import.meta.env.DEV) onLog?.('iframe', method, data);
+      if (IS_DEV) onLog?.('iframe', method, data);
       handleInboundRequest(method, id as string | number, params ?? {});
       return;
     }
 
     if (isNotification && method) {
-      if (import.meta.env.DEV) onLog?.('iframe', method, data);
+      if (IS_DEV) onLog?.('iframe', method, data);
       handleInboundNotification(method, params ?? {});
       return;
     }
@@ -302,7 +307,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
         hostContext: initialHostContext,
       };
       const response = { jsonrpc: '2.0', id, result };
-      if (import.meta.env.DEV) onLog?.('host', 'ui/initialize response', response);
+      if (IS_DEV) onLog?.('host', 'ui/initialize response', response);
       postToOuter(response);
       return;
     }
@@ -319,7 +324,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
             message: `Unknown tool: ${callParams.name}`,
           },
         };
-        if (import.meta.env.DEV) onLog?.('host', 'tools/call error (not found)', errorResponse);
+        if (IS_DEV) onLog?.('host', 'tools/call error (not found)', errorResponse);
         postToOuter(errorResponse);
         return;
       }
@@ -328,7 +333,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
         .then(() => tool.execute(callParams.arguments ?? {}))
         .then((result) => {
           const response = { jsonrpc: '2.0', id, result };
-          if (import.meta.env.DEV) onLog?.('host', 'tools/call success', response);
+          if (IS_DEV) onLog?.('host', 'tools/call success', response);
           postToOuter(response);
         })
         .catch((err: unknown) => {
@@ -338,7 +343,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
             id,
             error: { code: RPC_ERROR.TOOL_ERROR, message },
           };
-          if (import.meta.env.DEV) onLog?.('host', 'tools/call error (execute threw)', errorResponse);
+          if (IS_DEV) onLog?.('host', 'tools/call error (execute threw)', errorResponse);
           postToOuter(errorResponse);
         });
 
@@ -371,7 +376,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
       id,
       error: { code: RPC_ERROR.METHOD_NOT_FOUND, message: `Method not found: ${method}` },
     };
-    if (import.meta.env.DEV) onLog?.('host', `unknown request method: ${method}`, errorResponse);
+    if (IS_DEV) onLog?.('host', `unknown request method: ${method}`, errorResponse);
     postToOuter(errorResponse);
   }
 
@@ -382,20 +387,20 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
         clearTimeout(handshakeTimer);
         handshakeTimer = null;
       }
-      if (import.meta.env.DEV) onLog?.('host', 'handshake complete (ui/notifications/initialized received)', {});
+      if (IS_DEV) onLog?.('host', 'handshake complete (ui/notifications/initialized received)', {});
       onHandshakeComplete?.();
       return;
     }
 
     if (method === 'ui/notifications/size-changed') {
       const sizeParams = params as unknown as SizeChangedParams;
-      if (import.meta.env.DEV) onLog?.('host', 'size-changed', sizeParams);
+      if (IS_DEV) onLog?.('host', 'size-changed', sizeParams);
       onSizeChanged?.(sizeParams.height);
       return;
     }
 
     // Unrecognized notifications are silently ignored (per JSON-RPC 2.0 spec)
-    if (import.meta.env.DEV) onLog?.('host', `unrecognized notification: ${method}`, params);
+    if (IS_DEV) onLog?.('host', `unrecognized notification: ${method}`, params);
   }
 
   function sendHostContextChanged(params: HostContextChangedParams): void {
@@ -405,7 +410,7 @@ export function createUIResourceBridge(opts: UIResourceBridgeOptions): UIResourc
       method: 'ui/notifications/host-context-changed',
       params,
     };
-    if (import.meta.env.DEV) onLog?.('host', 'sending host-context-changed', notification);
+    if (IS_DEV) onLog?.('host', 'sending host-context-changed', notification);
     queueOrSend(notification);
   }
 
