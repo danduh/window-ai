@@ -1,8 +1,41 @@
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useMealPlan } from '../../hooks/useMealPlan';
+import { getRecipe } from '../../services/RecipePersistence';
+import { clearPlan } from '../../services/MealPlanStore';
 
 export const MealPlanColumn: React.FC = () => {
   const { plan, loading } = useMealPlan();
+  const [titles, setTitles] = useState<Record<string, string>>({});
+
+  // Resolve recipe titles from IDB whenever the plan changes.
+  // Uses a cancelled flag pattern (mirrors seedIfMissing effect in GenerativeUIPage.tsx)
+  // so React StrictMode double-mount does not double-fetch.
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      // Find unique recipeIds that we don't have a title for yet
+      const ids = [...new Set(plan.map((e) => e.recipeId))];
+      const missing = ids.filter((id) => titles[id] === undefined);
+      if (missing.length === 0) return;
+
+      const resolved: Record<string, string> = {};
+      for (const id of missing) {
+        const recipe = await getRecipe(id);
+        resolved[id] = recipe?.title ?? id;
+      }
+      if (!cancelled) {
+        setTitles((prev) => ({ ...prev, ...resolved }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [plan]);
+
+  const handleClear = useCallback(async () => {
+    await clearPlan();
+  }, []);
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
@@ -34,19 +67,35 @@ export const MealPlanColumn: React.FC = () => {
           </p>
         </div>
       ) : (
-        <ul>
-          {plan.map((entry) => (
-            <li
-              key={entry.id}
-              className="py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0 text-sm text-gray-700 dark:text-gray-300"
-            >
-              <span className="font-medium">{entry.recipeId}</span>
-              <span className="ml-2 text-gray-400 dark:text-gray-500 text-xs">
-                {new Date(entry.addedAt).toLocaleString()}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <>
+          <div className="mb-3 flex justify-end">
+            {plan.length > 0 && (
+              <button
+                onClick={handleClear}
+                className="text-xs text-red-600 dark:text-red-400 hover:underline"
+                type="button"
+              >
+                Clear plan
+              </button>
+            )}
+          </div>
+          <ul>
+            {plan.map((entry) => (
+              <li
+                key={entry.id}
+                className="py-2 border-b border-gray-100 dark:border-gray-700 last:border-b-0 text-sm text-gray-700 dark:text-gray-300"
+              >
+                <div className="font-medium">{titles[entry.recipeId] ?? entry.recipeId}</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-xs text-gray-400 dark:text-gray-500">{entry.recipeId}</span>
+                  <span className="text-xs text-gray-400 dark:text-gray-500">
+                    {new Date(entry.addedAt).toLocaleString()}
+                  </span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );

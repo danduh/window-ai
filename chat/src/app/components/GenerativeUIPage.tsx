@@ -97,6 +97,9 @@ export const GenerativeUIPage: React.FC = () => {
       {!navigator.modelContext && <MissingFlagBanner />}
       <GenerativeUIHeader />
       <Tabs basePath="/generative-ui" defaultTab="workbench" tabs={tabs} />
+      <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
+        🔒 Zero network during demo — open DevTools → Network tab
+      </p>
     </div>
   );
 };
