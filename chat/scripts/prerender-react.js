@@ -60,6 +60,10 @@ const routes = [
   // Generative UI routes
   { path: '/generative-ui', filename: 'generative-ui.html' },
   { path: '/generative-ui/docs', filename: 'generative-ui-docs.html' },
+
+  // Proofreader routes
+  { path: '/proofreader', filename: 'proofreader.html' },
+  { path: '/proofreader/docs', filename: 'proofreader-docs.html' },
 ];
 
 // Build configuration
@@ -407,6 +411,28 @@ function getSEODataForRoute(routePath) {
         '@type': 'TechArticle',
         name: 'Generative UI API Documentation',
         description: 'Technical documentation for the MCP Apps Generative UI pattern on navigator.modelContext.',
+      },
+    },
+    '/proofreader': {
+      title: 'Proofreader — Chrome on-device grammar + spelling correction | Chrome AI APIs',
+      description: 'Gemini Nano proofreads your text on-device with grammar, spelling, capitalization, and punctuation corrections. Three output styles, five languages, zero network.',
+      keywords: 'Proofreader API, Gemini Nano, on-device grammar, spelling correction, Chrome AI, ProofreaderCorrection, correctionExplanationLanguage, LoRA adapter',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Proofreader Demo',
+        description: 'On-device grammar and spelling correction with Gemini Nano',
+      },
+    },
+    '/proofreader/docs': {
+      title: 'Proofreader API Docs — surface, corrections shape, language support | Chrome AI APIs',
+      description: 'Gemini Nano proofreads your text on-device with grammar, spelling, capitalization, and punctuation corrections. Three output styles, five languages, zero network.',
+      keywords: 'Proofreader API docs, ProofreaderCorrection, ProofreadResult, correctionExplanationLanguage, expectedInputLanguages, Chrome 146 Canary, on-device AI',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Proofreader API Documentation',
+        description: 'Technical documentation for the Proofreader API surface, corrections shape, and language support',
       },
     },
   };
