@@ -139,19 +139,12 @@ body { min-height: 200px; }
 .pick-btn:hover { background: var(--c-btn-hover); }
 .pick-btn:focus { outline: 2px solid var(--c-btn-bg); outline-offset: 2px; }
 .pick-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-/* Tiny-viewport fallback only — the iframe is ALWAYS narrower than its host chat bubble
-   (ChatBubbleContainer max-w-2xl ≈ 672px), so the previous 639px breakpoint always fired
-   and collapsed the horizontal scroll-snap row to a vertical stack. Drop the breakpoint
-   to 359px so the carousel scrolls horizontally inside the chat bubble at every realistic
-   width, and only stacks on truly tiny widths (uncommon screens). */
-@media (max-width: 359px) {
-  .carousel {
-    flex-direction: column;
-    overflow-x: visible;
-    scroll-snap-type: none;
-  }
-  .card { width: 100%; }
-}
+/* No column fallback — the iframe always renders inside a chat bubble that is narrower
+   than the host page (assistant Message bubbles in ChatBox.tsx have their own width cap,
+   not the full ChatBubbleContainer max-w-2xl). A media-query-based column switch will
+   always fire and defeat the horizontal scroll-snap carousel. The carousel uses
+   `overflow-x: auto` + `flex-shrink: 0` cards, so it gracefully scrolls horizontally at
+   ANY width — narrow screens just see fewer cards at once and scroll to see more. */
 `;
 
 // ── Recipe card renderer ──────────────────────────────────────────────────────
