@@ -69,7 +69,7 @@ A visitor with Chrome 146 Canary (WebMCP flag enabled) can, in under 2 minutes: 
 | 3. Documentation + SEO | 2/2 | Complete (code; runtime UAT pending) | 2026-04-28 |
 | 4. v1.1 Foundation: /generative-ui shell + MealPlanStore + 12-recipe seed | 0/2 | Planned | — |
 | 5. v1.1 MCP Apps Host: sandboxed iframe + postMessage bridge + carousel | 0/? | Not started | — |
-| 6. v1.1 In-Page Chat + Tool Wiring: searchRecipes + commitRecipeToPlan + live meal plan | 0/? | Not started | — |
+| 6. v1.1 In-Page Chat + Tool Wiring: searchRecipes + commitRecipeToPlan + live meal plan | 0/2 | Planned | — |
 | 7. v1.1 Docs + Demo Polish: explainer + SEO + 5-cold-run + zero-network verification | 0/? | Not started | — |
 
 ## Coverage Validation
@@ -153,7 +153,9 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
   3. The page-side `commitRecipeToPlan(recipeId)` helper is registered with `visibility: ["app"]` so it does NOT appear in the chat agent's tool catalog; the iframe successfully invokes it via the `tools/call` JSON-RPC method, the meal-plan column re-renders within one animation frame, and the plan entry survives a hard reload
   4. When a tool result contains `_meta.ui.resourceUri`, the chat panel renders the iframe in the chat bubble and substitutes a short summary (e.g. "Showed N recipe cards") for the model's context — the literal resource URI never appears in any prompt sent back to `LanguageModel`
   5. The canonical 90-second demo flow runs once successfully on Chrome 146 Canary: user types a recipe query → carousel appears in chat → user clicks "Pick" → meal-plan column updates → chat agent confirms in text — no manual reloads, no console errors, no failed inferences
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 06-01-PLAN.md — Tools + types + ChatBox extension (webmcp.d.ts visibility type, recipeCarouselRegistry, searchRecipes + visibility annotation in genUITools, ChatBox uiResourceUri Message extension + iframe render branch)
+- [ ] 06-02-PLAN.md — GenUIChatPanel + page wiring (clone AgentDrawer dispatch loop, _meta interceptor, commit listener, replace ChatPlaceholder in GenerativeUIPage; browser smoke check)
 **UI hint**: yes
 
 ### Phase 7: Docs + SEO + Demo Polish
@@ -173,7 +175,7 @@ A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a 
 |-------|----------------|--------|-----------|
 | 4. v1.1 Foundation — Page shell, store, seed | 0/2 | Planned | — |
 | 5. MCP Apps Host — Sandboxed iframe + bridge | 0/2 | Planned | — |
-| 6. In-Page Chat + Tool Wiring | 0/? | Not started | — |
+| 6. In-Page Chat + Tool Wiring | 0/2 | Planned | — |
 | 7. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
 ## Coverage Validation (v1.1)
