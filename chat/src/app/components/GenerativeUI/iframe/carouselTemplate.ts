@@ -77,6 +77,7 @@ body { min-height: 200px; }
 *, *::before, *::after { box-sizing: inherit; }
 .carousel {
   display: flex;
+  align-items: flex-start;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 0.5rem;
@@ -123,7 +124,6 @@ body { min-height: 200px; }
   gap: 0.25rem;
 }
 .pick-btn {
-  margin-top: auto;
   background: var(--c-btn-bg);
   color: var(--c-btn-text);
   border: none;
