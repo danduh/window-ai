@@ -69,6 +69,14 @@ const INTENT_SCHEMA = {
 const MAX_TOOL_ITERATIONS = 5;
 
 // ---------------------------------------------------------------------------
+// THINKING_TEXT — constant used to insert/remove the transient "Thinking…"
+// message in the transcript while LanguageModel is processing (07-CONTEXT.md
+// Chat loading state). A module-level constant keeps add/remove logic
+// match-by-text consistent across addMessage and setMessages filter calls.
+// ---------------------------------------------------------------------------
+const THINKING_TEXT = 'Thinking…';
+
+// ---------------------------------------------------------------------------
 // extractJsonFromResponse — robustly extracts a JSON object from a model
 // response that may be wrapped in markdown code fences or have leading/
 // trailing text. Returns null if no valid JSON object is found.
@@ -259,6 +267,11 @@ export const GenUIChatPanel: React.FC = () => {
     setIsLoading(true);
     addMessage(text, 'User');
 
+    // Show a transient "Thinking…" system message while LanguageModel is processing.
+    // Removed on first session.prompt() resolution or in finally on error.
+    addMessage(THINKING_TEXT, 'System');
+    let thinkingRemoved = false;
+
     // Build visible tool array at dispatch time (same filter as SYSTEM_PROMPT).
     // Only tools WITHOUT annotations.visibility:['app'] are reachable from chat.
     // `commitRecipeToPlan` with visibility:['app'] is filtered out here.
@@ -279,6 +292,13 @@ export const GenUIChatPanel: React.FC = () => {
         console.assert(!promptText.includes('ui://'), '[GenUIChatPanel] _meta leak — promptText contains ui:// (must be stripped before session.prompt)');
 
         const rawResponse = await session.prompt(promptText);
+
+        // Remove the Thinking… message on first prompt resolution (whether tool
+        // call or "done"). Idempotent — no-op if already removed by a prior iteration.
+        if (!thinkingRemoved) {
+          setMessages(prev => prev.filter(m => m.text !== THINKING_TEXT));
+          thinkingRemoved = true;
+        }
 
         const parsed = extractJsonFromResponse(rawResponse);
 
@@ -374,6 +394,10 @@ export const GenUIChatPanel: React.FC = () => {
       console.error('[GenUIChatPanel] Error in agent loop:', message);
       addMessage("Sorry, I couldn't generate a response. Try rephrasing your request.", 'Bot');
     } finally {
+      // Clean up the Thinking… message unconditionally — ensures it is removed even
+      // if session.prompt() threw before the first resolution (e.g., model unavailable).
+      // The filter is idempotent: no-op if already removed inside the try block.
+      setMessages(prev => prev.filter(m => m.text !== THINKING_TEXT));
       setIsLoading(false);
     }
   };
