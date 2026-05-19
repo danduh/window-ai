@@ -66,9 +66,11 @@ const ChatBox: React.FC<ChatBoxProps> = ({messages}) => {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {message.uiResourceUri ? (
-                // v1.1 GENUI: iframe carousel bubble — wider to accommodate carousel width
+                // v1.1 GENUI: iframe carousel bubble — forces ~600px so the horizontal
+                // scroll-snap carousel can show multiple cards at once; falls back to
+                // 95% of parent on narrower screens.
                 <div
-                  className={`max-w-[95%] p-2 rounded-2xl shadow-sm ${
+                  className={`w-[600px] max-w-[95%] p-2 rounded-2xl shadow-sm ${
                     message.sender.toLowerCase() === 'user'
                       ? 'bg-primary-500 text-white'
                       : 'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
