@@ -92,19 +92,24 @@ declare global {
     confidence: number;
   }
 
+  // Shared monitor interface for download-progress events across built-in AI APIs
+  interface AICreateMonitor {
+    addEventListener: (type: string, listener: (e: ProgressEvent) => void) => void;
+  }
+
   // Translation options interface
   interface TranslatorCreateOptions {
     sourceLanguage: string;
     targetLanguage: string;
     signal?: AbortSignal;
-    monitor?: (m: { addEventListener: (type: string, listener: (e: ProgressEvent) => void) => void }) => void;
+    monitor?: (m: AICreateMonitor) => void;
   }
 
   // Language detection options interface
   interface LanguageDetectorCreateOptions {
     expectedInputLanguages?: string[];
     signal?: AbortSignal;
-    monitor?: (m: { addEventListener: (type: string, listener: (e: ProgressEvent) => void) => void }) => void;
+    monitor?: (m: AICreateMonitor) => void;
   }
 
   // QuotaExceededError interface for proper typing
@@ -135,8 +140,59 @@ declare global {
     destroy(): void;
   }
 
+  // Proofreader API types
+
+  type ProofreaderCorrectionType =
+    | 'spelling'
+    | 'punctuation'
+    | 'capitalization'
+    | 'preposition'
+    | 'missing-words'
+    | 'grammar';
+
+  interface ProofreaderCorrection {
+    startIndex: number;
+    endIndex: number;
+    correction: string;
+    types?: ProofreaderCorrectionType[];
+    explanation?: string;
+  }
+
+  interface ProofreadResult {
+    correctedInput: string;
+    corrections: ProofreaderCorrection[];
+  }
+
+  interface ProofreaderCreateOptions {
+    includeCorrectionTypes?: boolean;
+    includeCorrectionExplanations?: boolean;
+    correctionExplanationLanguage?: string;
+    expectedInputLanguages?: string[];
+    signal?: AbortSignal;
+    monitor?: (m: AICreateMonitor) => void;
+  }
+
+  interface ProofreaderProofreadOptions {
+    signal?: AbortSignal;
+  }
+
+  interface Proofreader {
+    proofread(input: string, options?: ProofreaderProofreadOptions): Promise<ProofreadResult>;
+    destroy(): void;
+    readonly includeCorrectionTypes: boolean;
+    readonly includeCorrectionExplanations: boolean;
+    readonly expectedInputLanguages: ReadonlyArray<string> | null;
+    readonly correctionExplanationLanguage: string | null;
+  }
+
+  interface ProofreaderConstructor {
+    create(options?: ProofreaderCreateOptions): Promise<Proofreader>;
+    availability(options?: { expectedInputLanguages?: string[] }): Promise<'available' | 'downloadable' | 'downloading' | 'unavailable'>;
+  }
+
   interface Window {
     Translator: typeof Translator;
     LanguageDetector: typeof LanguageDetector;
+    Proofreader: ProofreaderConstructor;
   }
 }
