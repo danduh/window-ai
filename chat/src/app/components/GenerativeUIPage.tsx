@@ -6,6 +6,7 @@ import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
 import { GenerativeUIHeader } from './GenerativeUI/GenerativeUIHeader';
 import { ChatPlaceholder } from './GenerativeUI/ChatPlaceholder';
 import { MealPlanColumn } from './GenerativeUI/MealPlanColumn';
+import { registerGenUITools } from '../services/genUITools';
 
 export const GenerativeUIPage: React.FC = () => {
   useSEOData(seoConfigs.generativeUI);
@@ -27,6 +28,15 @@ export const GenerativeUIPage: React.FC = () => {
     })();
     return () => {
       cancelled = true;
+    };
+  }, []);
+
+  // Mount-time tool registration: registers commitRecipeToPlan with navigator.modelContext.
+  // registerGenUITools() is a no-op (returns null) when navigator.modelContext is undefined.
+  useEffect(() => {
+    const ctrl = registerGenUITools();
+    return () => {
+      ctrl?.abort();
     };
   }, []);
 
