@@ -90,5 +90,17 @@ export const seoConfigs = {
     title: 'Generative UI Docs — MCP Apps wire format + bidirectional pattern | Chrome AI APIs',
     description: 'How to register UI-returning tools and hidden helpers with navigator.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
     keywords: 'MCP Apps documentation, SEP-1865, navigator.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel'
+  },
+  // Must match prerender-react.js seoConfigs['/proofreader'] verbatim — Phase 12 grep -F audits.
+  proofreader: {
+    title: 'Proofreader — Chrome on-device grammar + spelling correction | Chrome AI APIs',
+    description: 'Gemini Nano proofreads your text on-device with grammar, spelling, capitalization, and punctuation corrections. Three output styles, five languages, zero network.',
+    keywords: 'Proofreader API, Gemini Nano, on-device grammar, spelling correction, Chrome AI, ProofreaderCorrection, correctionExplanationLanguage, LoRA adapter'
+  },
+  // Must match prerender-react.js seoConfigs['/proofreader/docs'] verbatim — Phase 12 grep -F audits.
+  proofreaderDocs: {
+    title: 'Proofreader API Docs — surface, corrections shape, language support | Chrome AI APIs',
+    description: 'Gemini Nano proofreads your text on-device with grammar, spelling, capitalization, and punctuation corrections. Three output styles, five languages, zero network.',
+    keywords: 'Proofreader API docs, ProofreaderCorrection, ProofreadResult, correctionExplanationLanguage, expectedInputLanguages, Chrome 146 Canary, on-device AI'
   }
 } as const;
