@@ -1,21 +1,28 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: Generative UI on WebMCP
-status: completed
-last_updated: "2026-05-19T09:45:35.102Z"
-last_activity: 2026-05-19 -- Phase 07 marked complete
+milestone: null
+milestone_name: null
+status: between_milestones
+last_updated: "2026-05-19T10:00:00Z"
+last_activity: 2026-05-19 -- v1.1 milestone archived
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 16
-  completed_plans: 16
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
+shipped_milestones:
+  - version: v1.0
+    name: WebMCP Recipe Workbench
+    shipped: 2026-04-27
+  - version: v1.1
+    name: Generative UI on WebMCP
+    shipped: 2026-05-19
 ---
 
-# State: window-ai — Generative UI on WebMCP (v1.1)
+# State: window-ai — Between Milestones
 
-**Last updated:** 2026-05-18 — v1.1 roadmap created (4 phases, 15 GENUI requirements mapped 100%)
+**Last updated:** 2026-05-19 — v1.1 milestone archived. Ready for `/gsd-new-milestone`.
 
 ## Project Reference
 

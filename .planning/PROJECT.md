@@ -4,27 +4,35 @@
 
 `window-ai` is a public showcase site (windowai.danduh.me) demonstrating Chrome's experimental built-in AI APIs (`window.ai` / `LanguageModel`, `Summarizer`, `Translator`/`LanguageDetector`, `Writer`/`Rewriter`) plus a Model Context Protocol (MCP) reference implementation. v1.0 shipped the WebMCP Recipe Workbench at `/webmcp`. v1.1 adds **Generative UI on WebMCP** at `/generative-ui` — a tool returns an interactive UI resource rendered in a sandboxed iframe inside the chat bubble, and the iframe invokes page-side helper tools via postMessage (MCP Apps SEP-1865 pattern).
 
-## Current Milestone: v1.1 Generative UI on WebMCP
+## Current State: v1.1 Generative UI on WebMCP — ✅ Shipped 2026-05-19
+
+`/generative-ui` is live with the full MCP Apps SEP-1865 pattern: in-page chat (responseFormat JSON-dispatch) → `searchRecipes` returns `_meta.ui.resourceUri` → double-iframe sandbox renders recipe-card carousel in chat bubble → Pick fires hidden `commitRecipeToPlan` via `tools/call` → meal-plan column updates live. Zero outbound network. See [milestones/v1.1-ROADMAP.md](./milestones/v1.1-ROADMAP.md) and [milestones/v1.1-REQUIREMENTS.md](./milestones/v1.1-REQUIREMENTS.md).
+
+Demo-day rehearsal (GENUI-14 5-cold-run + GENUI-15 zero-network kicker) deferred to speaker on Chrome 146+ Canary — REHEARSAL.md template at `.planning/phases/07-docs-seo-demo-polish/REHEARSAL.md`.
+
+## Next Milestone Goals
+
+TBD — run `/gsd-new-milestone` to start the next version.
+
+<details>
+<summary>v1.1 milestone goals (archived)</summary>
 
 **Goal:** A Chrome 146 Canary visitor opens `/generative-ui`, asks the in-page chat for a recipe, sees an interactive recipe-card carousel render *inside the chat bubble* (sandboxed iframe + JSON-RPC postMessage bridge), clicks Pick, and watches the page's meal-plan column update live — all in under 90 seconds, zero outbound network requests.
 
-**Target features:**
-- New `/generative-ui` route (additive to shipped `/webmcp` Recipe Workbench)
-- In-page chat panel powered by Chrome `LanguageModel` (responseFormat JSON dispatch, Phase 2 pattern)
-- WebMCP tool `searchRecipes` returns an MCP Apps `_meta.ui.resourceUri` UI resource
-- Sandboxed iframe renderer in the chat bubble (double-iframe sandbox per spec)
-- JSON-RPC over postMessage bridge — host ↔ iframe
-- Page-side helper tools (`commitRecipeToPlan`) registered with `visibility:["app"]`, invoked by the iframe via `tools/call` (iframes cannot `registerTool` directly per SEP-1865)
-- Meal-plan column on the right updates live from helper-tool effects
-- 12 seeded recipes (extends v1.0's 2)
-- SEO config + nav link; `MissingFlagBanner` if `navigator.modelContext` absent
+Target features delivered:
+- New `/generative-ui` route + in-page chat (responseFormat JSON-dispatch)
+- `searchRecipes` MCP Apps `_meta.ui.resourceUri` + hidden `commitRecipeToPlan` with `visibility:["app"]`
+- Double-iframe sandbox renderer + JSON-RPC postMessage bridge
+- Meal-plan column live updates + 12-recipe additive seed
+- SEO config + nav link + MissingFlagBanner
+- `/generative-ui/docs` markdown explainer
 
-**Key context:**
-- Research artifacts in `.planning/research/` (mcp-apps-spec.md, mcp-ui-webmcp-tictactoe-analysis.md, webmcp-rich-content-status.md, codebase-integration-map.md)
-- Source handoff at `.planning/HANDOFF_WEBMCP_GENERATIVE_UI.md`
-- Hard constraint: **native `navigator.modelContext` only** — no `@mcp-b/global` polyfill (carries from v1.0)
-- **Chrome only** — fully in-Chrome demo, no Claude Desktop (open interop bugs forwarding `_meta.ui.resourceUri`)
-- All v1.0 demos at `/chat`, `/summary`, `/translate`, `/writer`, `/tool-calling`, `/webmcp` remain untouched
+Hard constraints preserved:
+- Native `navigator.modelContext` only — no `@mcp-b/global` polyfill
+- Chrome only — no Claude Desktop
+- All v1.0 demos untouched
+
+</details>
 
 ## Core Value (v1.0 — shipped)
 
