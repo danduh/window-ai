@@ -11,7 +11,7 @@
 // Do NOT use Tailwind classes inside the carousel HTML (05-RESEARCH.md Pitfall 3).
 // Only class names from the 05-UI-SPEC.md Inline CSS Subset table are used.
 
-import type { Recipe } from '../../services/RecipePersistence';
+import type { Recipe } from '../../../services/RecipePersistence';
 import { outerShellHTML, innerIframeBridgeScript } from './iframeBridgeScript';
 
 // ── HTML entity escaping ──────────────────────────────────────────────────────
