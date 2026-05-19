@@ -131,7 +131,9 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
   4. Typing text into the input area, selecting a language from the dropdown (English default; en/es/ja/de/fr), and clicking "Proofread" calls `ProofreaderService.proofread()` and renders `correctedInput` below the input (plain text output at minimum)
   5. The language selector choice persists in `localStorage` and is pre-selected on the next visit
   6. If `proofread()` throws, an inline error message appears inside the result panel (not silently swallowed or console-only)
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 08-01-PLAN.md — Types + ProofreaderService + MissingFlagBanner move (ambient Proofreader API decls, pooled-session service, additive banner generalization with v1.0/v1.1 import-path updates)
+- [ ] 08-02-PLAN.md — Page + routing + SEO (ProofreaderPage subtree under components/Proofreader/, /proofreader + /proofreader/docs routes + desktop/mobile nav, Tabs with Docs first, dual-write seoConfigs in useSEOData.ts + prerender-react.js)
 **UI hint**: yes
 
 #### Phase 9: Proofreader Output Modes
@@ -191,7 +193,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 8. Proofreader Foundation | 0/? | Not started | — |
+| 8. Proofreader Foundation | 0/2 | Planned | — |
 | 9. Proofreader Output Modes | 0/? | Not started | — |
 | 10. Multimodal Foundation | 0/? | Not started | — |
 | 11. Webcam Capture | 0/? | Not started | — |
