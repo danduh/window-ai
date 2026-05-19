@@ -4,7 +4,7 @@ import { seedIfMissing } from '../services/RecipePersistence';
 import { SEED_RECIPES } from '../services/recipeSeed';
 import { MissingFlagBanner } from './RecipeWorkbench/MissingFlagBanner';
 import { GenerativeUIHeader } from './GenerativeUI/GenerativeUIHeader';
-import { ChatPlaceholder } from './GenerativeUI/ChatPlaceholder';
+import { GenUIChatPanel } from './GenerativeUI/GenUIChatPanel';
 import { MealPlanColumn } from './GenerativeUI/MealPlanColumn';
 import { registerGenUITools } from '../services/genUITools';
 
@@ -46,7 +46,7 @@ export const GenerativeUIPage: React.FC = () => {
       <GenerativeUIHeader />
       <div className="flex flex-col lg:flex-row gap-6">
         <div className="flex-1 min-w-0">
-          <ChatPlaceholder />
+          <GenUIChatPanel />
         </div>
         <div className="lg:w-80 flex-shrink-0">
           <MealPlanColumn />
