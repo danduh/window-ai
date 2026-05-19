@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: Generative UI on WebMCP
 status: completed
-last_updated: "2026-05-18T21:24:31.222Z"
-last_activity: 2026-05-18 -- Phase 04 marked complete
+last_updated: "2026-05-19T07:50:52.958Z"
+last_activity: 2026-05-19 -- Phase 05 marked complete
 progress:
   total_phases: 7
-  completed_phases: 4
-  total_plans: 10
-  completed_plans: 10
-  percent: 57
+  completed_phases: 5
+  total_plans: 12
+  completed_plans: 12
+  percent: 71
 ---
 
 # State: window-ai — Generative UI on WebMCP (v1.1)
@@ -23,14 +23,14 @@ progress:
 
 **Core Value (v1.0 — shipped):** A Chrome 146 Canary visitor can in under 2 minutes open `/webmcp`, see a preloaded recipe, type "scale to 6 and swap milk for oat milk" into the in-page chat, watch the recipe state update live, and see the registered tools listed in the WebMCP Tool Inspector.
 
-**Current focus:** Phase 04 — v1-1-foundation-page-shell-store-seed
+**Current focus:** Phase 05 — mcp-apps-host-sandboxed-iframe-postmessage-bridge
 
 ## Current Position
 
-Phase: 04 — COMPLETE
+Phase: 05 — COMPLETE
 Plan: 2 of 2
-Status: Phase 04 complete
-Last activity: 2026-05-18 -- Phase 04 marked complete
+Status: Phase 05 complete
+Last activity: 2026-05-19 -- Phase 05 marked complete
 
 Progress: [██████████] 100%
 
