@@ -178,9 +178,14 @@ export const GenUIChatPanel: React.FC = () => {
   const addMessage = useCallback(
     (text: string, sender: string, uiResourceUri?: string): void => {
       messageIdCounter.current += 1;
+      // Capture id OUTSIDE the updater. Reading counter.current inside the
+      // updater is lazy — two back-to-back addMessage calls would read the
+      // same (already-twice-incremented) value at update time, producing
+      // duplicate React keys.
+      const id = messageIdCounter.current;
       setMessages((prev) => [
         ...prev,
-        { id: messageIdCounter.current, text, sender, uiResourceUri },
+        { id, text, sender, uiResourceUri },
       ]);
     },
     [],
