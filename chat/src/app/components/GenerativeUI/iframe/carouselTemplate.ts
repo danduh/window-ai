@@ -139,7 +139,12 @@ body { min-height: 200px; }
 .pick-btn:hover { background: var(--c-btn-hover); }
 .pick-btn:focus { outline: 2px solid var(--c-btn-bg); outline-offset: 2px; }
 .pick-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-@media (max-width: 639px) {
+/* Tiny-viewport fallback only — the iframe is ALWAYS narrower than its host chat bubble
+   (ChatBubbleContainer max-w-2xl ≈ 672px), so the previous 639px breakpoint always fired
+   and collapsed the horizontal scroll-snap row to a vertical stack. Drop the breakpoint
+   to 359px so the carousel scrolls horizontally inside the chat bubble at every realistic
+   width, and only stacks on truly tiny widths (uncommon screens). */
+@media (max-width: 359px) {
   .carousel {
     flex-direction: column;
     overflow-x: visible;
