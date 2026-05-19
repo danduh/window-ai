@@ -10,9 +10,27 @@
 
 Demo-day rehearsal (GENUI-14 5-cold-run + GENUI-15 zero-network kicker) deferred to speaker on Chrome 146+ Canary — REHEARSAL.md template at `.planning/phases/07-docs-seo-demo-polish/REHEARSAL.md`.
 
+## Current Milestone: v1.2 — Proofreader + Multimodal
+
+**Goal:** A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on-device with three selectable output styles (side-by-side diff / inline strikethrough / suggestion list); switches to `/multimodal` to chat with the model about images via drag-drop, clipboard paste, single-frame webcam capture, or continuous live webcam. Zero network — same kicker as v1.1.
+
+**Target features:**
+- `/proofreader` route — `Proofreader.create()` wrapper, text input, 3 output modes, 5-language selector (en/es/ja/de/fr), graceful flag/model-unavailable banner
+- `/multimodal` route — chat panel with `LanguageModel.create({ expectedInputs: [{ type: 'image' }] })`, four image-input modes (drag, paste, webcam-snap, webcam-live with single-in-flight gating + 512×512 downsample + session reuse)
+- `/proofreader/docs` + `/multimodal/docs` markdown explainers via DocsRenderer
+- SEO config + prerender mirror for both routes (byte-identical between `useSEOData.ts` and `prerender-react.js`)
+- Performance indicator in webcam-live mode (latency + interval)
+
+**Key context:**
+- Research artifact: `.planning/research/v1.2-multimodal-proofreader-api.md` (Proofreader API surface, image-input syntax, webcam-live perf pattern)
+- Audio input deferred to v1.3 (Chrome 148 requires discrete GPU per research findings)
+- Proofreader OT expired at Chrome 145; v1.2 demo is flag-gated Canary-only — banner copy must include exact `chrome://flags/...` URLs
+- All v1.0 + v1.1 demos remain untouched (brownfield discipline carries from prior milestones)
+- Multimodal `expectedInputs` shipped stable in Chrome 148, so the image demo gets less friction on stage than Proofreader
+
 ## Next Milestone Goals
 
-TBD — run `/gsd-new-milestone` to start the next version.
+TBD — after v1.2 ships, run `/gsd-new-milestone` for v1.3 (audio input + Proofreader streaming verification).
 
 <details>
 <summary>v1.1 milestone goals (archived)</summary>
