@@ -77,7 +77,9 @@ body { min-height: 200px; }
 *, *::before, *::after { box-sizing: inherit; }
 .carousel {
   display: flex;
-  align-items: flex-start;
+  /* align-items default = stretch: all cards equal-height = tallest card.
+     This keeps the iframe height stable as the user scrolls horizontally
+     (no jumpy resize between cards of different content lengths). */
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   gap: 0.5rem;
