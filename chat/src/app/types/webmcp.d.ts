@@ -43,6 +43,16 @@ declare global {
   interface ModelContextToolAnnotations {
     readOnlyHint?: boolean;
     untrustedContentHint?: boolean;
+    /**
+     * Controls which audiences can see this tool. Follows the W3C WebMCP draft
+     * visibility convention. Tools with `visibility: ['app']` are excluded from
+     * the model-visible catalog by the chat panel's system-prompt filter but are
+     * still proxied by the iframe→host bridge.
+     *
+     * Phase 6 GENUI-05: commitRecipeToPlan uses `visibility: ['app']` so the LLM
+     * cannot call it directly — only the iframe Pick button can.
+     */
+    visibility?: string[];
   }
 
   interface ModelContextClient {
