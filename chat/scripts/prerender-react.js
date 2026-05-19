@@ -57,8 +57,9 @@ const routes = [
   { path: '/webmcp', filename: 'webmcp.html' },
   { path: '/webmcp/docs', filename: 'webmcp-docs.html' },
 
-  // Generative UI route
+  // Generative UI routes
   { path: '/generative-ui', filename: 'generative-ui.html' },
+  { path: '/generative-ui/docs', filename: 'generative-ui-docs.html' },
 ];
 
 // Build configuration
@@ -395,6 +396,17 @@ function getSEODataForRoute(routePath) {
         '@type': 'WebPage',
         name: 'Generative UI — MCP Apps Demo',
         description: 'On-device recipe-card carousel via sandboxed iframe and WebMCP tool results',
+      },
+    },
+    '/generative-ui/docs': {
+      title: 'Generative UI Docs — MCP Apps wire format + bidirectional pattern | Chrome AI APIs',
+      description: 'How to register UI-returning tools and hidden helpers with navigator.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
+      keywords: 'MCP Apps documentation, SEP-1865, navigator.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Generative UI API Documentation',
+        description: 'Technical documentation for the MCP Apps Generative UI pattern on navigator.modelContext.',
       },
     },
   };

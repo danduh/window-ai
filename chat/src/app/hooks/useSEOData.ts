@@ -83,5 +83,12 @@ export const seoConfigs = {
     title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
     description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
     keywords: 'MCP Apps, generative UI, navigator.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan'
+  },
+  // Must match prerender-react.js seoConfigs['/generative-ui/docs'] verbatim.
+  // See Phase 3 D-08 + D-12 — prerender drift caused a Phase 3 hotfix.
+  generativeUIDocs: {
+    title: 'Generative UI Docs — MCP Apps wire format + bidirectional pattern | Chrome AI APIs',
+    description: 'How to register UI-returning tools and hidden helpers with navigator.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
+    keywords: 'MCP Apps documentation, SEP-1865, navigator.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel'
   }
 } as const;

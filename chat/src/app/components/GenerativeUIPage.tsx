@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import { seedIfMissing } from '../services/RecipePersistence';
 import { SEED_RECIPES } from '../services/recipeSeed';
@@ -7,9 +8,21 @@ import { GenerativeUIHeader } from './GenerativeUI/GenerativeUIHeader';
 import { GenUIChatPanel } from './GenerativeUI/GenUIChatPanel';
 import { MealPlanColumn } from './GenerativeUI/MealPlanColumn';
 import { registerGenUITools } from '../services/genUITools';
+import Tabs from './Tabs';
+import { DocsRenderer } from '../tools/DocsRenderer';
 
 export const GenerativeUIPage: React.FC = () => {
-  useSEOData(seoConfigs.generativeUI);
+  // Path-aware SEO: when the user is on /generative-ui/docs, the rendered <head> swaps
+  // to seoConfigs.generativeUIDocs; everything else under /generative-ui gets seoConfigs.generativeUI.
+  // useLocation() is order-stable; useSEOData remains the first SEO write so
+  // the Rules of Hooks invariant is preserved.
+  // Use startsWith (NOT includes) per RESEARCH Pitfall 6 — exact-prefix match.
+  const location = useLocation();
+  const isDocs = location.pathname.startsWith('/generative-ui/docs');
+  useSEOData(
+    isDocs ? seoConfigs.generativeUIDocs : seoConfigs.generativeUI,
+    isDocs ? '/generative-ui/docs' : '/generative-ui',
+  );
 
   // Mount-time seed: inserts any recipe not already in IndexedDB.
   // The `cancelled` flag is StrictMode-safe — avoids state updates after unmount.
@@ -40,18 +53,50 @@ export const GenerativeUIPage: React.FC = () => {
     };
   }, []);
 
+  // Workbench tab content: the two-column layout (chat panel + meal plan column).
+  const workbenchContent = (
+    <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex-1 min-w-0">
+        <GenUIChatPanel />
+      </div>
+      <div className="lg:w-80 flex-shrink-0">
+        <MealPlanColumn />
+      </div>
+    </div>
+  );
+
+  // Tabs ordering: Docs FIRST, Workbench SECOND.
+  // Tabs.tsx matches `currentPath.includes(tab.path)` — the workbench tab has path ''
+  // which matches everything, so the docs tab (path '/docs') MUST come first so
+  // /generative-ui/docs wins over '' before the fallback workbench match.
+  const tabs = useMemo(
+    () => [
+      {
+        id: 'docs',
+        label: 'Docs',
+        path: '/docs',
+        content: (
+          <div className="max-w-none">
+            <DocsRenderer docFile="Generative-UI-API.md" initOpen={true} />
+          </div>
+        ),
+      },
+      {
+        id: 'workbench',
+        label: 'Workbench',
+        path: '',
+        content: workbenchContent,
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 transition-colors duration-200">
       {!navigator.modelContext && <MissingFlagBanner />}
       <GenerativeUIHeader />
-      <div className="flex flex-col lg:flex-row gap-6">
-        <div className="flex-1 min-w-0">
-          <GenUIChatPanel />
-        </div>
-        <div className="lg:w-80 flex-shrink-0">
-          <MealPlanColumn />
-        </div>
-      </div>
+      <Tabs basePath="/generative-ui" defaultTab="workbench" tabs={tabs} />
     </div>
   );
 };

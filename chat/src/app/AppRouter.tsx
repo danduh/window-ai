@@ -241,6 +241,7 @@ const AppRouter: React.FC = () => {
 
               {/* Generative UI routes */}
               <Route path="/generative-ui" element={<GenerativeUIPage/>}/>
+              <Route path="/generative-ui/docs" element={<GenerativeUIPage/>}/>
 
               {/* Writer/Rewriter routes */}
               <Route path="/writer" element={<Navigate to="/writer/writer-api-documentation" replace/>}/>
