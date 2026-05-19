@@ -73,6 +73,7 @@ html, body {
   font-family: system-ui, -apple-system, sans-serif;
   box-sizing: border-box;
 }
+body { min-height: 200px; }
 *, *::before, *::after { box-sizing: inherit; }
 .carousel {
   display: flex;

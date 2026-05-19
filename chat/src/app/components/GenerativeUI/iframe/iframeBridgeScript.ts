@@ -43,7 +43,6 @@ export const outerShellHTML = `<!DOCTYPE html>
   // outer shell relays to ITS parent (React host).
   window.addEventListener('message', function(event) {
     if (event.source !== inner.contentWindow) return;
-    console.debug('[mcp-apps:relay]', 'inner→host', event.data);
     window.parent.postMessage(event.data, '*');
   });
 
@@ -52,7 +51,6 @@ export const outerShellHTML = `<!DOCTYPE html>
   // outer shell forwards down to inner.contentWindow.
   window.addEventListener('message', function(event) {
     if (event.source === window.parent) {
-      console.debug('[mcp-apps:relay]', 'host→inner', event.data);
       inner.contentWindow.postMessage(event.data, '*');
     }
   });
@@ -78,6 +76,11 @@ export const outerShellHTML = `<!DOCTYPE html>
 export const innerIframeBridgeScript = `(function() {
   var pendingIframeRequests = {};
   var nextId = 1;
+  // DEV gate for iframe-side debug logging. Stays false in production (this script ships
+  // pre-stringified inside <script> tags; Vite cannot tree-shake it). Toggle manually
+  // during iframe debugging if needed.
+  var DEV = false;
+  function debug() { if (DEV) console.debug.apply(console, arguments); }
 
   function sendRequest(method, params) {
     var id = nextId++;
@@ -88,14 +91,14 @@ export const innerIframeBridgeScript = `(function() {
       }, 5000);
       pendingIframeRequests[id] = { resolve: resolve, reject: reject, timer: timer };
       var msg = { jsonrpc: '2.0', id: id, method: method, params: params };
-      console.debug('[mcp-apps:iframe]', method, msg);
+      debug('[mcp-apps:iframe]', method, msg);
       window.parent.postMessage(msg, '*');
     });
   }
 
   function sendNotification(method, params) {
     var msg = { jsonrpc: '2.0', method: method, params: params };
-    console.debug('[mcp-apps:iframe]', method, msg);
+    debug('[mcp-apps:iframe]', method, msg);
     window.parent.postMessage(msg, '*');
   }
 
@@ -103,7 +106,7 @@ export const innerIframeBridgeScript = `(function() {
   window.addEventListener('message', function(event) {
     var data = event.data;
     if (!data || data.jsonrpc !== '2.0') return;
-    console.debug('[mcp-apps:iframe]', 'inbound', data);
+    debug('[mcp-apps:iframe]', 'inbound', data);
 
     // Response to a pending request
     if (data.id !== undefined && pendingIframeRequests[data.id]) {
@@ -137,18 +140,22 @@ export const innerIframeBridgeScript = `(function() {
       // Notify handshake complete
       sendNotification('ui/notifications/initialized', {});
 
-      // Attach ResizeObserver AFTER handshake complete (50ms debounce)
+      // Attach ResizeObserver AFTER handshake complete (50ms debounce).
+      // Observe document.body (not document.documentElement) — documentElement does
+      // not expand for overflow children (e.g. horizontal-scroll carousel); body does.
+      // Read Math.max(scrollHeight, offsetHeight) to capture overflow content such as
+      // the Pick button row at the bottom of cards (07-CONTEXT.md clipping fix).
       var debounceTimer = null;
       var ro = new ResizeObserver(function(entries) {
         var entry = entries[0];
         if (!entry) return;
         clearTimeout(debounceTimer);
         debounceTimer = setTimeout(function() {
-          var height = Math.ceil(entry.contentRect.height);
+          var height = Math.ceil(Math.max(document.body.scrollHeight, document.body.offsetHeight));
           sendNotification('ui/notifications/size-changed', { height: height });
         }, 50);
       });
-      ro.observe(document.documentElement);
+      ro.observe(document.body);
 
       // Delegated click handler for Pick buttons
       document.addEventListener('click', function(event) {
@@ -176,7 +183,7 @@ export const innerIframeBridgeScript = `(function() {
           });
       });
     }).catch(function(err) {
-      console.debug('[mcp-apps:iframe]', 'ui/initialize failed', err);
+      debug('[mcp-apps:iframe]', 'ui/initialize failed', err);
     });
   }
 
