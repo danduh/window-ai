@@ -2,22 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Proofreader + Multimodal
-status: roadmap_defined
-last_updated: "2026-05-19T00:00:00Z"
-last_activity: 2026-05-19 -- v1.2 roadmap defined (5 phases, 19 requirements)
+status: completed
+last_updated: "2026-05-19T23:09:07.158Z"
+last_activity: 2026-05-19 -- Phase 08 marked complete
 progress:
-  total_phases: 5
-  completed_phases: 0
-  total_plans: 0
-  completed_plans: 0
-  percent: 0
-shipped_milestones:
-  - version: v1.0
-    name: WebMCP Recipe Workbench
-    shipped: 2026-04-27
-  - version: v1.1
-    name: Generative UI on WebMCP
-    shipped: 2026-05-19
+  total_phases: 8
+  completed_phases: 1
+  total_plans: 2
+  completed_plans: 2
+  percent: 13
 ---
 
 # State: window-ai — v1.2 Proofreader + Multimodal
@@ -32,14 +25,14 @@ shipped_milestones:
 
 **Core Value (v1.0 — shipped):** A Chrome 146 Canary visitor can in under 2 minutes open `/webmcp`, see a preloaded recipe, type "scale to 6 and swap milk for oat milk" into the in-page chat, watch the recipe state update live, and see the registered tools listed in the WebMCP Tool Inspector.
 
-**Current focus:** Phase 8 — Proofreader Foundation (not yet planned)
+**Current focus:** Phase 08 — proofreader-foundation
 
 ## Current Position
 
-Phase: 08 — NOT STARTED
-Plan: 0 of ?
-Status: Roadmap defined; awaiting plan-phase
-Last activity: 2026-05-19 — v1.2 roadmap created (5 phases, 19/19 requirements mapped)
+Phase: 08 — COMPLETE
+Plan: 2 of 2
+Status: Phase 08 complete
+Last activity: 2026-05-19 -- Phase 08 marked complete
 
 Progress: [..........] 0%
 
