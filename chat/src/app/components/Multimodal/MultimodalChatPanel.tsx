@@ -60,6 +60,12 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
           reader.releaseLock();
         }
       } catch (err) {
+        // WR-01: AbortError means the stream was intentionally cancelled (e.g., on unmount).
+        // Do not show an error bubble — just reset state and return silently.
+        if (err instanceof DOMException && err.name === 'AbortError') {
+          setPageState('ready');
+          return;
+        }
         const message = err instanceof Error ? err.message : 'Unknown error';
         setMessages((prev) =>
           prev.map((m) =>
@@ -73,6 +79,14 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
     },
     [setMessages, setPageState],
   );
+
+  // WR-01: Abort in-flight stream on unmount to signal the Chrome API to stop processing
+  // and prevent React setState warnings from async updates firing after unmount.
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // ---------------------------------------------------------------------------
   // handleSend: commits user message + empty assistant bubble, then streams
