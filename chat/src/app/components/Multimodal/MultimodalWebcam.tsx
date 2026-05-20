@@ -11,10 +11,13 @@ export interface MultimodalWebcamProps {
   livePrompt: string; // textarea text from parent (or '' for empty)
   onFrameAttach: (blob: Blob) => void; // single-frame path — parent calls setPendingImage
   setIsLiveActive: (b: boolean) => void; // notifies parent so textarea + send button disabled
-  onLiveChunk: (text: string) => void; // accumulates into liveResponse state in parent
-  /** CR-03: called at the START of each new live frame so the parent can clear
-   *  the previous frame's text before chunks from the new frame arrive. */
-  onFrameStart: () => void;
+  /** Called at the START of each new live frame. Receives the captured Blob and the
+   *  prompt text used for this frame. Parent appends a new user + empty assistant
+   *  message pair to the transcript and returns the assistant streamingId so the
+   *  subsequent onLiveChunk calls can target the right bubble. */
+  onLiveFrame: (blob: Blob, prompt: string) => string;
+  /** Called once per streamed chunk for the assistant message with the given id. */
+  onLiveChunk: (streamingId: string, chunk: string) => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -41,8 +44,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   livePrompt,
   onFrameAttach,
   setIsLiveActive,
+  onLiveFrame,
   onLiveChunk,
-  onFrameStart,
 }) => {
   // ---------------------------------------------------------------------------
   // Refs — non-reactive state (no re-render on change)
@@ -292,14 +295,14 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       // Pitfall 5: read prompt from ref, not closure (stale closure prevention)
       const promptText = livePromptRef.current.trim() || 'Describe what you see in this image';
 
+      // Notify parent that a new frame is starting — parent appends user + empty
+      // assistant messages to the transcript and returns the assistant streamingId
+      // so the subsequent chunks land in the right bubble.
+      const streamingId = onLiveFrame(blob, promptText);
+
       const stream = await promptWithImage(promptText, blob, {
         signal: abortControllerRef.current?.signal,
       });
-
-      // CR-03: signal parent to clear previous frame text BEFORE the first chunk
-      // of this new frame arrives — parent resets liveResponse to null so the panel
-      // shows "Thinking…" briefly then fills with only the current frame's response.
-      onFrameStart();
 
       // Pitfall 1 (from Phase 10): use reader.read() loop, NOT for-await
       // reader.releaseLock() in finally prevents unhandled rejection on abort
@@ -314,7 +317,7 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
             setLastLatencyMs(Math.round(performance.now() - t0));
             firstChunk = false;
           }
-          onLiveChunk(value);
+          onLiveChunk(streamingId, value);
         }
       } finally {
         reader.releaseLock();
@@ -342,8 +345,7 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
     }
   // pageState removed from deps — read via pageStateRef.current instead (CR-01)
   // stopStream + setIsLiveActive added — used in CR-02 error teardown path
-  // onFrameStart added — called once per frame before chunk loop (CR-03)
-  }, [onLiveChunk, stopStream, setIsLiveActive, onFrameStart]);
+  }, [onLiveFrame, onLiveChunk, stopStream, setIsLiveActive]);
 
   // ---------------------------------------------------------------------------
   // Handler: start live mode — "Live mode" button

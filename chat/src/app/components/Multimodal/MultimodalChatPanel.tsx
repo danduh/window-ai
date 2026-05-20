@@ -29,7 +29,6 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   // Phase 11: live mode state
   const [isLiveActive, setIsLiveActive] = useState(false);
-  const [liveResponse, setLiveResponse] = useState<{ text: string } | null>(null);
 
   // dragCounterRef prevents flicker when cursor crosses child elements (Pattern 4 / Pitfall 4)
   const dragCounterRef = useRef(0);
@@ -38,18 +37,33 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   // Map of userMessageId → Blob for retry re-prompt (Option B — no Message type edit needed)
   const pendingResendBlobsRef = useRef<Map<string, Blob>>(new Map());
 
-  // Phase 11: CR-03 — per-frame replacement.
-  // handleFrameStart resets liveResponse to null at the start of each new frame
-  // so the panel briefly shows "Thinking…" before the new frame's chunks arrive.
-  // handleLiveChunk then appends chunks within the current frame only — each frame
-  // starts from null rather than accumulating across all frames.
-  const handleFrameStart = useCallback(() => {
-    setLiveResponse(null);
-  }, []);
+  // Phase 11: live mode appends each frame to the transcript as a new user+assistant pair.
+  // handleLiveFrame creates both messages and returns the assistant streamingId so subsequent
+  // chunks land in the right bubble (transcript persists; old frames remain visible).
+  const handleLiveFrame = useCallback(
+    (blob: Blob, prompt: string): string => {
+      const userMsgId = crypto.randomUUID();
+      const streamingId = crypto.randomUUID();
+      const objectUrl = URL.createObjectURL(blob);
+      objectUrlSetRef.current.add(objectUrl);
+      setMessages((prev) => [
+        ...prev,
+        { id: userMsgId, role: 'user', text: prompt, attachedImageUrl: objectUrl },
+        { id: streamingId, role: 'assistant', text: '' },
+      ]);
+      return streamingId;
+    },
+    [setMessages, objectUrlSetRef],
+  );
 
-  const handleLiveChunk = useCallback((chunk: string) => {
-    setLiveResponse((prev) => (prev === null ? { text: chunk } : { text: prev.text + chunk }));
-  }, []);
+  const handleLiveChunk = useCallback(
+    (streamingId: string, chunk: string) => {
+      setMessages((prev) =>
+        prev.map((m) => (m.id === streamingId ? { ...m, text: m.text + chunk } : m)),
+      );
+    },
+    [setMessages],
+  );
 
   // ---------------------------------------------------------------------------
   // runPrompt: shared streaming loop invoked by both handleSend and handleRetry
@@ -104,11 +118,6 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       abortControllerRef.current?.abort();
     };
   }, []);
-
-  // Phase 11: clear the live response panel each time live mode is (re)started.
-  useEffect(() => {
-    if (isLiveActive) setLiveResponse(null);
-  }, [isLiveActive]);
 
   // ---------------------------------------------------------------------------
   // handleSend: commits user message + empty assistant bubble, then streams
@@ -249,26 +258,12 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       )}
 
       <div className="flex flex-col gap-3 h-full min-h-0">
-        {/* Transcript — flex-1 so it fills available height and scrolls internally */}
-        {/* Phase 11: visibility:hidden (NOT unmounted) during live mode — DOM preserved */}
-        <div className={isLiveActive ? 'invisible flex-1 min-h-0' : 'flex-1 min-h-0 overflow-y-auto'}>
+        {/* Transcript — flex-1 so it fills available height and scrolls internally.
+            Phase 11: stays visible during live mode so each frame's user + assistant
+            bubble (appended by handleLiveFrame) renders into the same history. */}
+        <div className="flex-1 min-h-0 overflow-y-auto">
           <MultimodalTranscript messages={messages} onRetry={handleRetry} />
         </div>
-
-        {/* Phase 11: Live response panel — shown only during live mode */}
-        {isLiveActive && (
-          <div className="mt-2 mb-2">
-            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-base font-medium leading-relaxed animate-fade-in">
-              {liveResponse === null ? (
-                <span className="animate-pulse text-gray-500 dark:text-gray-400 font-medium">
-                  Thinking…
-                </span>
-              ) : (
-                liveResponse.text
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Download progress bar — shown only while model is downloading */}
         {pageState === 'downloading' && (
@@ -302,7 +297,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
               livePrompt={text}
               onFrameAttach={(blob) => setPendingImage(blob)}
               setIsLiveActive={setIsLiveActive}
-              onFrameStart={handleFrameStart}
+              onLiveFrame={handleLiveFrame}
               onLiveChunk={handleLiveChunk}
             />
           }
