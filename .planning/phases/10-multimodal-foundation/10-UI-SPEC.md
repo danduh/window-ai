@@ -59,13 +59,13 @@ All values are extracted directly from the existing component codebase. Phase 10
 |------|------|--------|-------------|----------------|
 | Page heading (h1) | 30px | 700 (bold) | 1.2 (tight) | `text-3xl font-bold leading-tight` |
 | Subheading / label | 16px | 500 (medium) | 1.5 | `text-base font-medium` |
-| Body / description | 16px | 400 (normal) | 1.625 (relaxed) | `text-base` |
-| Small / meta | 14px | 400 (normal) | 1.5 | `text-sm` |
-| Micro / caption | 12px | 400 (normal) | 1.4 | `text-xs` |
+| Body / description | 16px | 500 (medium) | 1.625 (relaxed) | `text-base font-medium` |
+| Small / meta | 14px | 500 (medium) | 1.5 | `text-sm font-medium` |
+| Micro / caption | 12px | 500 (medium) | 1.4 | `text-xs font-medium` |
 | Nav links | 14px | 500 (medium) | — | `text-sm font-medium` (desktop nav) |
 | Mobile nav links | 16px | 500 (medium) | — | `text-base font-medium` (mobile nav) |
 
-Declared as 5 sizes, 2 weights (400 normal + 500/700 semibold/bold). Weights are `font-medium` for interactive labels and `font-bold` for headings; body is weight 400.
+Declared as 4 sizes, 2 weights (500 medium + 700 bold). Weight `font-medium` (500) is used for all body copy, paragraphs, nav links, labels, meta, and captions. Weight `font-bold` (700) is reserved for page headings only. `font-normal` (400) is not used in Phase 10.
 
 Source: `ProofreaderHeader.tsx` (h1 text-3xl font-bold), `ProofreaderForm.tsx` (label text-sm font-medium), `AppRouter.tsx` nav links (text-sm font-medium / text-base font-medium), `ChatBox.tsx` prose body, `ProofreaderPage.tsx` footer (text-xs).
 
@@ -103,6 +103,8 @@ Source: `chat/tailwind.config.js` color scale, `ChatBox.tsx` bubble classes, `Pr
 
 This section prescribes the visual contract for each net-new component in Phase 10.
 
+**Primary visual anchor:** The chat panel (`MultimodalChatPanel`) containing the transcript, the send button row, and the user message bubbles is the primary focal point of the page. All other elements (header, tabs, footer) are supporting context around it.
+
 ### MultimodalPage (page shell)
 
 ```
@@ -111,7 +113,7 @@ min-h-screen bg-white dark:bg-gray-800 transition-colors duration-200
        ├─ MissingFlagBanner (conditional, renders above header when pageState === 'unavailable')
        ├─ MultimodalHeader
        ├─ Tabs (Docs first, Chat second)
-       └─ footer: mt-4 text-center text-xs text-gray-500 dark:text-gray-400
+       └─ footer: mt-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400
                   "🔒 Zero network during demo — open DevTools → Network tab"
 ```
 
@@ -127,7 +129,7 @@ Pattern source: `ProofreaderPage.tsx` line 220–249 (identical shell structure)
     Icon: camera SVG w-6 h-6 (inline, aria-hidden)
     h1: text-3xl font-bold text-gray-900 dark:text-white leading-tight
         Content: "Multimodal"
-    p: mt-2 text-base text-gray-600 dark:text-gray-400
+    p: mt-2 text-base font-medium text-gray-600 dark:text-gray-400
        Content: "On-device image understanding with Gemini Nano — drag, paste, or capture an image and ask about it. Chrome 148+ stable, zero network."
 ```
 
@@ -161,7 +163,7 @@ Empty state:
 flex items-center justify-center h-full text-gray-500 dark:text-gray-400
   └─ text-center
        ├─ camera/image SVG: w-12 h-12 mx-auto mb-4 opacity-50
-       └─ p: "Drop an image or paste (⌘V) to get started"
+       └─ p: font-medium "Drop an image or paste (⌘V) to get started"
 ```
 
 Message bubbles (user):
@@ -170,7 +172,7 @@ flex justify-end animate-slide-up
   └─ max-w-[80%] p-4 rounded-2xl shadow-sm bg-primary-500 text-white break-words
        ├─ (when attachedImageUrl present) img: max-w-full rounded-lg mb-2 max-h-48 object-cover
        │   — image renders ABOVE the text in the same bubble
-       └─ div.prose.prose-sm.prose-invert.max-w-none (Markdown text)
+       └─ div.prose.prose-sm.prose-invert.max-w-none (Markdown text, font-medium)
 ```
 
 Message bubbles (assistant):
@@ -179,15 +181,15 @@ flex justify-start animate-slide-up
   └─ max-w-[80%] p-4 rounded-2xl shadow-sm bg-gray-100 dark:bg-gray-700
        text-gray-800 dark:text-gray-200 break-words
        ├─ (when streaming) "Thinking…" placeholder with animated ellipsis:
-       │   span.animate-pulse text-gray-500 dark:text-gray-400 — "Thinking…"
-       └─ div.prose.prose-sm.dark:prose-invert.max-w-none (Markdown text, streams in)
+       │   span.animate-pulse text-gray-500 dark:text-gray-400 font-medium — "Thinking…"
+       └─ div.prose.prose-sm.dark:prose-invert.max-w-none (Markdown text, streams in; font-medium)
 ```
 
 Error bubble (assistant, on promptWithImage throw):
 ```
 Same assistant bubble shape, content:
-  ├─ p: text-red-600 dark:text-red-400 text-sm — "Couldn't process image — {error message}"
-  └─ button: mt-2 text-xs text-primary-600 dark:text-primary-400 underline — "Retry"
+  ├─ p: text-red-600 dark:text-red-400 text-sm font-medium — "Couldn't process image — {error message}"
+  └─ button: mt-2 text-xs font-medium text-primary-600 dark:text-primary-400 underline — "Retry"
 ```
 
 Pattern source: `ChatBox.tsx` bubble classes (pixel-identical for standard bubbles).
@@ -203,12 +205,13 @@ border border-gray-200 dark:border-gray-700 rounded-xl p-3
   │                 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-800
   │                 text-xs flex items-center justify-center
   │                 hover:bg-red-600 dark:hover:bg-red-400 transition-colors
-  │       (optional) p: text-xs text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[80px]
+  │                 aria-label="Remove attached image"
+  │       (optional) p: text-xs font-medium text-gray-500 dark:text-gray-400 mt-1 truncate max-w-[80px]
   │                    — filename label, show if trivial to include
   ├─ textarea:
   │     w-full resize-none bg-transparent outline-none
   │     text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400
-  │     text-sm min-h-[48px] max-h-[120px] overflow-y-auto
+  │     text-sm font-medium min-h-[48px] max-h-[120px] overflow-y-auto
   │     Placeholder: "Drop an image or paste (⌘V) — then ask me about it"
   └─ send button row: flex justify-end mt-2
          button: flex items-center gap-2 bg-primary-600 hover:bg-primary-700
@@ -229,7 +232,7 @@ Tooltip implementation: HTML `title` attribute (no custom tooltip library — ke
 ### Inline error (MIME rejection)
 
 ```
-p: mt-2 text-sm text-red-600 dark:text-red-400
+p: mt-2 text-sm font-medium text-red-600 dark:text-red-400
    "Only JPEG, PNG, or WebP images supported"
 ```
 Auto-clears after 4s or on next successful attach. Rendered below the input area inside `MultimodalInput`.
@@ -241,7 +244,7 @@ div.mt-4
   ├─ div: h-2 bg-gray-200 dark:bg-gray-700 rounded overflow-hidden
   │    └─ div: h-full bg-primary-500 transition-[width] duration-300
   │            style={{ width: `${downloadPct}%` }}
-  └─ p: mt-1 text-xs text-gray-500 dark:text-gray-400
+  └─ p: mt-1 text-xs font-medium text-gray-500 dark:text-gray-400
         "Downloading multimodal model — {pct}%"
 ```
 
@@ -314,7 +317,7 @@ Docs tab FIRST — v1.1 + Phase 8 lesson: `Tabs.tsx` matches via `currentPath.in
 
 Docs tab placeholder content (Phase 12 fills real content):
 ```
-div: max-w-none p-4 text-gray-500 dark:text-gray-400
+div: max-w-none p-4 text-sm font-medium text-gray-500 dark:text-gray-400
   "Documentation coming in Phase 12."
 ```
 
@@ -365,7 +368,7 @@ Source: `global.css` `.focus-ring` utility class. Applied to: textarea, send but
 | Thinking placeholder | "Thinking…" | CONTEXT.md § Claude's Discretion |
 | MIME error | "Only JPEG, PNG, or WebP images supported" | CONTEXT.md § Invalid image handling (locked) |
 | promptWithImage error | "Couldn't process image — {error message}" | CONTEXT.md § Error Handling (locked) |
-| Error retry button | "Retry" | This spec |
+| Error retry button | "Retry" | This spec (contextually unambiguous inside error bubble) |
 | Download progress | "Downloading multimodal model — {pct}%" | Mirrors Proofreader pattern |
 | Download send gate | "Download model first" | CONTEXT.md § Page behavior when downloading |
 | Banner title | "Multimodal image input isn't available." | CONTEXT.md (locked) |
@@ -373,6 +376,7 @@ Source: `global.css` `.focus-ring` utility class. Applied to: textarea, send but
 | Docs tab placeholder | "Documentation coming in Phase 12." | ProofreaderPage.tsx pattern |
 | Footer zero-network kicker | "🔒 Zero network during demo — open DevTools → Network tab" | ProofreaderPage.tsx pattern |
 | Nav link label | "Multimodal" | CONTEXT.md § Routing + Nav Link (locked) |
+| Remove image button | aria-label="Remove attached image" | Dimension 2 accessibility requirement |
 
 Destructive actions in Phase 10: none. The only user-initiated removal is the "×" button on the pending image thumbnail — this is an attachment cancel, not a destructive data operation. No confirmation dialog required.
 
@@ -392,7 +396,7 @@ Destructive actions in Phase 10: none. The only user-initiated removal is the "�
 | pageState error | Error bubble with "Retry" link in transcript |
 | drag-enter panel | Dashed primary-500 border, translucent overlay with "Drop image here" |
 | drag-leave panel | Border and overlay revert |
-| image attached | Thumbnail w-20 h-20 object-cover rounded with × removal button |
+| image attached | Thumbnail w-20 h-20 object-cover rounded with × removal button (aria-label="Remove attached image") |
 | streaming response | Assistant bubble text accumulates chunk by chunk |
 
 ---
