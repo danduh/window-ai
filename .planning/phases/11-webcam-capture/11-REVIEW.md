@@ -52,6 +52,8 @@ Three blockers were found:
 
 ### CR-01: Stale `pageState` in `setInterval` callback — Pitfall 8 guard is silently bypassed after any `pageState` transition
 
+**Status:** ✅ Fixed in commit c5e2c98
+
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:204-271`
 
 **Issue:** `captureCycle` is a `useCallback` with `[pageState, onLiveChunk]` as its dependency
@@ -93,6 +95,8 @@ when `pageState` changes), eliminating a secondary churn.
 
 ### CR-02: Non-abort errors in `captureCycle` do not stop the live-mode interval — error loop
 
+**Status:** ✅ Fixed in commit 71189a2
+
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:258-270`
 
 **Issue:** The comment on line 264 says "stop live mode to prevent error loop" but the catch
@@ -133,6 +137,8 @@ this change.
 ---
 
 ### CR-03: Live response accumulates across frames — display is never replaced per frame
+
+**Status:** ✅ Fixed in commit 66fbd1c
 
 **File:** `chat/src/app/components/Multimodal/MultimodalChatPanel.tsx:42-48`
 
@@ -191,6 +197,8 @@ onLiveChunk={handleLiveChunk}
 
 ### WR-01: Silent failure when `canvas.toBlob()` returns `null` — user gets no feedback
 
+**Status:** ✅ Fixed in commit 43c93aa
+
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:176-188`
 
 **Issue:** When `canvas.toBlob` returns `null`, the code correctly skips `onFrameAttach` but
@@ -229,6 +237,8 @@ canvas.toBlob(
 
 ### WR-02: `unknown` error state discards `err.message` — body always shows hardcoded fallback
 
+**Status:** ✅ Fixed in commit df546b4
+
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:109-117, 571`
 
 **Issue:** The UI-SPEC (§ Error Cards) specifies that the `'unknown'` variant body should show
@@ -260,6 +270,8 @@ if (mapMediaError(err) === 'unknown' && err instanceof Error) {
 
 ### WR-03: `navigator.clipboard.writeText()` promise is not handled — unhandled rejection on permission denial
 
+**Status:** ✅ Fixed in commit d585128
+
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:122-124`
 
 **Issue:** `navigator.clipboard.writeText()` returns a `Promise<void>`. The `handleCopyChromeUrl`
@@ -282,6 +294,8 @@ const handleCopyChromeUrl = useCallback(() => {
 ---
 
 ### WR-04: `captureCycle` passes `downsampled` to `promptWithImage` then closes it in `finally` — potential use-after-close if service holds a reference
+
+**Status:** ✅ Fixed in commit fb0be9e
 
 **File:** `chat/src/app/components/Multimodal/MultimodalWebcam.tsx:236-269`
 
@@ -343,6 +357,8 @@ No code change required — the current fallback is acceptable for a demo contex
 ---
 
 ### IN-02: `isLiveActive` prop on `MultimodalInput` is optional (`isLiveActive?: boolean`) — inconsistent with required usage
+
+**Status:** ✅ Fixed in commit 959ce03
 
 **File:** `chat/src/app/components/Multimodal/MultimodalInput.tsx:16`
 
