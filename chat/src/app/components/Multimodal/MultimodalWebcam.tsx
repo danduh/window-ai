@@ -88,6 +88,20 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   }, [pageState]);
 
   // ---------------------------------------------------------------------------
+  // Effect: attach the MediaStream to the <video> element when mode enters preview/live.
+  // The <video> only renders when mode ∈ {'preview', 'live'}, so videoRef.current is null
+  // at the moment handleTakePhoto/handleLiveModeStart finishes getUserMedia. Wire the
+  // stream here on the next render, once both the ref and the stream exist.
+  // ---------------------------------------------------------------------------
+  useEffect(() => {
+    if ((mode === 'preview' || mode === 'live') && videoRef.current && streamRef.current) {
+      videoRef.current.srcObject = streamRef.current;
+      // play() can reject if the element is unmounted mid-call; swallow that.
+      void videoRef.current.play().catch(() => {});
+    }
+  }, [mode]);
+
+  // ---------------------------------------------------------------------------
   // Effect: single cleanup on unmount — StrictMode safe (no async work on mount;
   // camera is requested only on user click so double-invoke is a no-op on null refs)
   // ---------------------------------------------------------------------------
@@ -161,10 +175,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
     try {
       const stream = await navigator.mediaDevices.getUserMedia(VIDEO_CONSTRAINTS);
       streamRef.current = stream;
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // Stream is attached to <video> by the mode-watching useEffect below — at this
+      // point videoRef.current is still null (video element only renders when mode='preview').
       setMode('preview');
     } catch (err) {
       const mapped = mapMediaError(err);
@@ -344,10 +356,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       // Build ImageCapture from first video track (live mode only)
       imageCaptureRef.current = new ImageCapture(stream.getVideoTracks()[0]);
 
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        await videoRef.current.play();
-      }
+      // Stream is attached to <video> by the mode-watching useEffect below — at this
+      // point videoRef.current is still null (video element only renders when mode='live').
 
       // Pitfall 6: create FRESH AbortController — never reuse (signal.aborted is permanent)
       abortControllerRef.current = new AbortController();
