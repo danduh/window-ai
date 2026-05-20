@@ -38,11 +38,15 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   // Map of userMessageId → Blob for retry re-prompt (Option B — no Message type edit needed)
   const pendingResendBlobsRef = useRef<Map<string, Blob>>(new Map());
 
-  // Phase 11: accumulates streamed text chunks from the live captureCycle into
-  // liveResponse. Reset to null happens via a separate useEffect on isLiveActive
-  // flip (start of live session). Note: within a single live session, text from
-  // consecutive frames accumulates — full per-frame replacement requires an
-  // onFrameStart callback in MultimodalWebcam (deferred follow-up if needed).
+  // Phase 11: CR-03 — per-frame replacement.
+  // handleFrameStart resets liveResponse to null at the start of each new frame
+  // so the panel briefly shows "Thinking…" before the new frame's chunks arrive.
+  // handleLiveChunk then appends chunks within the current frame only — each frame
+  // starts from null rather than accumulating across all frames.
+  const handleFrameStart = useCallback(() => {
+    setLiveResponse(null);
+  }, []);
+
   const handleLiveChunk = useCallback((chunk: string) => {
     setLiveResponse((prev) => (prev === null ? { text: chunk } : { text: prev.text + chunk }));
   }, []);
@@ -298,6 +302,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
               livePrompt={text}
               onFrameAttach={(blob) => setPendingImage(blob)}
               setIsLiveActive={setIsLiveActive}
+              onFrameStart={handleFrameStart}
               onLiveChunk={handleLiveChunk}
             />
           }

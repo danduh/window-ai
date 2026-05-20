@@ -12,6 +12,9 @@ export interface MultimodalWebcamProps {
   onFrameAttach: (blob: Blob) => void; // single-frame path — parent calls setPendingImage
   setIsLiveActive: (b: boolean) => void; // notifies parent so textarea + send button disabled
   onLiveChunk: (text: string) => void; // accumulates into liveResponse state in parent
+  /** CR-03: called at the START of each new live frame so the parent can clear
+   *  the previous frame's text before chunks from the new frame arrive. */
+  onFrameStart: () => void;
 }
 
 // ---------------------------------------------------------------------------
@@ -39,6 +42,7 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   onFrameAttach,
   setIsLiveActive,
   onLiveChunk,
+  onFrameStart,
 }) => {
   // ---------------------------------------------------------------------------
   // Refs — non-reactive state (no re-render on change)
@@ -248,6 +252,11 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
         signal: abortControllerRef.current?.signal,
       });
 
+      // CR-03: signal parent to clear previous frame text BEFORE the first chunk
+      // of this new frame arrives — parent resets liveResponse to null so the panel
+      // shows "Thinking…" briefly then fills with only the current frame's response.
+      onFrameStart();
+
       // Pitfall 1 (from Phase 10): use reader.read() loop, NOT for-await
       // reader.releaseLock() in finally prevents unhandled rejection on abort
       const reader = stream.getReader();
@@ -291,7 +300,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
     }
   // pageState removed from deps — read via pageStateRef.current instead (CR-01)
   // stopStream + setIsLiveActive added — used in CR-02 error teardown path
-  }, [onLiveChunk, stopStream, setIsLiveActive]);
+  // onFrameStart added — called once per frame before chunk loop (CR-03)
+  }, [onLiveChunk, stopStream, setIsLiveActive, onFrameStart]);
 
   // ---------------------------------------------------------------------------
   // Handler: start live mode — "Live mode" button
