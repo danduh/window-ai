@@ -59,6 +59,8 @@ Pitfall checklist results:
 
 ### CR-01: Side Effect in `useMemo` Creates Leaked Object URL Under StrictMode
 
+**Status:** Fixed in commit cfba6b6
+
 **File:** `chat/src/app/components/Multimodal/MultimodalInput.tsx:35-38`
 
 **Issue:** `URL.createObjectURL(pendingImage)` is called inside a `useMemo` factory. React 18+
@@ -97,6 +99,8 @@ useEffect(() => {
 ---
 
 ### CR-02: `createWithProgress` Permanently Poisons `sessionPromise` on Download Failure
+
+**Status:** Fixed in commit 4fe1086
 
 **File:** `chat/src/app/services/MultimodalService.ts:85-97`
 
@@ -140,6 +144,8 @@ export const createWithProgress = async (
 
 ### CR-03: `handleRetry` Has No `pageState` Guard — Allows Concurrent Streaming Sessions
 
+**Status:** Fixed in commit 6f21281
+
 **File:** `chat/src/app/components/Multimodal/MultimodalChatPanel.tsx:114-143`
 
 **Issue:** `handleRetry` calls `runPrompt` without checking whether `pageState === 'ready'`.
@@ -175,6 +181,8 @@ const handleRetry = useCallback(
 ## Warnings
 
 ### WR-01: `runPrompt` Catch Block Does Not Filter `AbortError` — Spurious Error Bubbles on Unmount
+
+**Status:** Fixed in commit d5cc453
 
 **File:** `chat/src/app/components/Multimodal/MultimodalChatPanel.tsx:62-71`
 
@@ -213,6 +221,8 @@ useEffect(() => {
 ---
 
 ### WR-02: `handleRetry` Reads Stale `messages` Closure — Race Condition With Streaming Updates
+
+**Status:** Fixed in commit b21caf4
 
 **File:** `chat/src/app/components/Multimodal/MultimodalChatPanel.tsx:117-119`
 
@@ -262,6 +272,8 @@ const handleRetry = useCallback(
 
 ### WR-03: Mobile Nav Tracking Event Missing `_mobile` Suffix — Breaks GA Segmentation
 
+**Status:** Fixed in commit 809f912
+
 **File:** `chat/src/app/AppRouter.tsx:182`
 
 **Issue:** Every other mobile nav link uses a `_mobile`-suffixed tracking event name (e.g.,
@@ -286,6 +298,8 @@ onClick={() => trackUserInteraction('navigation_click', 'multimodal_link_mobile'
 ---
 
 ### WR-04: `sendButtonTooltip` Has No Cases for `'idle'` or `'error'` States — Silent Disabled Button
+
+**Status:** Fixed in commit c495e79
 
 **File:** `chat/src/app/components/Multimodal/MultimodalInput.tsx:70-79`
 
