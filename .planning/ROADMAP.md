@@ -114,7 +114,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 
 - [ ] **Phase 8: Proofreader Foundation** - `/proofreader` route + `ProofreaderService` wrapper + text input UI + plain output mode + flag banner for required Chrome flags
 - [ ] **Phase 9: Proofreader Output Modes** - Three selectable output styles (side-by-side diff / inline strikethrough / suggestion list) + language selector + download progress UX
-- [ ] **Phase 10: Multimodal Foundation** - `/multimodal` route + `MultimodalService` wrapper + chat panel + drag-drop + clipboard paste + thumbnail rendering + flag banner
+- [x] **Phase 10: Multimodal Foundation** - `/multimodal` route + `MultimodalService` wrapper + chat panel + drag-drop + clipboard paste + thumbnail rendering + flag banner (completed 2026-05-20)
 - [ ] **Phase 11: Webcam Capture** - Single-frame snap + continuous live mode with single-in-flight gating, 512x512 downsample, session reuse + camera permission UX + perf indicator
 - [ ] **Phase 12: Docs + SEO + Demo Polish** - `/proofreader/docs` + `/multimodal/docs` markdown explainers + SEO byte-identical mirrors + 5-cold-run rehearsal log
 
@@ -162,7 +162,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
   6. `MultimodalService.promptWithImage(text, imageBlob)` is the single point that calls `LanguageModel.create({ expectedInputs: [{ type: 'image' }, { type: 'text' }] })` and returns a response; no direct API calls from UI components
 **Plans**: 2 plans
 - [x] 10-01-PLAN.md — Service + page shell + routing + SEO (MultimodalService session pool, MultimodalPage with PageState + Tabs + banner, AppRouter nav + routes, byte-identical SEO dual-write)
-- [ ] 10-02-PLAN.md — Chat panel + image input (MultimodalChatPanel orchestrator with drag/drop, MultimodalInput with paste + thumbnail + send gating, MultimodalTranscript with image-above-text user bubbles + streaming assistant)
+- [x] 10-02-PLAN.md — Chat panel + image input (MultimodalChatPanel orchestrator with drag/drop, MultimodalInput with paste + thumbnail + send gating, MultimodalTranscript with image-above-text user bubbles + streaming assistant)
 **UI hint**: yes
 
 #### Phase 11: Webcam Capture
@@ -197,7 +197,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 |-------|----------------|--------|-----------|
 | 8. Proofreader Foundation | 0/2 | Planned | — |
 | 9. Proofreader Output Modes | 0/? | Not started | — |
-| 10. Multimodal Foundation | 1/2 | In Progress|  |
+| 10. Multimodal Foundation | 2/2 | Complete   | 2026-05-20 |
 | 11. Webcam Capture | 0/? | Not started | — |
 | 12. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
