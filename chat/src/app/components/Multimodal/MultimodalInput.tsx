@@ -13,7 +13,7 @@ interface MultimodalInputProps {
   mimeError: string | null;
   setMimeError: (error: string | null) => void;
   /** Phase 11: when true, textarea + send row are replaced with a prompt-lock badge; paste handler is inert. */
-  isLiveActive?: boolean;
+  isLiveActive: boolean; // required — optional typing allowed silent omission (IN-02)
   /** Phase 11: <MultimodalWebcam> rendered at the top of the input frame (tools row + video/error slot). */
   webcamSlot?: React.ReactNode;
 }
@@ -27,7 +27,7 @@ export const MultimodalInput: React.FC<MultimodalInputProps> = ({
   pageState,
   mimeError,
   setMimeError,
-  isLiveActive = false,
+  isLiveActive,
   webcamSlot,
 }) => {
   // Auto-clear MIME error after 4 seconds
