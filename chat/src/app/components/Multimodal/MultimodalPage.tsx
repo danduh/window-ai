@@ -37,7 +37,9 @@ export const MultimodalPage: React.FC = () => {
   const objectUrlSetRef = useRef<Set<string>>(new Set());
 
   // Suppress unused variable warnings until Plan 02 wires these up
+  void downloadPct;
   void error;
+  void messages;
   void setMessages;
 
   // Mount effect — StrictMode-safe availability check with cancelled flag

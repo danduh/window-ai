@@ -64,6 +64,10 @@ const routes = [
   // Proofreader routes
   { path: '/proofreader', filename: 'proofreader.html' },
   { path: '/proofreader/docs', filename: 'proofreader-docs.html' },
+
+  // Multimodal routes
+  { path: '/multimodal', filename: 'multimodal.html' },
+  { path: '/multimodal/docs', filename: 'multimodal-docs.html' },
 ];
 
 // Build configuration
@@ -433,6 +437,28 @@ function getSEODataForRoute(routePath) {
         '@type': 'TechArticle',
         name: 'Proofreader API Documentation',
         description: 'Technical documentation for the Proofreader API surface, corrections shape, and language support',
+      },
+    },
+    '/multimodal': {
+      title: 'Multimodal — Ask Gemini Nano about images on-device | Chrome AI APIs',
+      description: 'Drag, paste, or capture an image — Gemini Nano answers your questions about it on-device with zero network. Chrome 148+ stable or flag-gated Canary.',
+      keywords: 'Multimodal AI, Gemini Nano, image input, LanguageModel, expectedInputs, on-device AI, Chrome 148, drag and drop image, clipboard paste, WebGPU',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Multimodal Demo',
+        description: 'On-device image understanding with Gemini Nano',
+      },
+    },
+    '/multimodal/docs': {
+      title: 'Multimodal API Docs — expectedInputs, image types, webcam-live pattern | Chrome AI APIs',
+      description: 'Drag, paste, or capture an image — Gemini Nano answers your questions about it on-device with zero network. Chrome 148+ stable or flag-gated Canary.',
+      keywords: 'Multimodal API docs, expectedInputs, image types, webcam-live, LanguageModel, promptStreaming, content parts, ImageBitmap, Chrome 148',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Multimodal API Documentation',
+        description: 'Technical documentation for the LanguageModel multimodal API surface, expectedInputs, and image types',
       },
     },
   };

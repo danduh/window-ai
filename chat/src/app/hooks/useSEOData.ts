@@ -102,5 +102,17 @@ export const seoConfigs = {
     title: 'Proofreader API Docs — surface, corrections shape, language support | Chrome AI APIs',
     description: 'Gemini Nano proofreads your text on-device with grammar, spelling, capitalization, and punctuation corrections. Three output styles, five languages, zero network.',
     keywords: 'Proofreader API docs, ProofreaderCorrection, ProofreadResult, correctionExplanationLanguage, expectedInputLanguages, Chrome 146 Canary, on-device AI'
+  },
+  // Must match prerender-react.js seoConfigs['/multimodal'] verbatim — Phase 12 grep -F audits.
+  multimodal: {
+    title: 'Multimodal — Ask Gemini Nano about images on-device | Chrome AI APIs',
+    description: 'Drag, paste, or capture an image — Gemini Nano answers your questions about it on-device with zero network. Chrome 148+ stable or flag-gated Canary.',
+    keywords: 'Multimodal AI, Gemini Nano, image input, LanguageModel, expectedInputs, on-device AI, Chrome 148, drag and drop image, clipboard paste, WebGPU'
+  },
+  // Must match prerender-react.js seoConfigs['/multimodal/docs'] verbatim — Phase 12 grep -F audits.
+  multimodalDocs: {
+    title: 'Multimodal API Docs — expectedInputs, image types, webcam-live pattern | Chrome AI APIs',
+    description: 'Drag, paste, or capture an image — Gemini Nano answers your questions about it on-device with zero network. Chrome 148+ stable or flag-gated Canary.',
+    keywords: 'Multimodal API docs, expectedInputs, image types, webcam-live, LanguageModel, promptStreaming, content parts, ImageBitmap, Chrome 148'
   }
 } as const;
