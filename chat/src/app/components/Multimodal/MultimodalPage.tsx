@@ -4,6 +4,7 @@ import { useSEOData, seoConfigs } from '../../hooks/useSEOData';
 import { MissingFlagBanner } from '../MissingFlagBanner';
 import Tabs from '../Tabs';
 import { MultimodalHeader } from './MultimodalHeader';
+import { MultimodalChatPanel } from './MultimodalChatPanel';
 import {
   getAvailability,
   createWithProgress,
@@ -36,11 +37,8 @@ export const MultimodalPage: React.FC = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const objectUrlSetRef = useRef<Set<string>>(new Set());
 
-  // Suppress unused variable warnings until Plan 02 wires these up
-  void downloadPct;
+  // Suppress unused variable warning for error (error state not yet rendered in the UI)
   void error;
-  void messages;
-  void setMessages;
 
   // Mount effect — StrictMode-safe availability check with cancelled flag
   // Mirrors ProofreaderPage.tsx lines 80–120 exactly; swaps Proofreader service for Multimodal.
@@ -108,13 +106,18 @@ export const MultimodalPage: React.FC = () => {
         label: 'Chat',
         path: '',
         content: (
-          <div className="max-w-none p-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-            Chat panel coming in plan 10-02.
-          </div>
+          <MultimodalChatPanel
+            messages={messages}
+            setMessages={setMessages}
+            pageState={pageState}
+            setPageState={setPageState}
+            downloadPct={downloadPct}
+            objectUrlSetRef={objectUrlSetRef}
+          />
         ),
       },
     ],
-    [],
+    [messages, pageState, downloadPct, setMessages, setPageState, objectUrlSetRef],
   );
 
   return (
