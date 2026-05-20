@@ -160,7 +160,9 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
   4. A user can paste an image (Cmd+V / Ctrl+V) directly into the chat input and see the same thumbnail preview as drag-drop — no separate paste button required
   5. After attaching an image and typing a question, the user's chat bubble shows the thumbnail inline above the message text; the assistant bubble appears below with Gemini Nano's response text
   6. `MultimodalService.promptWithImage(text, imageBlob)` is the single point that calls `LanguageModel.create({ expectedInputs: [{ type: 'image' }, { type: 'text' }] })` and returns a response; no direct API calls from UI components
-**Plans**: TBD
+**Plans**: 2 plans
+- [ ] 10-01-PLAN.md — Service + page shell + routing + SEO (MultimodalService session pool, MultimodalPage with PageState + Tabs + banner, AppRouter nav + routes, byte-identical SEO dual-write)
+- [ ] 10-02-PLAN.md — Chat panel + image input (MultimodalChatPanel orchestrator with drag/drop, MultimodalInput with paste + thumbnail + send gating, MultimodalTranscript with image-above-text user bubbles + streaming assistant)
 **UI hint**: yes
 
 #### Phase 11: Webcam Capture
@@ -195,7 +197,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 |-------|----------------|--------|-----------|
 | 8. Proofreader Foundation | 0/2 | Planned | — |
 | 9. Proofreader Output Modes | 0/? | Not started | — |
-| 10. Multimodal Foundation | 0/? | Not started | — |
+| 10. Multimodal Foundation | 0/2 | Planned | — |
 | 11. Webcam Capture | 0/? | Not started | — |
 | 12. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
