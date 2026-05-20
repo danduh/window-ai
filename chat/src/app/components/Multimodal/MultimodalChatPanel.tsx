@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type Message, type PageState } from './MultimodalPage';
 import { MultimodalTranscript } from './MultimodalTranscript';
 import { MultimodalInput } from './MultimodalInput';
+import { MultimodalWebcam } from './MultimodalWebcam';
 import { validateImageFile } from './imageFileValidation';
 import { promptWithImage } from '../../services/MultimodalService';
 
@@ -26,6 +27,9 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   const [pendingImage, setPendingImage] = useState<Blob | null>(null);
   const [mimeError, setMimeError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
+  // Phase 11: live mode state
+  const [isLiveActive, setIsLiveActive] = useState(false);
+  const [liveResponse, setLiveResponse] = useState<{ text: string } | null>(null);
 
   // dragCounterRef prevents flicker when cursor crosses child elements (Pattern 4 / Pitfall 4)
   const dragCounterRef = useRef(0);
@@ -33,6 +37,15 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
 
   // Map of userMessageId → Blob for retry re-prompt (Option B — no Message type edit needed)
   const pendingResendBlobsRef = useRef<Map<string, Blob>>(new Map());
+
+  // Phase 11: accumulates streamed text chunks from the live captureCycle into
+  // liveResponse. Reset to null happens via a separate useEffect on isLiveActive
+  // flip (start of live session). Note: within a single live session, text from
+  // consecutive frames accumulates — full per-frame replacement requires an
+  // onFrameStart callback in MultimodalWebcam (deferred follow-up if needed).
+  const handleLiveChunk = useCallback((chunk: string) => {
+    setLiveResponse((prev) => (prev === null ? { text: chunk } : { text: prev.text + chunk }));
+  }, []);
 
   // ---------------------------------------------------------------------------
   // runPrompt: shared streaming loop invoked by both handleSend and handleRetry
@@ -87,6 +100,11 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       abortControllerRef.current?.abort();
     };
   }, []);
+
+  // Phase 11: clear the live response panel each time live mode is (re)started.
+  useEffect(() => {
+    if (isLiveActive) setLiveResponse(null);
+  }, [isLiveActive]);
 
   // ---------------------------------------------------------------------------
   // handleSend: commits user message + empty assistant bubble, then streams
@@ -171,6 +189,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   // Drag handlers — ref counter prevents flicker on child element crossings (Pitfall 4)
   // ---------------------------------------------------------------------------
   const handleDragEnter = (e: React.DragEvent) => {
+    if (isLiveActive) return;
     e.preventDefault();
     dragCounterRef.current++;
     setIsDragOver(true);
@@ -187,6 +206,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   };
 
   const handleDrop = (e: React.DragEvent) => {
+    if (isLiveActive) return;
     e.preventDefault();
     dragCounterRef.current = 0;
     setIsDragOver(false);
@@ -226,9 +246,25 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
 
       <div className="flex flex-col gap-3 h-full min-h-0">
         {/* Transcript — flex-1 so it fills available height and scrolls internally */}
-        <div className="flex-1 min-h-0 overflow-y-auto">
+        {/* Phase 11: visibility:hidden (NOT unmounted) during live mode — DOM preserved */}
+        <div className={isLiveActive ? 'invisible flex-1 min-h-0' : 'flex-1 min-h-0 overflow-y-auto'}>
           <MultimodalTranscript messages={messages} onRetry={handleRetry} />
         </div>
+
+        {/* Phase 11: Live response panel — shown only during live mode */}
+        {isLiveActive && (
+          <div className="mt-2 mb-2">
+            <div className="p-3 rounded-lg bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 text-base font-medium leading-relaxed animate-fade-in">
+              {liveResponse === null ? (
+                <span className="animate-pulse text-gray-500 dark:text-gray-400 font-medium">
+                  Thinking…
+                </span>
+              ) : (
+                liveResponse.text
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Download progress bar — shown only while model is downloading */}
         {pageState === 'downloading' && (
@@ -255,6 +291,16 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
           pageState={pageState}
           mimeError={mimeError}
           setMimeError={setMimeError}
+          isLiveActive={isLiveActive}
+          webcamSlot={
+            <MultimodalWebcam
+              pageState={pageState}
+              livePrompt={text}
+              onFrameAttach={(blob) => setPendingImage(blob)}
+              setIsLiveActive={setIsLiveActive}
+              onLiveChunk={handleLiveChunk}
+            />
+          }
         />
       </div>
     </div>
