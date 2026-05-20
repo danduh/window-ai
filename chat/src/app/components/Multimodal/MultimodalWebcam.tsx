@@ -136,7 +136,11 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   // Handler: copy chrome:// URL to clipboard (error card — blocked variant)
   // ---------------------------------------------------------------------------
   const handleCopyChromeUrl = useCallback(() => {
-    navigator.clipboard.writeText('chrome://settings/content/camera');
+    // WR-03: .catch() prevents unhandled rejection when clipboard access is denied
+    // The <code> text is still copyable via standard browser text selection + copy.
+    navigator.clipboard.writeText('chrome://settings/content/camera').catch(() => {
+      /* clipboard API unavailable or denied — silent fallback */
+    });
   }, []);
 
   // ---------------------------------------------------------------------------
