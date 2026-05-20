@@ -258,38 +258,43 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
 
     inFlightRef.current = true;
     const t0 = performance.now();
-    let downsampled: ImageBitmap | undefined;
 
     try {
-      // Read current frame directly from the live <video> element via OffscreenCanvas.
-      // We bypass ImageCapture.grabFrame() because some Chrome/driver combinations
-      // return an ImageBitmap in a detached/unusable state (drawImage throws
-      // `InvalidStateError: The image source is not usable`). The <video> element is
-      // already playing on-screen, so the latest frame is available for direct draw.
+      // Read current frame directly from the live <video> element via the hidden <canvas>.
+      // Bypasses ImageCapture.grabFrame() (returns detached bitmaps on some Chrome/driver
+      // combos) AND OffscreenCanvas (had compatibility issues with drawImage(video) on
+      // this build). The same hidden canvas is used by single-frame capture (handleCapture),
+      // so the pattern is proven.
       const video = videoRef.current;
-      if (!video || !video.videoWidth || !video.videoHeight) {
-        // Track not producing frames yet — skip this cycle silently.
+      const canvas = canvasRef.current;
+      if (!video || !canvas) {
         inFlightRef.current = false;
         return;
       }
-      const offscreen = new OffscreenCanvas(512, 512);
-      const ctx = offscreen.getContext('2d');
-      if (!ctx) throw new Error('OffscreenCanvas 2D context unavailable');
+      if (video.readyState < 2 || !video.videoWidth || !video.videoHeight) {
+        // HAVE_CURRENT_DATA (2) is the minimum for drawImage. Skip silently if not yet ready.
+        inFlightRef.current = false;
+        return;
+      }
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Canvas 2D context unavailable');
+      canvas.width = 512;
+      canvas.height = 512;
       ctx.drawImage(video, 0, 0, 512, 512);
-      downsampled = offscreen.transferToImageBitmap();
+
+      // Output as JPEG Blob — promptWithImage accepts Blob | ImageBitmap; Blob is simpler
+      // (no bitmap lifecycle management) and matches the single-frame capture path.
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, 'image/jpeg', 0.92),
+      );
+      if (!blob) throw new Error('Canvas toBlob returned null');
 
       // Pitfall 5: read prompt from ref, not closure (stale closure prevention)
       const promptText = livePromptRef.current.trim() || 'Describe what you see in this image';
 
-      const stream = await promptWithImage(promptText, downsampled, {
+      const stream = await promptWithImage(promptText, blob, {
         signal: abortControllerRef.current?.signal,
       });
-      // WR-04: close downsampled immediately after promptWithImage returns the stream handle.
-      // The model has ingested the bitmap value at this point; closing it before the streaming
-      // loop avoids any risk of a race between abort and an internal lazy read of the bitmap.
-      // The finally block guards the createImageBitmap-threw path via optional-close.
-      downsampled.close();
-      downsampled = undefined;
 
       // CR-03: signal parent to clear previous frame text BEFORE the first chunk
       // of this new frame arrives — parent resets liveResponse to null so the panel
@@ -333,10 +338,6 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       setIsLiveActive(false);
       setMode('idle');
     } finally {
-      // WR-04: downsampled is undefined in the normal path (closed above after promptWithImage).
-      // Optional-close here handles only the createImageBitmap-threw path where downsampled
-      // was never passed to promptWithImage. This prevents double-close in the normal path.
-      downsampled?.close();
       inFlightRef.current = false;
     }
   // pageState removed from deps — read via pageStateRef.current instead (CR-01)
