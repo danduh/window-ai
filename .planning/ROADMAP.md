@@ -176,7 +176,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
   4. While live mode is active a small perf indicator (e.g. bottom-right badge) shows the current capture interval (e.g. "3 s interval") and the last prompt latency in milliseconds (e.g. "last: 840 ms"); both values update each frame cycle
   5. If a frame's prompt has not yet resolved, the next capture cycle is skipped (single-in-flight gating); no second `promptWithImage` call is issued while the first is pending, observable by the perf indicator not incrementing its latency during a slow frame
 **Plans**: 2 plans
-- [ ] 11-01-PLAN.md — grabFrame TS augmentation + MultimodalWebcam.tsx component (camera lifecycle, single-frame canvas capture, live mode loop with 512x512 downsample + single-in-flight + bitmap close, error cards, perf badge)
+- [x] 11-01-PLAN.md — grabFrame TS augmentation + MultimodalWebcam.tsx component (camera lifecycle, single-frame canvas capture, live mode loop with 512x512 downsample + single-in-flight + bitmap close, error cards, perf badge)
 - [ ] 11-02-PLAN.md — MultimodalChatPanel + MultimodalInput integration (isLiveActive + liveResponse state, transcript visibility toggle, live response panel, prompt-lock badge)
 **UI hint**: yes
 
@@ -200,7 +200,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 | 8. Proofreader Foundation | 0/2 | Planned | — |
 | 9. Proofreader Output Modes | 0/? | Not started | — |
 | 10. Multimodal Foundation | 2/2 | Complete   | 2026-05-20 |
-| 11. Webcam Capture | 0/2 | Planned | — |
+| 11. Webcam Capture | 1/2 | In Progress|  |
 | 12. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
 ### Coverage Validation (v1.2)
