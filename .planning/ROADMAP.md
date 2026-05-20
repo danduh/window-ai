@@ -115,7 +115,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 - [ ] **Phase 8: Proofreader Foundation** - `/proofreader` route + `ProofreaderService` wrapper + text input UI + plain output mode + flag banner for required Chrome flags
 - [ ] **Phase 9: Proofreader Output Modes** - Three selectable output styles (side-by-side diff / inline strikethrough / suggestion list) + language selector + download progress UX
 - [x] **Phase 10: Multimodal Foundation** - `/multimodal` route + `MultimodalService` wrapper + chat panel + drag-drop + clipboard paste + thumbnail rendering + flag banner (completed 2026-05-20)
-- [ ] **Phase 11: Webcam Capture** - Single-frame snap + continuous live mode with single-in-flight gating, 512x512 downsample, session reuse + camera permission UX + perf indicator
+- [x] **Phase 11: Webcam Capture** - Single-frame snap + continuous live mode with single-in-flight gating, 512x512 downsample, session reuse + camera permission UX + perf indicator (completed 2026-05-20)
 - [ ] **Phase 12: Docs + SEO + Demo Polish** - `/proofreader/docs` + `/multimodal/docs` markdown explainers + SEO byte-identical mirrors + 5-cold-run rehearsal log
 
 ### Phase Details (v1.2)
@@ -177,7 +177,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
   5. If a frame's prompt has not yet resolved, the next capture cycle is skipped (single-in-flight gating); no second `promptWithImage` call is issued while the first is pending, observable by the perf indicator not incrementing its latency during a slow frame
 **Plans**: 2 plans
 - [x] 11-01-PLAN.md — grabFrame TS augmentation + MultimodalWebcam.tsx component (camera lifecycle, single-frame canvas capture, live mode loop with 512x512 downsample + single-in-flight + bitmap close, error cards, perf badge)
-- [ ] 11-02-PLAN.md — MultimodalChatPanel + MultimodalInput integration (isLiveActive + liveResponse state, transcript visibility toggle, live response panel, prompt-lock badge)
+- [x] 11-02-PLAN.md — MultimodalChatPanel + MultimodalInput integration (isLiveActive + liveResponse state, transcript visibility toggle, live response panel, prompt-lock badge)
 **UI hint**: yes
 
 #### Phase 12: Docs + SEO + Demo Polish
@@ -200,7 +200,7 @@ A Chrome Canary visitor opens `/proofreader` to see Gemini Nano correct prose on
 | 8. Proofreader Foundation | 0/2 | Planned | — |
 | 9. Proofreader Output Modes | 0/? | Not started | — |
 | 10. Multimodal Foundation | 2/2 | Complete   | 2026-05-20 |
-| 11. Webcam Capture | 1/2 | In Progress|  |
+| 11. Webcam Capture | 2/2 | Complete   | 2026-05-20 |
 | 12. Docs + SEO + Demo Polish | 0/? | Not started | — |
 
 ### Coverage Validation (v1.2)
