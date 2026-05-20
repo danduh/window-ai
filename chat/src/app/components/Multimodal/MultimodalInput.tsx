@@ -78,11 +78,15 @@ export const MultimodalInput: React.FC<MultimodalInputProps> = ({
       ? 'Enable multimodal image input to use this demo'
       : pageState === 'downloading'
         ? 'Download model first'
-        : pendingImage === null
-          ? 'Attach an image first'
-          : text.trim().length === 0
-            ? 'Type a question about the image'
-            : undefined;
+        : pageState === 'idle'
+          ? 'Checking availability…'
+          : pageState === 'error'
+            ? 'An error occurred — please reload the page'
+            : pendingImage === null
+              ? 'Attach an image first'
+              : text.trim().length === 0
+                ? 'Type a question about the image'
+                : undefined;
 
   return (
     <div className="border border-gray-200 dark:border-gray-700 rounded-xl p-3">
