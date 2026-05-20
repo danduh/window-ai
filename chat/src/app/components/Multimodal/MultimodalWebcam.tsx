@@ -268,6 +268,12 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       const stream = await promptWithImage(promptText, downsampled, {
         signal: abortControllerRef.current?.signal,
       });
+      // WR-04: close downsampled immediately after promptWithImage returns the stream handle.
+      // The model has ingested the bitmap value at this point; closing it before the streaming
+      // loop avoids any risk of a race between abort and an internal lazy read of the bitmap.
+      // The finally block guards the createImageBitmap-threw path via optional-close.
+      downsampled.close();
+      downsampled = undefined;
 
       // CR-03: signal parent to clear previous frame text BEFORE the first chunk
       // of this new frame arrives — parent resets liveResponse to null so the panel
@@ -311,7 +317,9 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       setIsLiveActive(false);
       setMode('idle');
     } finally {
-      // Pitfall 4: free downsampled bitmap — safe even if createImageBitmap threw
+      // WR-04: downsampled is undefined in the normal path (closed above after promptWithImage).
+      // Optional-close here handles only the createImageBitmap-threw path where downsampled
+      // was never passed to promptWithImage. This prevents double-close in the normal path.
       downsampled?.close();
       inFlightRef.current = false;
     }
