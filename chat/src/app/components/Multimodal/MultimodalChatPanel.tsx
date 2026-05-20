@@ -130,11 +130,18 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       // CR-03: guard concurrent sends — same pattern as handleSend
       if (pageState !== 'ready') return;
 
-      // Find the user message immediately before this assistant message
-      const idx = messages.findIndex((m) => m.id === assistantMessageId);
-      if (idx < 1) return;
-      const userMsg = messages[idx - 1];
-      if (userMsg.role !== 'user') return;
+      // WR-02: Read the latest messages state via functional setMessages to avoid
+      // stale-closure bugs (the closed-over `messages` prop may be stale if a
+      // concurrent streaming update arrived between render and click).
+      let userMsg: Message | undefined;
+      setMessages((prev) => {
+        const idx = prev.findIndex((m) => m.id === assistantMessageId);
+        if (idx < 1 || prev[idx - 1].role !== 'user') return prev; // no-op
+        userMsg = prev[idx - 1];
+        return prev; // state unchanged — read only
+      });
+
+      if (!userMsg) return;
 
       // Retrieve the original blob from the store
       const blob = pendingResendBlobsRef.current.get(userMsg.id);
@@ -157,7 +164,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       // Re-prompt with the same text and blob
       await runPrompt(userMsg.text, blob, newStreamingId);
     },
-    [messages, setMessages, runPrompt, pageState],
+    [setMessages, runPrompt, pageState],
   );
 
   // ---------------------------------------------------------------------------
