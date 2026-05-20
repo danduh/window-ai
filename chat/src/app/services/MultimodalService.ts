@@ -1,0 +1,110 @@
+/** Module-scope single session promise — lazy-initialized on first promptWithImage call. */
+let sessionPromise: Promise<LanguageModel> | null = null;
+
+/**
+ * Local interface for a LanguageModel that accepts array-based multimodal input.
+ * dom-chromium-ai.d.ts declares only the string overload (line 63) — do NOT modify that file.
+ * This local cast is the same workaround pattern ChatAIService.ts uses for params().
+ * We do NOT extend LanguageModel directly to avoid TS2430 (incompatible overload).
+ */
+interface MultimodalLanguageModel {
+  promptStreaming(
+    input: Array<{ role: string; content: Array<{ type: string; value: unknown }> }>,
+    options?: { signal?: AbortSignal }
+  ): ReadableStream<string>;
+  destroy(): void;
+}
+
+/** Returns a cached session, or creates and caches a new one (stores promise before awaiting). */
+function getOrCreateSession(): Promise<LanguageModel> {
+  if (sessionPromise) return sessionPromise;
+  sessionPromise = LanguageModel.create({
+    expectedInputs: [{ type: 'image' }, { type: 'text' }],
+    expectedOutputs: [{ type: 'text', languages: ['en'] }],
+    outputLanguage: 'en',
+  }).catch((err: unknown) => {
+    // Remove failed promise so the next call retries cleanly.
+    sessionPromise = null;
+    throw err;
+  });
+  // Store promise BEFORE awaiting so concurrent callers share the same in-flight create.
+  return sessionPromise;
+}
+
+/** Availability state union — mirrors the Chrome API return values. */
+export type AvailabilityState = 'available' | 'downloadable' | 'downloading' | 'unavailable';
+
+/**
+ * Local helper type for multimodal content parts.
+ * Kept inside this module only — do NOT add to dom-chromium-ai.d.ts.
+ */
+export interface MultimodalContentPart {
+  type: 'text' | 'image';
+  value: string | Blob | ImageBitmap;
+}
+
+/**
+ * Prompts the model with a text question and an image (Blob or ImageBitmap).
+ * Returns a ReadableStream<string> of incremental text chunks.
+ */
+export async function promptWithImage(
+  text: string,
+  image: Blob | ImageBitmap,
+  opts?: { signal?: AbortSignal }
+): Promise<ReadableStream<string>> {
+  const session = (await getOrCreateSession()) as unknown as MultimodalLanguageModel;
+  return session.promptStreaming(
+    [{ role: 'user', content: [{ type: 'text', value: text }, { type: 'image', value: image }] }],
+    { signal: opts?.signal }
+  );
+}
+
+/**
+ * Returns the availability of multimodal image input.
+ * Returns 'unavailable' immediately when LanguageModel is absent or options throw
+ * (older Canary builds that predate the expectedInputs overload — Pitfall 3).
+ */
+export const getAvailability = async (): Promise<AvailabilityState> => {
+  if (typeof LanguageModel === 'undefined') return 'unavailable';
+  try {
+    return (await LanguageModel.availability({
+      expectedInputs: [{ type: 'image' }],
+    })) as AvailabilityState;
+  } catch {
+    return 'unavailable';
+  }
+};
+
+/**
+ * Creates a LanguageModel session with download-progress reporting, then stores it
+ * in the module-scope pool so subsequent promptWithImage calls reuse it.
+ */
+export const createWithProgress = async (
+  onProgress: (pct: number) => void
+): Promise<LanguageModel> => {
+  const promise = LanguageModel.create({
+    expectedInputs: [{ type: 'image' }, { type: 'text' }],
+    expectedOutputs: [{ type: 'text', languages: ['en'] }],
+    outputLanguage: 'en',
+    monitor(m: AICreateMonitor) {
+      m.addEventListener('downloadprogress', (e: ProgressEvent) => {
+        onProgress(e.loaded != null ? e.loaded * 100 : 0);
+      });
+    },
+  });
+  sessionPromise = promise;
+  return promise;
+};
+
+/**
+ * Destroys the cached LanguageModel session and empties the pool.
+ * Call on page unmount to release model resources.
+ */
+export const destroyAllSessions = (): void => {
+  if (sessionPromise) {
+    // Intentionally swallow errors — destroy is best-effort cleanup on unmount.
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    sessionPromise.then((s) => s.destroy()).catch(() => {});
+    sessionPromise = null;
+  }
+};
