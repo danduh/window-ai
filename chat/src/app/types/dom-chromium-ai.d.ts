@@ -198,17 +198,14 @@ declare global {
 }
 
 // grabFrame() is absent from TypeScript 5.9.2 lib.dom.d.ts — verified by grep (0 occurrences).
-// The ImageCapture interface exists in lib.dom.d.ts (constructor, takePhoto, getPhotoCapabilities,
-// getPhotoSettings, track) but grabFrame() was standardized later and is missing from the
-// bundled declarations. This block merges with the existing lib.dom.d.ts interface.
+// The ImageCapture interface exists in lib.dom.d.ts at global scope (not inside declare global),
+// so this top-level interface declaration merges with it directly.
 // MDN: https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture/grabFrame
-declare global {
-  interface ImageCapture {
-    /**
-     * Grabs a snapshot of the live video being held in the MediaStreamTrack
-     * passed to the ImageCapture constructor, returning an ImageBitmap.
-     * MDN: https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture/grabFrame
-     */
-    grabFrame(): Promise<ImageBitmap>;
-  }
+interface ImageCapture {
+  /**
+   * Grabs a snapshot of the live video being held in the MediaStreamTrack
+   * passed to the ImageCapture constructor, returning an ImageBitmap.
+   * MDN: https://developer.mozilla.org/en-US/docs/Web/API/ImageCapture/grabFrame
+   */
+  grabFrame(): Promise<ImageBitmap>;
 }
