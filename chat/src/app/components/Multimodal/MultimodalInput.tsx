@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import { type PageState } from './MultimodalPage';
 import { validateImageFile } from './imageFileValidation';
 
@@ -31,20 +31,26 @@ export const MultimodalInput: React.FC<MultimodalInputProps> = ({
     return () => clearTimeout(timer);
   }, [mimeError, setMimeError]);
 
-  // Derive preview URL from raw Blob — stable per blob instance (Pitfall 2: never store as URL)
-  const previewUrl = useMemo(
-    () => (pendingImage ? URL.createObjectURL(pendingImage) : null),
-    [pendingImage],
-  );
+  // CR-01 fix: createObjectURL is a side-effect — must live in useEffect, not useMemo.
+  // React 18+ StrictMode double-invokes useMemo factories in development, creating a
+  // leaked URL (the discarded first invocation's URL is never revoked). useEffect runs
+  // once per pendingImage change and its cleanup always revokes the URL it created.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
-  // Revoke preview URL when it changes or component unmounts
-  // This is the PREVIEW URL only — the committed Message URL is created at send-time
-  // in MultimodalChatPanel.handleSend and tracked in objectUrlSetRef.
   useEffect(() => {
+    if (!pendingImage) {
+      setPreviewUrl(null);
+      return;
+    }
+    const url = URL.createObjectURL(pendingImage);
+    setPreviewUrl(url);
+    // Revoke this specific URL on cleanup (pendingImage change or unmount).
+    // This is the PREVIEW URL only — the committed Message URL is created at send-time
+    // in MultimodalChatPanel.handleSend and tracked in objectUrlSetRef.
     return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
+      URL.revokeObjectURL(url);
     };
-  }, [previewUrl]);
+  }, [pendingImage]);
 
   const handleImageFile = (file: File) => {
     const result = validateImageFile(file);
