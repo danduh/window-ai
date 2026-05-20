@@ -1,7 +1,7 @@
 ---
 phase: 11
 slug: webcam-capture
-status: draft
+status: approved
 shadcn_initialized: false
 preset: none
 created: 2026-05-20
@@ -219,7 +219,7 @@ relative animate-fade-in
   │     icon: text-red-600 dark:text-red-400 (variant-specific — see table below)
   │     heading: text-sm font-medium text-gray-900 dark:text-gray-100
 
-  └─ body: text-sm font-medium text-gray-600 dark:text-gray-400 mt-0.5
+  └─ body: text-sm font-medium text-gray-600 dark:text-gray-400 mt-1
            [blocked variant only] chrome:// link as <code> with copy affordance (see below)
 ```
 
