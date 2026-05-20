@@ -62,6 +62,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   // ---------------------------------------------------------------------------
   const [mode, setMode] = useState<WebcamMode>('idle');
   const [errorState, setErrorState] = useState<WebcamErrorState>(null);
+  // WR-02: stores the original err.message for 'unknown' error cards (truncated to 80 chars)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [lastLatencyMs, setLastLatencyMs] = useState<number | null>(null);
   const [wasSkipped, setWasSkipped] = useState<boolean>(false);
   // Set true on <video onLoadedMetadata> — guards handleCapture from 0×0 canvas (Pitfall 7)
@@ -142,6 +144,7 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   // ---------------------------------------------------------------------------
   const handleDismissError = useCallback(() => {
     setErrorState(null);
+    setErrorMessage(null);
     setMode('idle');
   }, []);
 
@@ -160,7 +163,10 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       }
       setMode('preview');
     } catch (err) {
-      setErrorState(mapMediaError(err));
+      const mapped = mapMediaError(err);
+      setErrorState(mapped);
+      // WR-02: preserve err.message for 'unknown' variant so the card body is informative
+      setErrorMessage(mapped === 'unknown' && err instanceof Error ? err.message.slice(0, 80) : null);
       setMode('error');
     }
   }, [mapMediaError]);
@@ -340,7 +346,10 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       setIsLiveActive(true);
       setMode('live');
     } catch (err) {
-      setErrorState(mapMediaError(err));
+      const mapped = mapMediaError(err);
+      setErrorState(mapped);
+      // WR-02: preserve err.message for 'unknown' variant so the card body is informative
+      setErrorMessage(mapped === 'unknown' && err instanceof Error ? err.message.slice(0, 80) : null);
       setMode('error');
     }
   }, [captureCycle, setIsLiveActive, mapMediaError]);
@@ -608,7 +617,7 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
             )}
             {errorState === 'no-camera' && <p>Connect a camera and try again</p>}
             {errorState === 'in-use' && <p>Close other apps using the camera and try again</p>}
-            {errorState === 'unknown' && <p>Unknown camera error</p>}
+            {errorState === 'unknown' && <p>{errorMessage ?? 'Unknown camera error'}</p>}
           </div>
         </div>
       )}
