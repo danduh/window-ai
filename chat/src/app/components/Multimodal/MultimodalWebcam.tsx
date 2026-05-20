@@ -192,10 +192,17 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
         // Pitfall 3: blob can be null — null-check before invoking onFrameAttach
         if (blob) {
           onFrameAttach(blob);
+          stopStream();
+          setMode('idle');
+          setCaptureReady(false);
+        } else {
+          // JPEG encoder returned null — surface an error card instead of silent failure (WR-01)
+          console.warn('[MultimodalWebcam] canvas.toBlob returned null');
+          stopStream();
+          setErrorState('unknown');
+          setMode('error');
+          setCaptureReady(false);
         }
-        stopStream();
-        setMode('idle');
-        setCaptureReady(false);
       },
       'image/jpeg',
       0.92,
