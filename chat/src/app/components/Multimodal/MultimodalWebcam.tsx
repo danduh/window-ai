@@ -267,20 +267,31 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
         reader.releaseLock();
       }
     } catch (err) {
-      // WR-01 equivalent: AbortError = intentional cancel (toggle-off or unmount)
-      // Swallow silently — live mode was intentionally stopped (PATTERNS AbortError pattern)
+      // AbortError = intentional cancel (toggle-off or unmount) — swallow silently
+      // (PATTERNS AbortError pattern — live mode was intentionally stopped)
       if (err instanceof DOMException && err.name === 'AbortError') {
         return;
       }
-      // Non-abort errors: log for diagnostics; stop live mode to prevent error loop
+      // Non-abort errors: log, then tear down live mode to stop the interval.
+      // Without this the loop keeps firing every 3 s with the same broken state (CR-02).
       console.error('[MultimodalWebcam] captureCycle error:', err);
+      if (intervalRef.current !== null) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+      abortControllerRef.current?.abort();
+      stopStream();
+      inFlightRef.current = false;
+      setIsLiveActive(false);
+      setMode('idle');
     } finally {
       // Pitfall 4: free downsampled bitmap — safe even if createImageBitmap threw
       downsampled?.close();
       inFlightRef.current = false;
     }
   // pageState removed from deps — read via pageStateRef.current instead (CR-01)
-  }, [onLiveChunk]);
+  // stopStream + setIsLiveActive added — used in CR-02 error teardown path
+  }, [onLiveChunk, stopStream, setIsLiveActive]);
 
   // ---------------------------------------------------------------------------
   // Handler: start live mode — "Live mode" button
