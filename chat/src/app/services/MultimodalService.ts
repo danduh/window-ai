@@ -78,6 +78,11 @@ export const getAvailability = async (): Promise<AvailabilityState> => {
 /**
  * Creates a LanguageModel session with download-progress reporting, then stores it
  * in the module-scope pool so subsequent promptWithImage calls reuse it.
+ *
+ * CR-02 fix: chain a .catch() that clears sessionPromise on failure, mirroring
+ * getOrCreateSession. Without this, a failed download permanently poisons
+ * sessionPromise — every subsequent getOrCreateSession() call returns the same
+ * rejected promise until the page reloads.
  */
 export const createWithProgress = async (
   onProgress: (pct: number) => void
@@ -91,6 +96,10 @@ export const createWithProgress = async (
         onProgress(e.loaded != null ? e.loaded * 100 : 0);
       });
     },
+  }).catch((err: unknown) => {
+    // Allow retry on failure — same pattern as getOrCreateSession.
+    sessionPromise = null;
+    throw err;
   });
   sessionPromise = promise;
   return promise;
