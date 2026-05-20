@@ -10,7 +10,7 @@
 ### Routing & Navigation (v1.2)
 
 - [ ] **PROOF-01**: A new `/proofreader` route is registered in `chat/src/app/AppRouter.tsx`, a nav link added alongside the shipped demos, and a `MissingFlagBanner` variant explains the required Chrome flags (`#optimization-guide-on-device-model`, `#proofreader-api-for-gemini-nano`) when the `Proofreader` global is undefined. Rest of the page remains usable for read-only browsing of the docs tab.
-- [ ] **MULTI-01**: A new `/multimodal` route + nav link + `MissingFlagBanner` variant for `LanguageModel.create({ expectedInputs: [{ type: 'image' }] })` availability check.
+- [x] **MULTI-01**: A new `/multimodal` route + nav link + `MissingFlagBanner` variant for `LanguageModel.create({ expectedInputs: [{ type: 'image' }] })` availability check.
 
 ### Proofreader Demo (v1.2)
 
@@ -29,7 +29,7 @@
 - [ ] **MULTI-03**: Clipboard paste — `Cmd+V` (or `Ctrl+V`) of an image into the chat input attaches it. Same preview + send path as drag-drop.
 - [ ] **MULTI-04**: Webcam single-frame capture — "📷 Take photo" button → `getUserMedia` (gated by user click for permission), renders live preview, captures one frame via `<canvas>` on user click, attaches as Blob.
 - [ ] **MULTI-05**: Webcam continuous live — toggle "Live mode" button → starts a loop that uses `ImageCapture.grabFrame()` every 3 seconds (configurable), downsamples each frame to 512×512 via `createImageBitmap`, sends to model. **Single-in-flight gating** (no new prompt until previous resolves) + session reuse (same `LanguageModel` session across frames).
-- [ ] **MULTI-06**: A `MultimodalService.ts` wrapper creates `LanguageModel.create({ expectedInputs: [{ type: 'image' }, { type: 'text' }], outputLanguage: 'en' })`; exposes `promptWithImage(text, imageBlob | ImageBitmap)` and reusable session helpers for live mode.
+- [x] **MULTI-06**: A `MultimodalService.ts` wrapper creates `LanguageModel.create({ expectedInputs: [{ type: 'image' }, { type: 'text' }], outputLanguage: 'en' })`; exposes `promptWithImage(text, imageBlob | ImageBitmap)` and reusable session helpers for live mode.
 - [ ] **MULTI-07**: Chat transcript renders user-attached image thumbnails inline (small clickable preview in the user-bubble) above the text. Mirrors v1.1 `Message.uiResourceUri` field pattern but for outgoing user-image attachments (`Message.attachedImageUrl?: string`).
 - [ ] **MULTI-08**: Camera permission UX — `NotAllowedError` shows an inline "Camera blocked — enable in browser settings" card with link to chrome's site-settings; `OverconstrainedError` (no camera) shows "No camera detected"; no permission yet → button prompts on click rather than auto-prompting on mount.
 
@@ -72,10 +72,10 @@
 | PROOF-05 | Phase 8 | Pending |
 | PROOF-06 | Phase 8 | Pending |
 | PROOF-04 | Phase 9 | Pending |
-| MULTI-01 | Phase 10 | Pending |
+| MULTI-01 | Phase 10 | Complete |
 | MULTI-02 | Phase 10 | Pending |
 | MULTI-03 | Phase 10 | Pending |
-| MULTI-06 | Phase 10 | Pending |
+| MULTI-06 | Phase 10 | Complete |
 | MULTI-07 | Phase 10 | Pending |
 | MULTI-04 | Phase 11 | Pending |
 | MULTI-05 | Phase 11 | Pending |
