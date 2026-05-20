@@ -179,7 +179,7 @@ const AppRouter: React.FC = () => {
                       onClick={() => trackUserInteraction('navigation_click', 'proofreader_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Proofreader</Link>
                 <Link to="/multimodal"
-                      onClick={() => trackUserInteraction('navigation_click', 'multimodal_link')}
+                      onClick={() => trackUserInteraction('navigation_click', 'multimodal_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Multimodal</Link>
                 <Link to="/writer"
                       onClick={() => trackUserInteraction('navigation_click', 'writer_link_mobile')}
