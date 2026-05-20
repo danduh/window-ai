@@ -261,23 +261,22 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
     let downsampled: ImageBitmap | undefined;
 
     try {
-      // Pitfall 1: imageCaptureRef.current! is safe — cycle only fires after
-      // handleLiveModeStart constructs the ImageCapture instance
-      const frameBitmap = await imageCaptureRef.current!.grabFrame();
-
-      // Downsample to 512×512 (reduces token cost on 8GB VRAM machines).
-      // OffscreenCanvas path rather than createImageBitmap(bitmap, ResizeOptions) —
-      // some Chrome builds throw `InvalidStateError: The image source is not usable`
-      // when an ImageBitmap from grabFrame() is passed to createImageBitmap with
-      // resize options. Canvas downsample is supported everywhere.
+      // Read current frame directly from the live <video> element via OffscreenCanvas.
+      // We bypass ImageCapture.grabFrame() because some Chrome/driver combinations
+      // return an ImageBitmap in a detached/unusable state (drawImage throws
+      // `InvalidStateError: The image source is not usable`). The <video> element is
+      // already playing on-screen, so the latest frame is available for direct draw.
+      const video = videoRef.current;
+      if (!video || !video.videoWidth || !video.videoHeight) {
+        // Track not producing frames yet — skip this cycle silently.
+        inFlightRef.current = false;
+        return;
+      }
       const offscreen = new OffscreenCanvas(512, 512);
       const ctx = offscreen.getContext('2d');
       if (!ctx) throw new Error('OffscreenCanvas 2D context unavailable');
-      ctx.drawImage(frameBitmap, 0, 0, 512, 512);
+      ctx.drawImage(video, 0, 0, 512, 512);
       downsampled = offscreen.transferToImageBitmap();
-
-      // Pitfall 4: free full-res bitmap immediately after downsampled is ready
-      frameBitmap.close();
 
       // Pitfall 5: read prompt from ref, not closure (stale closure prevention)
       const promptText = livePromptRef.current.trim() || 'Describe what you see in this image';
