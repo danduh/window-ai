@@ -72,6 +72,16 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   }, [livePrompt]);
 
   // ---------------------------------------------------------------------------
+  // Ref + Effect: mirror pageState into ref — same stale-closure fix as livePromptRef
+  // (CR-01: setInterval captures captureCycle once; pageState changes after that
+  // are invisible to the running interval without a ref mirror — RESEARCH Pitfall 8)
+  // ---------------------------------------------------------------------------
+  const pageStateRef = useRef<PageState>(pageState);
+  useEffect(() => {
+    pageStateRef.current = pageState;
+  }, [pageState]);
+
+  // ---------------------------------------------------------------------------
   // Effect: single cleanup on unmount — StrictMode safe (no async work on mount;
   // camera is requested only on user click so double-invoke is a no-op on null refs)
   // ---------------------------------------------------------------------------
@@ -202,8 +212,9 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
   // All 8 RESEARCH pitfalls addressed here.
   // ---------------------------------------------------------------------------
   const captureCycle = useCallback(async () => {
-    // Pitfall 8: guard pageState — stop firing if model is no longer ready
-    if (pageState !== 'ready') return;
+    // Pitfall 8: guard pageState via ref — reads current value even though setInterval
+    // captured this callback at live-mode start (CR-01 fix — Pitfall 8 / RESEARCH Pattern 5)
+    if (pageStateRef.current !== 'ready') return;
 
     // Single-in-flight gating (CONTEXT.md § Live Mode Loop — locked)
     if (inFlightRef.current) {
@@ -268,7 +279,8 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
       downsampled?.close();
       inFlightRef.current = false;
     }
-  }, [pageState, onLiveChunk]);
+  // pageState removed from deps — read via pageStateRef.current instead (CR-01)
+  }, [onLiveChunk]);
 
   // ---------------------------------------------------------------------------
   // Handler: start live mode — "Live mode" button
