@@ -37,7 +37,32 @@ export const ProofreaderPage: React.FC = () => {
   const [originalText, setOriginalText] = useState('');
   const [downloadPct, setDownloadPct] = useState(0);
   const [language, setLanguage] = useState<ProofreaderLanguageCode>('en');
-  const [mode, setMode] = useState<OutputMode>('plain');
+  const OUTPUT_MODE_KEY = 'window-ai.proofreader.outputMode';
+  const VALID_MODES: OutputMode[] = ['plain', 'side-by-side', 'inline-strikethrough'];
+
+  const [mode, setMode] = useState<OutputMode>(() => {
+    try {
+      const stored = localStorage.getItem(OUTPUT_MODE_KEY);
+      if (stored && (VALID_MODES as string[]).includes(stored)) {
+        return stored as OutputMode;
+      }
+    } catch {
+      // private mode / SSR no-op
+    }
+    return 'plain';
+  });
+
+  const onModeChange = useCallback(
+    (m: OutputMode) => {
+      setMode(m);
+      try {
+        localStorage.setItem(OUTPUT_MODE_KEY, m);
+      } catch {
+        // private mode / SSR no-op
+      }
+    },
+    [],
+  );
 
   // Mount effect 1: read language preference from localStorage
   useEffect(() => {
@@ -157,7 +182,7 @@ export const ProofreaderPage: React.FC = () => {
         </div>
       )}
       <div className="mt-6">
-        <ProofreaderOutputModeToggle mode={mode} onChange={setMode} />
+        <ProofreaderOutputModeToggle mode={mode} onChange={onModeChange} />
       </div>
       <ProofreaderResultPanel
         result={result}
