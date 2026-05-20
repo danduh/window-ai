@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { type Message, type PageState } from './MultimodalPage';
 import { MultimodalTranscript } from './MultimodalTranscript';
 import { MultimodalInput } from './MultimodalInput';
@@ -113,6 +113,9 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
   // ---------------------------------------------------------------------------
   const handleRetry = useCallback(
     async (assistantMessageId: string) => {
+      // CR-03: guard concurrent sends — same pattern as handleSend
+      if (pageState !== 'ready') return;
+
       // Find the user message immediately before this assistant message
       const idx = messages.findIndex((m) => m.id === assistantMessageId);
       if (idx < 1) return;
@@ -140,7 +143,7 @@ export const MultimodalChatPanel: React.FC<MultimodalChatPanelProps> = ({
       // Re-prompt with the same text and blob
       await runPrompt(userMsg.text, blob, newStreamingId);
     },
-    [messages, setMessages, runPrompt],
+    [messages, setMessages, runPrompt, pageState],
   );
 
   // ---------------------------------------------------------------------------
