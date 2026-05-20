@@ -19,9 +19,8 @@ interface MultimodalLanguageModel {
 function getOrCreateSession(): Promise<LanguageModel> {
   if (sessionPromise) return sessionPromise;
   sessionPromise = LanguageModel.create({
-    expectedInputs: [{ type: 'image' }, { type: 'text' }],
+    expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }],
     expectedOutputs: [{ type: 'text', languages: ['en'] }],
-    outputLanguage: 'en',
   }).catch((err: unknown) => {
     // Remove failed promise so the next call retries cleanly.
     sessionPromise = null;
@@ -88,9 +87,8 @@ export const createWithProgress = async (
   onProgress: (pct: number) => void
 ): Promise<LanguageModel> => {
   const promise = LanguageModel.create({
-    expectedInputs: [{ type: 'image' }, { type: 'text' }],
+    expectedInputs: [{ type: 'text', languages: ['en'] }, { type: 'image' }],
     expectedOutputs: [{ type: 'text', languages: ['en'] }],
-    outputLanguage: 'en',
     monitor(m: AICreateMonitor) {
       m.addEventListener('downloadprogress', (e: ProgressEvent) => {
         onProgress(e.loaded != null ? e.loaded * 100 : 0);
