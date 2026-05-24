@@ -60,6 +60,12 @@ export const seoConfigs = {
     description: 'Speak live in your browser and watch your words translated simultaneously into two languages. Combines the Web Speech API with Chrome\'s on-device Translator API — no server, no upload.',
     keywords: 'live translation, voice translation, Web Speech API, speech recognition, real-time translation, Chrome AI, on-device translation, dual translation, simultaneous translation'
   },
+  // Must match prerender-react.js seoConfigs['/live-translate/docs'] verbatim.
+  liveTranslateDocs: {
+    title: 'Live Voice Translation Docs — Web Speech + Translator API guide | Chrome AI APIs',
+    description: 'Compose the Web Speech API with Chrome\'s on-device Translator API to build live, dual-language voice translation in the browser — no server, no upload.',
+    keywords: 'Live Voice Translation docs, Web Speech API, SpeechRecognition, Translator API, dual translation, on-device translation, BCP 47, interim results, fan-out translation'
+  },
   writer: {
     title: 'Writer & Rewriter APIs - AI-powered content creation | Chrome AI APIs',
     description: 'AI-powered content creation and enhancement. Writer creates new content from prompts, while Rewriter transforms existing text with tone, format, and length adjustments.',

@@ -43,7 +43,7 @@ const AppRouter: React.FC = () => {
       <div className="min-h-screen bg-gray-100 dark:bg-gray-900 transition-colors duration-200">
         {!inIframe && (
           <nav className="bg-white dark:bg-gray-800 shadow-md transition-colors duration-200">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="w-full px-4 sm:px-6 lg:px-8">
               <div className="flex justify-between h-16">
                 <div className="flex">
                   <div className="flex-shrink-0 flex items-center">
@@ -248,6 +248,7 @@ const AppRouter: React.FC = () => {
 
               {/* Live Translate routes */}
               <Route path="/live-translate" element={<LiveTranslatePage/>}/>
+              <Route path="/live-translate/docs" element={<LiveTranslatePage/>}/>
 
               {/* WebMCP routes */}
               <Route path="/webmcp" element={<RecipeWorkbenchPage/>}/>

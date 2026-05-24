@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useSEOData, seoConfigs } from '../../hooks/useSEOData';
 import { MissingFlagBanner } from '../MissingFlagBanner';
 import Tabs from '../Tabs';
+import { DocsRenderer } from '../../tools/DocsRenderer';
 import { ProofreaderHeader } from './ProofreaderHeader';
 import { ProofreaderForm } from './ProofreaderForm';
 import { ProofreaderOutputModeToggle, type OutputMode } from './ProofreaderOutputModeToggle';
@@ -153,8 +154,8 @@ export const ProofreaderPage: React.FC = () => {
   }, [originalText, language, onProofread]);
 
   const docsContent = (
-    <div className="max-w-none p-4 text-gray-500 dark:text-gray-400">
-      Documentation coming in Phase 12.
+    <div className="max-w-none">
+      <DocsRenderer docFile="Proofreader-API.md" initOpen={true} />
     </div>
   );
 

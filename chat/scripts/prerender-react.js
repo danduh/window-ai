@@ -47,6 +47,7 @@ const routes = [
 
   // Live Translate route (single-page, no docs/demo split)
   { path: '/live-translate', filename: 'live-translate.html' },
+  { path: '/live-translate/docs', filename: 'live-translate-docs.html' },
 
   // Writer routes
   { path: '/writer', filename: 'writer.html' },
@@ -329,6 +330,21 @@ function getSEODataForRoute(routePath) {
         name: 'Live Voice Translation Demo',
         description:
           'Live speech-to-text fanned into dual simultaneous translations',
+      },
+    },
+    '/live-translate/docs': {
+      title:
+        'Live Voice Translation Docs — Web Speech + Translator API guide | Chrome AI APIs',
+      description:
+        'Compose the Web Speech API with Chrome\'s on-device Translator API to build live, dual-language voice translation in the browser — no server, no upload.',
+      keywords:
+        'Live Voice Translation docs, Web Speech API, SpeechRecognition, Translator API, dual translation, on-device translation, BCP 47, interim results, fan-out translation',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Live Voice Translation Documentation',
+        description:
+          'Technical documentation for composing the Web Speech API with the Chrome Translator API',
       },
     },
     '/writer': {

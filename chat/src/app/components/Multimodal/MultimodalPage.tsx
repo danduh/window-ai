@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { useSEOData, seoConfigs } from '../../hooks/useSEOData';
 import { MissingFlagBanner } from '../MissingFlagBanner';
 import Tabs from '../Tabs';
+import { DocsRenderer } from '../../tools/DocsRenderer';
 import { MultimodalHeader } from './MultimodalHeader';
 import { MultimodalChatPanel } from './MultimodalChatPanel';
 import {
@@ -96,8 +97,8 @@ export const MultimodalPage: React.FC = () => {
         label: 'Docs',
         path: '/docs',
         content: (
-          <div className="max-w-none p-4 text-sm font-medium text-gray-500 dark:text-gray-400">
-            Documentation coming in Phase 12.
+          <div className="max-w-none">
+            <DocsRenderer docFile="Multimodal-API.md" initOpen={true} />
           </div>
         ),
       },

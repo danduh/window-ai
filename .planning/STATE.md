@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.2
 milestone_name: Proofreader + Multimodal
 status: verifying
-last_updated: "2026-05-20T10:49:18.662Z"
+last_updated: "2026-05-24T06:58:36.098Z"
 last_activity: 2026-05-20
 progress:
-  total_phases: 5
+  total_phases: 8
   completed_phases: 4
   total_plans: 7
   completed_plans: 7
-  percent: 100
+  percent: 50
 ---
 
 # State: window-ai — v1.2 Proofreader + Multimodal

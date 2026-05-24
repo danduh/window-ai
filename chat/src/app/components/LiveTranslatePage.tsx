@@ -1,4 +1,5 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import {
   isSupported as isLiveTranscriptionSupported,
   start as startLiveTranscription,
@@ -6,6 +7,8 @@ import {
 } from '../services/LiveTranscriptionService';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import ThemeToggle from './ThemeToggle';
+import Tabs from './Tabs';
+import { DocsRenderer } from '../tools/DocsRenderer';
 import AutoScrollFeed from './LiveTranslate/AutoScrollFeed';
 import TranslationPane from './LiveTranslate/TranslationPane';
 
@@ -69,7 +72,12 @@ const newPaneId = () =>
  * driver + the pane configurator.
  */
 const LiveTranslatePage: React.FC = () => {
-  useSEOData(seoConfigs.liveTranslate, '/live-translate');
+  const location = useLocation();
+  const isDocs = location.pathname.startsWith('/live-translate/docs');
+  useSEOData(
+    isDocs ? seoConfigs.liveTranslateDocs : seoConfigs.liveTranslate,
+    isDocs ? '/live-translate/docs' : '/live-translate',
+  );
 
   const supported = isLiveTranscriptionSupported();
 
@@ -185,6 +193,193 @@ const LiveTranslatePage: React.FC = () => {
     setGlobalError(null);
   };
 
+  const demoContent = !supported ? (
+    <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-700 text-amber-900 dark:text-amber-100 p-4">
+      <strong>Live transcription unavailable.</strong> This demo requires Chrome desktop with
+      microphone access. Try a Chromium-based browser on desktop.
+    </div>
+  ) : (
+    <>
+      {/* Section 1 — Source transcript (live captions) */}
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 transition-colors duration-200">
+        <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Source ({SPEECH_LANGUAGES.find((l) => l.code === speechLang)?.name ?? speechLang})
+          </h2>
+          <div className="flex items-center gap-2">
+            <label htmlFor="speechLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              I&apos;ll speak in
+            </label>
+            <select
+              id="speechLang"
+              value={speechLang}
+              onChange={(e) => setSpeechLang(e.target.value)}
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              {SPEECH_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <AutoScrollFeed
+          lines={transcript}
+          inProgress={interimText}
+          placeholder='Click "Start Listening" and speak — your words will appear here.'
+          error={globalError}
+        />
+      </section>
+
+      {/* Section 2 — Translation panes (one per target language) */}
+      <section className="mb-6">
+        <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {targetPanes.length === 0
+              ? 'No translation panes yet — add one to start translating.'
+              : `${targetPanes.length} translation pane${targetPanes.length === 1 ? '' : 's'}`}
+          </p>
+          <div className="flex items-center gap-2">
+            <label htmlFor="addLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+              Add translation in
+            </label>
+            <select
+              id="addLang"
+              value={addLang}
+              onChange={(e) => setAddLang(e.target.value)}
+              className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              {TARGET_LANGUAGES.map((lang) => (
+                <option key={lang.code} value={lang.code}>
+                  {lang.name}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={addPane}
+              className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+            >
+              + Add
+            </button>
+          </div>
+        </div>
+
+        {targetPanes.length > 0 && (
+          <div
+            className="grid gap-4"
+            style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
+          >
+            {targetPanes.map((pane) => (
+              <TranslationPane
+                key={pane.id}
+                id={pane.id}
+                sourceLang={sourceLang}
+                targetLang={pane.lang}
+                targetLabel={langName(pane.lang)}
+                sourceLines={transcript}
+                liveInterim={interimText}
+                previewInterim={mode === 'interim'}
+                onRemove={() => removePane(pane.id)}
+              />
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* Section 3 — Controls */}
+      <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
+        <div className="flex flex-wrap items-center gap-4">
+          {!isListening ? (
+            <button
+              onClick={handleStart}
+              className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+            >
+              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-14 0" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19v3" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 22h8" />
+              </svg>
+              Start Listening
+            </button>
+          ) : (
+            <button
+              onClick={handleStop}
+              className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
+            >
+              <span className="inline-block w-2 h-2 rounded-full bg-red-300 animate-pulse mr-2" />
+              Stop
+            </button>
+          )}
+
+          <fieldset className="flex items-center gap-3 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
+            <legend className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 px-1">
+              Mode
+            </legend>
+            <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                value="final"
+                checked={mode === 'final'}
+                onChange={() => setMode('final')}
+                className="mr-2"
+              />
+              Per finalized sentence
+            </label>
+            <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+              <input
+                type="radio"
+                name="mode"
+                value="interim"
+                checked={mode === 'interim'}
+                onChange={() => setMode('interim')}
+                className="mr-2"
+              />
+              Rolling interim (live preview)
+            </label>
+          </fieldset>
+
+          <button
+            onClick={handleClear}
+            className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
+          >
+            Clear
+          </button>
+        </div>
+      </section>
+    </>
+  );
+
+  // Tabs ordering: Docs FIRST, Demo SECOND.
+  // Tabs.tsx matches currentPath.includes(tab.path) — the demo tab has path ''
+  // which matches everything, so the docs tab (path '/docs') MUST come first so
+  // /live-translate/docs wins over '' before the fallback demo match.
+  const tabs = useMemo(
+    () => [
+      {
+        id: 'docs',
+        label: 'Docs',
+        path: '/docs',
+        content: (
+          <div className="max-w-none">
+            <DocsRenderer docFile="Live-Translate-API.md" initOpen={true} />
+          </div>
+        ),
+      },
+      {
+        id: 'demo',
+        label: 'Demo',
+        path: '',
+        content: demoContent,
+      },
+    ],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [demoContent],
+  );
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-4">
@@ -209,165 +404,7 @@ const LiveTranslatePage: React.FC = () => {
           </div>
         </header>
 
-        {!supported ? (
-          <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-900/30 dark:border-amber-700 text-amber-900 dark:text-amber-100 p-4">
-            <strong>Live transcription unavailable.</strong> This demo requires Chrome desktop with
-            microphone access. Try a Chromium-based browser on desktop.
-          </div>
-        ) : (
-          <>
-            {/* Section 1 — Source transcript (live captions) */}
-            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 mb-6 transition-colors duration-200">
-              <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-                  Source ({SPEECH_LANGUAGES.find((l) => l.code === speechLang)?.name ?? speechLang})
-                </h2>
-                <div className="flex items-center gap-2">
-                  <label htmlFor="speechLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    I'll speak in
-                  </label>
-                  <select
-                    id="speechLang"
-                    value={speechLang}
-                    onChange={(e) => setSpeechLang(e.target.value)}
-                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    {SPEECH_LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              <AutoScrollFeed
-                lines={transcript}
-                inProgress={interimText}
-                placeholder='Click "Start Listening" and speak — your words will appear here.'
-                error={globalError}
-              />
-            </section>
-
-            {/* Section 2 — Translation panes (one per target language) */}
-            <section className="mb-6">
-              <div className="flex items-center justify-between mb-3 gap-3 flex-wrap">
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {targetPanes.length === 0
-                    ? 'No translation panes yet — add one to start translating.'
-                    : `${targetPanes.length} translation pane${targetPanes.length === 1 ? '' : 's'}`}
-                </p>
-                <div className="flex items-center gap-2">
-                  <label htmlFor="addLang" className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Add translation in
-                  </label>
-                  <select
-                    id="addLang"
-                    value={addLang}
-                    onChange={(e) => setAddLang(e.target.value)}
-                    className="p-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    {TARGET_LANGUAGES.map((lang) => (
-                      <option key={lang.code} value={lang.code}>
-                        {lang.name}
-                      </option>
-                    ))}
-                  </select>
-                  <button
-                    type="button"
-                    onClick={addPane}
-                    className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
-                  >
-                    + Add
-                  </button>
-                </div>
-              </div>
-
-              {targetPanes.length > 0 && (
-                <div
-                  className="grid gap-4"
-                  style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}
-                >
-                  {targetPanes.map((pane) => (
-                    <TranslationPane
-                      key={pane.id}
-                      id={pane.id}
-                      sourceLang={sourceLang}
-                      targetLang={pane.lang}
-                      targetLabel={langName(pane.lang)}
-                      sourceLines={transcript}
-                      liveInterim={interimText}
-                      previewInterim={mode === 'interim'}
-                      onRemove={() => removePane(pane.id)}
-                    />
-                  ))}
-                </div>
-              )}
-            </section>
-
-            {/* Section 3 — Controls */}
-            <section className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
-              <div className="flex flex-wrap items-center gap-4">
-                {!isListening ? (
-                  <button
-                    onClick={handleStart}
-                    className="inline-flex items-center bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
-                  >
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 14a3 3 0 003-3V5a3 3 0 10-6 0v6a3 3 0 003 3z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11a7 7 0 01-14 0" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19v3" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 22h8" />
-                    </svg>
-                    Start Listening
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleStop}
-                    className="inline-flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium"
-                  >
-                    <span className="inline-block w-2 h-2 rounded-full bg-red-300 animate-pulse mr-2" />
-                    Stop
-                  </button>
-                )}
-
-                <fieldset className="flex items-center gap-3 border border-gray-200 dark:border-gray-700 rounded-lg px-3 py-2">
-                  <legend className="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 px-1">
-                    Mode
-                  </legend>
-                  <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="mode"
-                      value="final"
-                      checked={mode === 'final'}
-                      onChange={() => setMode('final')}
-                      className="mr-2"
-                    />
-                    Per finalized sentence
-                  </label>
-                  <label className="inline-flex items-center text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="mode"
-                      value="interim"
-                      checked={mode === 'interim'}
-                      onChange={() => setMode('interim')}
-                      className="mr-2"
-                    />
-                    Rolling interim (live preview)
-                  </label>
-                </fieldset>
-
-                <button
-                  onClick={handleClear}
-                  className="bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-                >
-                  Clear
-                </button>
-              </div>
-            </section>
-          </>
-        )}
+        <Tabs basePath="/live-translate" defaultTab="demo" tabs={tabs} />
       </div>
     </div>
   );
