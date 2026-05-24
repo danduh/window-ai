@@ -1,0 +1,59 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-05-24T07:24:47.652Z",
+  "phase": "12",
+  "phase_name": "docs-seo-demo-polish",
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "paused",
+  "context_kind": "ad-hoc-docs-work",
+  "note": "Docs were written outside the GSD phase structure. Phase 12 directory does not exist yet — work was done from conversation context only. Three docs landed (Proofreader, Multimodal, Live-Translate) plus wire-up. No PLAN.md, no SUMMARY.md, no VERIFICATION.md.",
+  "completed_tasks": [
+    {"name": "Write chat/src/app/docs/Proofreader-API.md", "status": "done", "commit": null},
+    {"name": "Write chat/src/app/docs/Multimodal-API.md", "status": "done", "commit": null},
+    {"name": "Write chat/src/app/docs/Live-Translate-API.md", "status": "done", "commit": null},
+    {"name": "Swap ProofreaderPage docs-tab placeholder for <DocsRenderer>", "status": "done", "commit": null},
+    {"name": "Swap MultimodalPage docs-tab placeholder for <DocsRenderer>", "status": "done", "commit": null},
+    {"name": "Refactor LiveTranslatePage into Tabs (Docs first, Demo second) + useLocation-driven SEO", "status": "done", "commit": null},
+    {"name": "Register /live-translate/docs route in AppRouter.tsx", "status": "done", "commit": null},
+    {"name": "Add liveTranslateDocs SEO config to useSEOData.ts", "status": "done", "commit": null},
+    {"name": "Add /live-translate/docs entry to prerender-react.js (byte-identical mirror)", "status": "done", "commit": null},
+    {"name": "Verify typecheck passes (npx nx typecheck chat → exit 0)", "status": "done", "commit": null}
+  ],
+  "remaining_tasks": [
+    {"name": "Visual UAT: nx serve chat, visit /proofreader/docs, /multimodal/docs, /live-translate/docs — confirm DocsRenderer renders each markdown file with the tabs in the right order", "status": "not_started"},
+    {"name": "Run nx build chat to confirm production bundle succeeds (typecheck alone doesn't catch markdown-as-asset bundling regressions)", "status": "not_started"},
+    {"name": "Commit the docs work as a single atomic commit (or split: 3 doc files + wire-up)", "status": "not_started"},
+    {"name": "Decide what to do with the untracked .planning/phases/11-webcam-capture/11-REVIEW-FIX.md (orphan from previous Phase 11 review-fix pass)", "status": "not_started"},
+    {"name": "Refresh ROADMAP.md to mark Phases 8/9 [x] complete and Phase 12 [x] complete (docs portion); update STATE.md header (Phase 09 → Phase 12; progress counters)", "status": "not_started"},
+    {"name": "Decide whether to push the 54+ local commits to origin/main", "status": "not_started"},
+    {"name": "Decide whether the two .pptx files at repo root should be .gitignored or moved", "status": "not_started"}
+  ],
+  "blockers": [],
+  "human_actions_pending": [
+    {"action": "Visual UAT of 3 docs routes in a real browser", "context": "Typecheck verifies compile, not rendering — need to confirm DocsRenderer actually loads and renders each new .md file via the Vite build pipeline", "blocking": false}
+  ],
+  "decisions": [
+    {"decision": "Docs files use pure-JS, framework-agnostic code samples (no React, no TypeScript in body, no project-internal service imports)", "rationale": "User explicit correction. Saved as feedback memory feedback_docs_style.md so future sessions follow the same rule. Existing Translate-API.md / Summary-API.md follow the same pattern."},
+    {"decision": "Live-Translate gets a full Tabs refactor (Docs first, Demo second), matching Proofreader/Multimodal — not a separate /live-translate/docs page", "rationale": "User asked for 'similar of how it done in summary, chat etc.' — those use Tabs with Docs as the default. Tabs.path='' for demo + path='/docs' for docs is the established convention."},
+    {"decision": "SEO entries duplicated byte-identically across useSEOData.ts and prerender-react.js for /live-translate/docs", "rationale": "Project convention — Phase 7 hotfix precedent. Drift between these files broke crawler parity once already."}
+  ],
+  "uncommitted_files": [
+    "chat/src/app/docs/Proofreader-API.md (NEW)",
+    "chat/src/app/docs/Multimodal-API.md (NEW)",
+    "chat/src/app/docs/Live-Translate-API.md (NEW)",
+    "chat/src/app/components/Proofreader/ProofreaderPage.tsx (M)",
+    "chat/src/app/components/Multimodal/MultimodalPage.tsx (M)",
+    "chat/src/app/components/LiveTranslatePage.tsx (M — large refactor: ~190 lines moved into Tabs structure)",
+    "chat/src/app/AppRouter.tsx (M — +1 route)",
+    "chat/src/app/hooks/useSEOData.ts (M — +liveTranslateDocs config)",
+    "chat/scripts/prerender-react.js (M — +/live-translate/docs entry + SEO + structuredData)",
+    ".planning/STATE.md (M — auto-touched by a hook earlier in session; total_phases 5→8, percent 100→50; unclear which command triggered this — may want to revert or reconcile)",
+    ".planning/phases/11-webcam-capture/11-REVIEW-FIX.md (UNTRACKED — pre-existing orphan from Phase 11 review-fix pass)",
+    "Small-LLM-in-your-Browser.pptx, Small-LLM-in-your-Browser-Payoneer.pptx (UNTRACKED — talk slides, likely intentional)"
+  ],
+  "next_action": "Run `npx nx serve chat`, open /proofreader/docs, /multimodal/docs, /live-translate/docs in a browser, confirm each renders its respective markdown file in the Docs tab. Then `git add` the 3 doc files + 6 source edits and commit as a single 'docs(12): write Proofreader / Multimodal / Live-Translate API docs + wire DocsRenderer' commit. Leave the .pptx and 11-REVIEW-FIX.md decisions for a separate pass.",
+  "context_notes": "User said 'everything is tested and works. What left is documentation.' We treated this as Phase 12 docs work but did NOT go through /gsd-plan-phase 12 — no PLAN.md exists. If GSD bookkeeping matters, the proper retroactive move is to create .planning/phases/12-docs-seo-demo-polish/ with a SUMMARY.md describing what was done. v1.2 status: Phases 8, 9, 10, 11 verified complete; Phase 12 docs portion now done (REHEARSAL.md still missing — that was the other Phase 12 success criterion). Memory feedback_docs_style.md was saved this session — future docs work in this repo should preserve framework-agnostic JS style."
+}
