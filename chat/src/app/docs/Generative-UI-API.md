@@ -254,6 +254,6 @@ This makes the carousel interactive without going back through the model: the us
 
 Navigate to [/generative-ui](/generative-ui) and ask the assistant: _"Find me something quick with chicken."_
 
-> **Chrome 146 Canary required.** Enable `chrome://flags/#WebMCP for testing`. Without the flag, the page shows a banner (see `chat/src/app/components/RecipeWorkbench/MissingFlagBanner.tsx`). The carousel demo also requires `navigator.modelContext` — the search and pick flow is native-only, no polyfill.
+> **WebMCP required (Chrome 149+ origin trial, or `chrome://flags/#enable-webmcp-testing` for local dev).** Without it, the page shows a banner (see `chat/src/app/components/MissingFlagBanner.tsx`). The carousel demo resolves the entry point via `getModelContext()` (`document.modelContext ?? navigator.modelContext` — the API moved to `document` in Chrome 150). The search and pick flow is native-only, no polyfill.
 
-**Production readiness.** MCP Apps / SEP-1865 is a working draft, not a standard. The `_meta.ui.resourceUri` shape, the `visibility` annotation, and the JSON-RPC bridge protocol may all change before stabilization. This guide documents the implementation as of Chrome 146 Canary (May 2026). The `window.ai` / `LanguageModel` surface is similarly pre-standard.
+**Production readiness.** MCP Apps / SEP-1865 is a working draft, not a standard. The `_meta.ui.resourceUri` shape, the `visibility` annotation, and the JSON-RPC bridge protocol may all change before stabilization. This guide documents the implementation as of Chrome 150 (July 2026); `navigator.modelContext` is deprecated there in favor of `document.modelContext`. The `window.ai` / `LanguageModel` surface reached stable in Chrome 148.

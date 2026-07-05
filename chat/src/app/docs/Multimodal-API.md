@@ -10,8 +10,8 @@ Multimodal mode is unlocked by passing `expectedInputs: [{ type: 'image' }, { ty
 
 ### Browser Support
 
-- **Chrome 148+** (stable) on desktop with a sufficiently capable GPU. No flag required.
-- **Chrome 146-147 Canary** can run multimodal behind a flag if the stable build is not yet rolled out for your channel.
+- **Chrome 148+** (stable) on desktop with a sufficiently capable GPU. No flag required. (Current stable is Chrome 150, July 2026.)
+- Earlier Canary builds (Chrome 146–147) ran multimodal behind a flag before it stabilized in 148.
 - Image input is **not** supported on iOS, Android, or ChromeOS at the time of writing.
 - Audio input is a separate capability — currently restricted to discrete GPUs.
 

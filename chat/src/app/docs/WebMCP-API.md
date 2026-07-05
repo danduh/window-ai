@@ -1,43 +1,49 @@
 # WebMCP API — Recipe Workbench guide
 
-WebMCP gives a web page a way to expose its in-page actions as discoverable, callable tools to AI agents — both an in-page LanguageModel agent and an external browser-resident agent (e.g. the Chrome 146 Canary Tool Inspector extension). The page calls `navigator.modelContext.registerTool(...)` once per tool it wants to expose; agents see those tools, call them, and the page's handler runs in the user's browser context with the user's session state.
+WebMCP gives a web page a way to expose its in-page actions as discoverable, callable tools to AI agents — both an in-page LanguageModel agent and an external browser-resident agent (e.g. the Chrome WebMCP Tool Inspector extension). The page calls `document.modelContext.registerTool(...)` once per tool it wants to expose; agents see those tools, call them, and the page's handler runs in the user's browser context with the user's session state.
 
 This guide documents WebMCP as of the **W3C Draft Community Group Report dated April 23, 2026**. WebMCP is **not** a W3C Recommendation — the API is moving. See https://webmachinelearning.github.io/webmcp/ for the current spec.
 
-> **Spec history.** Earlier drafts (≤ February 2026) defined `provideContext`, `unregisterTool`, and `clearContext` on the `ModelContext` interface. All three were removed in March 2026; the current IDL exposes a single method, `registerTool`. Unregistration is performed by aborting the `AbortSignal` passed at registration time.
+> **⚠️ Updated for Chrome 150 (July 2026).** Two things changed since this demo was first written against Chrome 146 Canary:
+> 1. **Entry point moved.** `navigator.modelContext` is **deprecated in Chrome 150** and will be removed; the API now lives on **`document.modelContext`** (tools are per-Document). Feature-detect both: `const modelContext = document.modelContext || navigator.modelContext;`. This site centralizes that in `chat/src/app/services/modelContext.ts` (`getModelContext()`).
+> 2. **Status advanced.** WebMCP graduated from a Chrome 146 flag to a **public origin trial in Chrome 149**. It still needs the `enable-webmcp-testing` flag for local dev, or an origin-trial token to run on a deployed origin.
+> See https://developer.chrome.com/docs/ai/webmcp/imperative-api
+
+> **Spec history.** Earlier drafts (≤ February 2026) defined `provideContext`, `unregisterTool`, and `clearContext` on `ModelContext`; they were briefly removed in March 2026, then `unregisterTool(name)` and `clearContext()` returned in the Chrome 150 implementation. The `AbortSignal` unregistration path below works across all of Chrome 146–150 and is what this demo uses.
 
 ## Overview
 
 WebMCP is a browser-mediated alternative to running a local Model Context Protocol (MCP) server: the page itself IS the tool surface. Every tool is registered against the live page, runs with the user's signed-in session and DOM, and disappears when the page navigates away.
 
-The shipped surface (Chrome 146+ Canary) is small:
+The shipped surface is small:
 
-- One global: `navigator.modelContext` (a `ModelContext` instance, available in secure contexts).
-- One method: `registerTool(tool, options?)`.
+- One entry point: `document.modelContext` (a `ModelContext` instance, available in secure contexts; `navigator.modelContext` on Chrome 146–149).
+- Core method: `registerTool(tool, options?)`.
 - One descriptor shape: `{ name, description, inputSchema, execute, annotations? }`.
 
-That's it. Tools are unregistered by aborting the `AbortSignal` passed at registration time — the current IDL exposes only one method, full stop. The history note above explains what was there in earlier drafts.
+Tools are unregistered by aborting the `AbortSignal` passed at registration time (Chrome 150 also adds `unregisterTool(name)` and `clearContext()`). This demo uses the AbortSignal path because it works across every version that ships WebMCP.
 
 The page is the trust boundary. Anything the page's JavaScript can do — read IndexedDB, mutate DOM, hit a same-origin API with the user's cookies — a registered tool can do, because the tool's `execute` runs in the page's context. That's the whole value proposition: agents get to drive the page the user is already signed into, without any separate auth handshake.
 
 ## Browser Support
 
-WebMCP is available behind a flag in:
+WebMCP is available in:
 
-- **Chrome 146+ Canary** — enable `chrome://flags/#WebMCP for testing` and set it to "For testing".
+- **Chrome 149+** — public **origin trial** (register your origin for a token), or enable `chrome://flags/#enable-webmcp-testing` for local dev.
+- **Chrome 146–148 Canary** — behind the flag only (`chrome://flags/#WebMCP for testing`, set to "For testing").
 - **Microsoft Edge 147+** (added March 2026).
 
-Other browsers do not implement `navigator.modelContext` as of April 2026. On those browsers, the Recipe Workbench page in this site shows a yellow banner (see `chat/src/app/components/RecipeWorkbench/MissingFlagBanner.tsx`) explaining how to enable the flag; the recipe browser itself stays usable for read-only browsing.
+Other browsers do not implement WebMCP. On those, the Recipe Workbench page in this site shows a yellow banner (see `chat/src/app/components/MissingFlagBanner.tsx`) explaining how to enable it; the recipe browser itself stays usable for read-only browsing.
 
-The page checks `'modelContext' in navigator` at mount time and falls back to the banner if absent. Tools registered against an undefined `navigator.modelContext` would throw, so the registration effect is guarded with the same check.
+The page resolves the entry point via `getModelContext()` (`document.modelContext ?? navigator.modelContext`) at mount time and falls back to the banner if absent. Registering against an undefined `modelContext` would throw, so the registration effect is guarded with the same check.
 
 **Production readiness.** WebMCP is a Draft Community Group Report — not a W3C standard, not a stable API. The shape is expected to change before stabilization (targeted mid-to-late 2026). Don't ship to production yet.
 
 ## API Surface
 
-The current IDL exposes exactly one method on `ModelContext`:
+The core method used by this demo is `registerTool` on `ModelContext`:
 
-### `navigator.modelContext.registerTool(tool, options?)`
+### `document.modelContext.registerTool(tool, options?)`
 
 Registers a tool descriptor. The page becomes the handler — when an agent calls the tool, the descriptor's `execute` function runs in the page's JavaScript context.
 
@@ -48,7 +54,7 @@ Registers a tool descriptor. The page becomes the handler — when an agent call
 
 **Returns:** `void`. Throws if a tool with the same `name` is already registered (Chrome 146 Canary surfaces this as a `DOMException` whose message contains "duplicate tool name" or "already registered").
 
-**Lifetime.** A registered tool stays available until either (a) the page navigates away, or (b) the `AbortSignal` passed via `options.signal` aborts. There is no separate unregistration method on the IDL — abort the signal instead. In a React component, this maps cleanly onto a `useEffect` cleanup that calls `controller.abort()`.
+**Lifetime.** A registered tool stays available until either (a) the page navigates away, or (b) the `AbortSignal` passed via `options.signal` aborts. Chrome 150 also adds `unregisterTool(name)`, but aborting the signal is the portable path and deregisters the whole set in one shot. In a React component, this maps cleanly onto a `useEffect` cleanup that calls `controller.abort()`.
 
 ### Descriptor shape
 
@@ -103,12 +109,12 @@ Use plain JSON Schema types (`string`, `number`, `integer`, `boolean`, `array`, 
 
 Single mount-time registration is the simplest case (see Sample 1 below). For pages that register multiple tools, loop the array (Sample 2). Prefer one shared `AbortController` across all the tools registered by a single component — that way, the component's cleanup callback aborts every registration in one call. The full mounted pattern looks like the one in Sample 2; both consumers there share a single `controller`.
 
-A registration call against an undefined `navigator.modelContext` (browser without the flag) throws synchronously. Always feature-detect with `'modelContext' in navigator` before calling, or wrap the loop in a try/catch and surface a fallback UI on failure.
+A registration call against an undefined `modelContext` (browser without the flag) throws synchronously. Always feature-detect first — resolve `document.modelContext ?? navigator.modelContext` (see `getModelContext()`) and bail if it's undefined — or wrap the loop in a try/catch and surface a fallback UI on failure.
 
 ### Lifecycle, in summary
 
 1. **Mount** — page loads; React effect (or `DOMContentLoaded` handler) creates an `AbortController` and calls `registerTool` once per tool.
-2. **Visibility** — agents (in-page or external) discover tools by reading from `navigator.modelContext`; Chrome's Tool Inspector extension surfaces them in DevTools.
+2. **Visibility** — agents (in-page or external) discover tools via `document.modelContext` (or `navigator.modelContext` on Chrome 146–149); Chrome's Tool Inspector extension surfaces them in DevTools.
 3. **Invocation** — agent calls a tool by name with a JSON-Schema-shaped input; the browser routes the call to the registered descriptor's `execute`.
 4. **Result** — `execute` resolves; the browser serializes the resolved value back to the agent. Errors thrown inside `execute` reject the call.
 5. **Unmount** — page navigates away (implicit), or the component's cleanup calls `controller.abort()` (explicit). All registrations under that controller are torn down atomically.
@@ -130,18 +136,19 @@ Pages without the extension can still spot-check via the DevTools console: in Ch
 A few error shapes worth handling explicitly:
 
 - **`DOMException` on duplicate names.** Re-registering a tool with the same `name` (without first aborting the prior registration) throws synchronously. In a React effect, this typically means StrictMode is double-invoking your effect — abort the previous controller in the cleanup function.
-- **`TypeError: Cannot read properties of undefined`.** The page is running outside a Secure Context (e.g. `http://`) or the user has not enabled the flag. Feature-detect via `'modelContext' in navigator` before calling.
+- **`TypeError: Cannot read properties of undefined`.** The page is running outside a Secure Context (e.g. `http://`) or the user has not enabled the flag. Feature-detect via `document.modelContext ?? navigator.modelContext` (`getModelContext()`) before calling.
 - **Handler exceptions.** Anything thrown inside `execute` is propagated to the agent as a tool-call error. Wrap risky operations in try/catch and return a structured error shape (`{ ok: false, error: string }`) if you want the agent to recover gracefully rather than abort the conversation.
 
 The browser does not surface tool-call telemetry to the page. If you need an audit trail (which tools were called, with what input, with what result), instrument it inside `execute` — log to your own backend or to a same-origin analytics endpoint.
 
 ## Code Sample 1: Single-Tool Registration
 
-A single tool exposed via `navigator.modelContext.registerTool`. The descriptor below is a pruned version of the real `scaleRecipe` entry from `chat/src/app/services/recipeTools.ts` — same name, same description, same JSON Schema shape, with the handler inlined for self-contained reading.
+A single tool exposed via `document.modelContext.registerTool`. The descriptor below is a pruned version of the real `scaleRecipe` entry from `chat/src/app/services/recipeTools.ts` — same name, same description, same JSON Schema shape, with the handler inlined for self-contained reading.
 
 ```typescript
-import type { Recipe } from '../models/recipe';
-import { getRecipe, saveRecipe, getActiveRecipeId } from '../services/recipeStore';
+import type { Recipe } from '../services/RecipePersistence';
+import { getRecipe, saveRecipe } from '../services/RecipePersistence';
+import { getActiveRecipeId } from '../services/recipeStore';
 
 const scaleRecipe: ModelContextTool = {
   name: 'scaleRecipe',
@@ -171,9 +178,10 @@ const scaleRecipe: ModelContextTool = {
 };
 
 // Mount-time registration. Pass an AbortSignal — when aborted, the tool is
-// torn down. The current IDL has no separate teardown method.
+// torn down. Resolve the entry point (Chrome 150 moved it to document).
+const modelContext = document.modelContext ?? navigator.modelContext;
 const controller = new AbortController();
-navigator.modelContext.registerTool(scaleRecipe, { signal: controller.signal });
+modelContext.registerTool(scaleRecipe, { signal: controller.signal });
 
 // Later (e.g. in a React effect cleanup):
 controller.abort();  // tool is now gone
@@ -208,17 +216,18 @@ The agent picks this tool when its planner concludes a serving-count adjustment 
 
 ## Code Sample 2: One Definition, Two Consumers
 
-This is the WebMCP value proposition in code: **a single tool definition feeds both an external agent (via `navigator.modelContext`) and an in-page agent (via `LanguageModel`).** Add a tool once, both consumers gain it.
+This is the WebMCP value proposition in code: **a single tool definition feeds both an external agent (via `document.modelContext`) and an in-page agent (via `LanguageModel`).** Add a tool once, both consumers gain it.
 
 ```typescript
 import { RECIPE_TOOLS } from '../services/recipeTools';
 
 // Consumer 1: external Chrome agent (Tool Inspector extension, an OS-level
 // agent reaching the page via WebMCP, etc.). Tools are discoverable via
-// navigator.modelContext on the live page.
+// document.modelContext on the live page (navigator.modelContext on 146–149).
+const modelContext = document.modelContext ?? navigator.modelContext;
 const controller = new AbortController();
 for (const tool of RECIPE_TOOLS) {
-  navigator.modelContext.registerTool(tool, { signal: controller.signal });
+  modelContext.registerTool(tool, { signal: controller.signal });
 }
 
 // Consumer 2: the in-page LanguageModel chat agent. Same RECIPE_TOOLS array,
@@ -245,7 +254,7 @@ const session = await LanguageModel.create({
 // the external Tool Inspector and the in-page chat gain it for free.
 ```
 
-> **In this demo specifically.** The Recipe Workbench's in-page agent (`chat/src/app/components/RecipeWorkbench/AgentDrawer.tsx`) currently uses a `responseFormat`-driven JSON dispatch loop instead of `LanguageModel.create({ tools })`, because Chrome 147 Canary's `LanguageModel` tool-calling codepath was unreliable at the time of writing. The same `RECIPE_TOOLS` array still drives both surfaces — only the in-page invocation transport differs. Once the upstream codepath stabilizes, the dispatch loop will be replaced by the `lmTools` shape shown above. A reusable adapter exists at `chat/src/app/services/toolAdapter.ts` (export name `toLanguageModelTools`, plural) for exactly this purpose.
+> **In this demo specifically.** The Recipe Workbench's in-page agent (`chat/src/app/components/RecipeWorkbench/AgentDrawer.tsx`) uses a `responseFormat`-driven JSON dispatch loop instead of `LanguageModel.create({ tools })`, because Chrome 147 Canary's `LanguageModel` tool-calling codepath was unreliable at the time of writing. The Prompt API's `tools` parameter is documented and functional as of the Chrome 148 stable release, so this workaround is no longer strictly required — but it still works, and swapping it is optional. The same `RECIPE_TOOLS` array drives both surfaces — only the in-page invocation transport differs. A reusable adapter exists at `chat/src/app/services/toolAdapter.ts` (export name `toLanguageModelTools`, plural) for the `tools`-based path.
 
 ### Why hand-roll the adapter?
 
@@ -302,6 +311,6 @@ The realistic risk is a malicious page convincing the user to install or trust a
 
 - W3C WebMCP Draft Community Group Report — https://webmachinelearning.github.io/webmcp/ (snapshot: April 23, 2026)
 - WebMCP repository — https://github.com/webmachinelearning/webmcp
-- Chrome flag — `chrome://flags/#WebMCP for testing` (Chrome 146+ Canary)
-- In-app fallback — `chat/src/app/components/RecipeWorkbench/MissingFlagBanner.tsx`
+- Chrome flag — `chrome://flags/#enable-webmcp-testing` (Chrome 149+ origin trial; older Canary 146–148 used `#WebMCP for testing`)
+- In-app fallback — `chat/src/app/components/MissingFlagBanner.tsx`
 - Tool source of truth — `chat/src/app/services/recipeTools.ts` (the `RECIPE_TOOLS` array driving Sample 2)

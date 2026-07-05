@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "map",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "map"],
+      "port": 4200
+    },
+    {
+      "name": "chat",
+      "runtimeExecutable": "npx",
+      "runtimeArgs": ["nx", "serve", "chat"],
+      "port": 4300
+    }
+  ]
+}

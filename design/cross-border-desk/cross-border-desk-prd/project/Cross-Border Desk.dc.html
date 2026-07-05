@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="_ds/payoneer-marketing-design-system-9a2c09a2-cfb2-42cc-a86c-851fe922c991/colors_and_type.css">
+  <script src="_ds/payoneer-marketing-design-system-9a2c09a2-cfb2-42cc-a86c-851fe922c991/_ds_bundle.js"></script>
+  <style>
+    html, body { height: 100%; margin: 0; }
+    @keyframes cbd-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+  </style>
+</helmet>
+
+<div data-screen-label="Cross-Border Desk" style="height:100vh; display:flex; flex-direction:column; background:#F1F2F7; font-family:var(--font-family-base); color:#1E1E28; overflow:hidden;">
+
+  <!-- ============ Header ============ -->
+  <header style="display:flex; align-items:center; gap:16px; padding:0 24px; height:60px; background:#FFFFFF; border-bottom:1px solid #E9E9E9; flex:none;">
+    <img src="assets/logos/Payoneer_Master_Logo_OnWhite_RGB.png" alt="Payoneer" style="height:22px; display:block;">
+    <div style="width:1px; height:24px; background:#E9E9E9;"></div>
+    <div style="font-size:16px; font-weight:600; letter-spacing:-0.01em;">Cross-Border Desk</div>
+    <div style="font-size:12px; font-weight:600; color:#4B4B53; background:#F1F2F7; border-radius:999px; padding:4px 12px;">On-device · Chrome built-in AI</div>
+    <div style="flex:1;"></div>
+    <div style="font-size:12px; font-weight:600; color:#78787E; border:1px solid #E9E9E9; border-radius:999px; padding:4px 12px;">Tier 3 · mock brain</div>
+    <button onClick="{{ toggleNet }}" style="display:flex; align-items:center; gap:8px; border:none; cursor:pointer; font-family:inherit; font-size:13px; font-weight:600; border-radius:999px; padding:7px 16px; background:{{ netBg }}; color:#FFFFFF; transition:background 160ms;">
+      <span style="width:8px; height:8px; border-radius:50%; background:{{ netDot }}; display:inline-block;"></span>
+      {{ netLabel }}
+    </button>
+  </header>
+
+  <!-- ============ Main ============ -->
+  <div style="flex:1; display:flex; min-height:0;">
+
+    <!-- Chat column -->
+    <section data-screen-label="Chat" style="flex:1; display:flex; flex-direction:column; min-width:0; background:#FFFFFF; border-right:1px solid #E9E9E9;">
+      <div ref="{{ setScroller }}" style="flex:1; overflow-y:auto; padding:28px 32px;">
+        <div style="max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:14px;">
+
+          <sc-for list="{{ msgs }}" as="m" hint-placeholder-count="2">
+            <div style="display:flex; flex-direction:column;">
+
+              <sc-if value="{{ m.u }}" hint-placeholder-val="{{ false }}">
+                <div style="align-self:flex-end; max-width:72%; display:flex; flex-direction:column; align-items:flex-end; gap:8px;">
+                  <sc-if value="{{ m.att }}" hint-placeholder-val="{{ false }}">
+                    <div style="background:#FFFFFF; border:1px solid #D9D9D9; border-radius:12px; padding:12px 14px; width:220px; box-shadow:var(--shadow-card-soft);">
+                      <div style="font-size:12px; font-weight:600; margin-bottom:6px;">請求書</div>
+                      <div style="font-size:10px; color:#4B4B53; margin-bottom:8px;">佐藤デザイン事務所 · INV-2026-0614</div>
+                      <div style="display:flex; flex-direction:column; gap:3px; font-size:9px; color:#78787E;">
+                        <div style="display:flex; justify-content:space-between;"><span>LPデザイン一式</span><span>¥260,000</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>バナー制作 8点</span><span>¥96,000</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>修正対応（2ラウンド）</span><span>¥80,000</span></div>
+                        <div style="display:flex; justify-content:space-between;"><span>消費税 10%</span><span>¥43,600</span></div>
+                      </div>
+                      <div style="display:flex; justify-content:space-between; border-top:1px solid #E9E9E9; margin-top:6px; padding-top:5px; font-size:10px; font-weight:600;"><span>合計</span><span>¥479,600</span></div>
+                      <div style="font-size:10px; color:#A5A5A9; margin-top:8px;">invoice_2026-0614.png</div>
+                    </div>
+                  </sc-if>
+                  <div style="background:#1E1E28; color:#FFFFFF; border-radius:14px 14px 4px 14px; padding:10px 16px; font-size:15px; line-height:1.45;">{{ m.text }}</div>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ m.a }}" hint-placeholder-val="{{ false }}">
+                <div style="align-self:flex-start; max-width:78%; background:#F1F2F7; border-radius:14px 14px 14px 4px; padding:11px 16px; font-size:15px; line-height:1.5;">{{ m.text }}</div>
+              </sc-if>
+
+              <sc-if value="{{ m.s }}" hint-placeholder-val="{{ false }}">
+                <div style="align-self:center; font-size:12px; font-weight:600; color:#78787E; background:#F1F2F7; border-radius:999px; padding:4px 14px;">{{ m.text }}</div>
+              </sc-if>
+
+              <sc-if value="{{ m.t }}" hint-placeholder-val="{{ false }}">
+                <div style="align-self:flex-start; width:100%; max-width:480px; border:1px solid #E9E9E9; border-radius:10px; padding:10px 14px; display:flex; flex-direction:column; gap:4px;">
+                  <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="width:8px; height:8px; border-radius:50%; flex:none; background:{{ m.dotBg }}; animation:{{ m.dotAnim }};"></span>
+                    <span style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; font-weight:600;">{{ m.tool }}</span>
+                    <span style="font-size:12px; color:#78787E;">{{ m.api }}</span>
+                    <span style="flex:1;"></span>
+                    <span style="font-size:11px; font-weight:600; border-radius:999px; padding:2px 10px; background:{{ m.pillBg }}; color:{{ m.pillFg }};">{{ m.pill }}</span>
+                  </div>
+                  <sc-if value="{{ m.result }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12px; color:{{ m.resultFg }}; padding-left:18px;">{{ m.result }}</div>
+                  </sc-if>
+                </div>
+              </sc-if>
+
+              <sc-if value="{{ m.p }}" hint-placeholder-val="{{ false }}">
+                <div style="align-self:flex-start; width:100%; max-width:480px; background:#1E1E28; color:#FFFFFF; border-radius:14px; padding:18px 20px;">
+                  <div style="font-size:12px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:#C1B1FF; margin-bottom:12px;">What crossed the network</div>
+                  <div style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:13px; display:flex; flex-direction:column; gap:6px;">
+                    <div style="display:flex; gap:12px;"><span style="color:rgba(255,255,255,0.55); width:150px; flex:none;">recipient_token</span><span>rcp_7f3a…9c21</span></div>
+                    <div style="display:flex; gap:12px;"><span style="color:rgba(255,255,255,0.55); width:150px; flex:none;">amount</span><span>479600</span></div>
+                    <div style="display:flex; gap:12px;"><span style="color:rgba(255,255,255,0.55); width:150px; flex:none;">currency</span><span>JPY</span></div>
+                    <div style="display:flex; gap:12px;"><span style="color:rgba(255,255,255,0.55); width:150px; flex:none;">idempotency_key</span><span>idk_9f2e41ac-07c2</span></div>
+                  </div>
+                  <div style="border-top:1px solid #4B4B53; margin-top:14px; padding-top:12px; font-size:13px; color:rgba(255,255,255,0.7); line-height:1.5;">Never left the device: the invoice image, vendor name, bank details, line items, and every draft.</div>
+                </div>
+              </sc-if>
+
+            </div>
+          </sc-for>
+
+          <sc-if value="{{ busy }}" hint-placeholder-val="{{ false }}">
+            <div style="align-self:flex-start; display:flex; gap:5px; padding:12px 16px;">
+              <span style="width:7px; height:7px; border-radius:50%; background:#A5A5A9; animation:cbd-pulse 1s infinite;"></span>
+              <span style="width:7px; height:7px; border-radius:50%; background:#A5A5A9; animation:cbd-pulse 1s 0.2s infinite;"></span>
+              <span style="width:7px; height:7px; border-radius:50%; background:#A5A5A9; animation:cbd-pulse 1s 0.4s infinite;"></span>
+            </div>
+          </sc-if>
+
+        </div>
+      </div>
+
+      <!-- Composer -->
+      <div style="border-top:1px solid #E9E9E9; padding:14px 32px; flex:none;">
+        <div style="max-width:680px; margin:0 auto; display:flex; flex-direction:column; gap:8px;">
+          <sc-if value="{{ pendingAttach }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex; align-items:center; gap:8px; align-self:flex-start; font-size:12px; font-weight:600; color:#1E1E28; background:#D5CBFF; border-radius:999px; padding:4px 6px 4px 12px;">
+              invoice_2026-0614.png
+              <button onClick="{{ clearAttach }}" style="border:none; background:rgba(30,30,40,0.12); color:#1E1E28; width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:11px; line-height:1; padding:0;">×</button>
+            </div>
+          </sc-if>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <button onClick="{{ attachSample }}" title="Attach the sample invoice" style="width:40px; height:40px; flex:none; border-radius:50%; border:1px solid #D9D9D9; background:#FFFFFF; cursor:pointer; display:flex; align-items:center; justify-content:center; color:#1E1E28;" style-hover="background:#F1F2F7;">
+              <img src="assets/icons/bill-yen.svg" alt="Attach invoice" style="width:20px; height:20px;">
+            </button>
+            <input value="{{ draft }}" onChange="{{ onDraft }}" onKeyDown="{{ onKey }}" placeholder="Message Cross-Border Desk…" style="flex:1; height:44px; border:1px solid #D9D9D9; border-radius:8px; padding:0 16px; font-family:inherit; font-size:15px; color:#1E1E28; outline:none; background:#FFFFFF;" style-focus="border-color:#0033FF;">
+            <button onClick="{{ sendClick }}" style="height:44px; padding:0 22px; border:none; border-radius:6px; background:#0033FF; color:#FFFFFF; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:background 160ms;" style-hover="background:#001AE5;">Send</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Side rail -->
+    <sc-if value="{{ showRail }}" hint-placeholder-val="{{ true }}">
+      <aside data-screen-label="Work panels" style="width:380px; flex:none; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:14px;">
+
+        <sc-if value="{{ railEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="border:1.5px dashed #D9D9D9; border-radius:20px; padding:28px 22px; text-align:center; color:#78787E; font-size:14px; line-height:1.5;">
+            Invoice, gist, reply and payout cards build here as tools run — all on this device.
+          </div>
+        </sc-if>
+
+        <!-- Invoice card -->
+        <sc-if value="{{ invoice }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF; border-radius:20px; box-shadow:var(--shadow-card-soft); padding:20px;">
+            <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+              <span style="width:40px; height:40px; flex:none; border-radius:50%; background:#C1B1FF; color:#1E1E28; display:flex; align-items:center; justify-content:center;"><img src="assets/icons/bill-yen.svg" alt="" style="width:22px; height:22px;"></span>
+              <div style="min-width:0;">
+                <div style="font-size:15px; font-weight:600; letter-spacing:-0.01em;">{{ vendorName }}</div>
+                <div style="font-size:12px; color:#78787E;">INV-2026-0614 · due July 14, 2026</div>
+              </div>
+              <span style="flex:1;"></span>
+              <sc-if value="{{ detected }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:11px; font-weight:600; background:#E5E9F1; color:#002373; border-radius:999px; padding:3px 10px; flex:none;">JA · 98%</span>
+              </sc-if>
+            </div>
+            <sc-if value="{{ translated }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex; gap:6px; margin-bottom:12px;">
+                <button onClick="{{ showJa }}" style="font-family:inherit; font-size:12px; font-weight:600; border-radius:999px; padding:4px 14px; cursor:pointer; border:1px solid {{ jaBorder }}; background:{{ jaBg }}; color:{{ jaFg }};">原文</button>
+                <button onClick="{{ showEnFn }}" style="font-family:inherit; font-size:12px; font-weight:600; border-radius:999px; padding:4px 14px; cursor:pointer; border:1px solid {{ enBorder }}; background:{{ enBg }}; color:{{ enFg }};">English</button>
+              </div>
+            </sc-if>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <sc-for list="{{ items }}" as="it" hint-placeholder-count="4">
+                <div style="display:flex; justify-content:space-between; gap:12px; font-size:14px;">
+                  <span style="color:#4B4B53;">{{ it.desc }}</span>
+                  <span style="font-weight:500; flex:none;">{{ it.amt }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:baseline; border-top:1px solid #E9E9E9; margin-top:12px; padding-top:12px;">
+              <span style="font-size:14px; font-weight:600;">{{ totalLabel }}</span>
+              <span style="text-align:right;">
+                <span style="display:block; font-size:20px; font-weight:600; letter-spacing:-0.01em;">¥479,600</span>
+                <span style="display:block; font-size:12px; color:#78787E;">≈ $2,973.71 USD · 1 USD = 161.28 JPY</span>
+              </span>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Gist card -->
+        <sc-if value="{{ summary }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF; border-radius:20px; box-shadow:var(--shadow-card-soft); padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+              <span style="font-size:15px; font-weight:600;">The gist</span>
+              <span style="flex:1;"></span>
+              <span style="font-size:11px; font-weight:600; color:#78787E;">Summarizer</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:9px;">
+              <sc-for list="{{ summary }}" as="pt" hint-placeholder-count="4">
+                <div style="display:flex; gap:10px; font-size:14px; line-height:1.45;">
+                  <span style="width:5px; height:5px; border-radius:50%; background:#977DFF; flex:none; margin-top:7px;"></span>
+                  <span style="color:#1E1E28;">{{ pt }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <!-- Reply card -->
+        <sc-if value="{{ hasReplies }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF; border-radius:20px; box-shadow:var(--shadow-card-soft); padding:20px;">
+            <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+              <span style="font-size:15px; font-weight:600;">Reply</span>
+              <span style="flex:1;"></span>
+              <span style="font-size:11px; font-weight:600; color:#78787E;">Writer · Rewriter · Proofreader</span>
+            </div>
+            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
+              <sc-for list="{{ replyTabs }}" as="rt" hint-placeholder-count="1">
+                <button onClick="{{ rt.go }}" style="font-family:inherit; font-size:12px; font-weight:600; border-radius:999px; padding:4px 13px; cursor:pointer; border:1px solid {{ rt.border }}; background:{{ rt.bg }}; color:{{ rt.fg }};">{{ rt.label }}</button>
+              </sc-for>
+            </div>
+            <div style="white-space:pre-wrap; font-size:14px; line-height:1.55; color:#1E1E28; background:#F1F2F7; border-radius:12px; padding:14px 16px;">{{ replyText }}</div>
+          </div>
+        </sc-if>
+
+        <!-- Payout card -->
+        <sc-if value="{{ payout }}" hint-placeholder-val="{{ false }}">
+          <div style="background:#FFFFFF; border-radius:20px; box-shadow:var(--shadow-card-soft); padding:20px;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:14px;">
+              <span style="width:40px; height:40px; flex:none; border-radius:50%; background:{{ payoutHalo }}; color:#1E1E28; display:flex; align-items:center; justify-content:center;"><img src="assets/icons/secure-payment.svg" alt="" style="width:22px; height:22px;"></span>
+              <span style="font-size:15px; font-weight:600;">Payout instruction</span>
+              <span style="flex:1;"></span>
+              <span style="font-size:11px; font-weight:600; border-radius:999px; padding:3px 10px; flex:none; background:{{ payoutPillBg }}; color:{{ payoutPillFg }};">{{ payoutPill }}</span>
+            </div>
+            <div style="font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; display:flex; flex-direction:column; gap:6px;">
+              <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">amount</span><span>479600 JPY</span></div>
+              <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">recipient_token</span><span>rcp_7f3a…9c21</span></div>
+              <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">idempotency_key</span><span>idk_9f2e41ac-07c2</span></div>
+              <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">signature</span><span>sha256:7b3c19…e91f</span></div>
+            </div>
+            <div style="font-size:12px; color:#78787E; line-height:1.5; border-top:1px solid #E9E9E9; margin-top:12px; padding-top:10px;">{{ payoutNote }}</div>
+          </div>
+        </sc-if>
+
+      </aside>
+    </sc-if>
+  </div>
+
+  <!-- ============ Presenter rail ============ -->
+  <sc-if value="{{ showBeats }}" hint-placeholder-val="{{ true }}">
+    <footer data-screen-label="Presenter rail" style="flex:none; background:#1E1E28; color:#FFFFFF; display:flex; align-items:center; gap:10px; padding:10px 24px; overflow-x:auto;">
+      <span style="font-size:11px; font-weight:600; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.55); flex:none;">Demo script</span>
+      <sc-for list="{{ beats }}" as="bt" hint-placeholder-count="5">
+        <button onClick="{{ bt.go }}" style="display:flex; align-items:center; gap:8px; flex:none; font-family:inherit; font-size:13px; font-weight:500; cursor:pointer; border-radius:999px; padding:6px 14px 6px 6px; border:1px solid {{ bt.border }}; background:{{ bt.bg }}; color:#FFFFFF; transition:background 160ms;" style-hover="background:#35353E;">
+          <span style="width:22px; height:22px; flex:none; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; background:{{ bt.numBg }}; color:{{ bt.numFg }};">{{ bt.num }}</span>
+          {{ bt.label }}
+        </button>
+      </sc-for>
+      <span style="flex:1;"></span>
+      <button onClick="{{ reset }}" style="flex:none; font-family:inherit; font-size:12px; font-weight:600; color:rgba(255,255,255,0.7); background:none; border:1px solid #4B4B53; border-radius:999px; padding:5px 14px; cursor:pointer;" style-hover="color:#FFFFFF;">Reset</button>
+    </footer>
+  </sc-if>
+
+  <!-- ============ Confirm dialog ============ -->
+  <sc-if value="{{ confirm }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed; inset:0; background:rgba(30,30,40,0.45); display:flex; align-items:center; justify-content:center; z-index:50;">
+      <div style="background:#FFFFFF; border-radius:20px; box-shadow:var(--shadow-card-soft); width:440px; max-width:90vw; padding:28px;">
+        <div style="font-size:20px; font-weight:600; letter-spacing:-0.01em; margin-bottom:6px;">{{ confirmTitle }}</div>
+        <div style="font-size:14px; color:#4B4B53; line-height:1.5; margin-bottom:18px;">{{ confirmBody }}</div>
+        <div style="background:#F1F2F7; border-radius:12px; padding:14px 16px; margin-bottom:18px; font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">amount</span><span>479600 JPY · ≈ $2,973.71</span></div>
+          <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">recipient_token</span><span>rcp_7f3a…9c21</span></div>
+          <div style="display:flex; gap:10px;"><span style="color:#78787E; width:128px; flex:none;">idempotency_key</span><span>idk_9f2e41ac-07c2</span></div>
+        </div>
+        <div style="display:flex; gap:10px; justify-content:flex-end;">
+          <button onClick="{{ confirmCancel }}" style="height:40px; padding:0 20px; border:1px solid #D9D9D9; border-radius:6px; background:#FFFFFF; color:#1E1E28; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer;" style-hover="background:#F1F2F7;">Cancel</button>
+          <button onClick="{{ confirmOk }}" style="height:40px; padding:0 22px; border:none; border-radius:6px; background:#0033FF; color:#FFFFFF; font-family:inherit; font-size:14px; font-weight:600; cursor:pointer; transition:background 160ms;" style-hover="background:#001AE5;">{{ confirmCta }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{
+  &quot;layout&quot;: { &quot;editor&quot;: &quot;enum&quot;, &quot;options&quot;: [&quot;panels&quot;, &quot;chat&quot;], &quot;default&quot;: &quot;panels&quot;, &quot;tsType&quot;: &quot;string&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;presenterRail&quot;: { &quot;editor&quot;: &quot;boolean&quot;, &quot;default&quot;: true, &quot;tsType&quot;: &quot;boolean&quot;, &quot;section&quot;: &quot;Layout&quot; },
+  &quot;speed&quot;: { &quot;editor&quot;: &quot;range&quot;, &quot;default&quot;: 1, &quot;min&quot;: 0.5, &quot;max&quot;: 3, &quot;step&quot;: 0.5, &quot;unit&quot;: &quot;×&quot;, &quot;tsType&quot;: &quot;number&quot;, &quot;section&quot;: &quot;Demo&quot; }
+}">
+class Component extends DCLogic {
+  state = {
+    online: false, busy: false, draft: "", pendingAttach: false,
+    messages: [{ k: "a", text: "Offline and ready. Drop an invoice — I'll read it, translate it, draft the reply, and stage the payout, all on this device." }],
+    invoice: null, detected: false, translated: false, showEn: true,
+    summary: null, replies: [], replyIx: 0, payout: null, settled: false,
+    confirm: null, doneBeats: {},
+  };
+
+  componentDidMount() {
+    import(new URL("./brain.js", document.baseURI).href).then((b) => { this.b = b; this.forceUpdate(); });
+  }
+
+  componentDidUpdate() {
+    if (this._scroller) this._scroller.scrollTop = this._scroller.scrollHeight;
+  }
+
+  push(m) { this.setState((s) => ({ messages: [...s.messages, m] })); }
+  patchMsg(id, patch) {
+    this.setState((s) => ({ messages: s.messages.map((m) => (m.id === id ? { ...m, ...patch } : m)) }));
+  }
+  delay(ms) {
+    const f = Number(this.props.speed ?? 1) || 1;
+    return new Promise((r) => setTimeout(r, ms / f));
+  }
+
+  setNet(on) {
+    if (this.state.online === on) return;
+    this.setState({ online: on });
+    this.push({ k: "s", text: on ? "Network on — one beat, settlement only" : "Network off — airplane mode" });
+  }
+
+  send(text, opts = {}) {
+    const b = this.b;
+    if (!b || this.state.busy || this.state.confirm) return;
+    const att = opts.attach || this.state.pendingAttach;
+    this.push({ k: "u", text, att });
+    this.setState({ pendingAttach: false, draft: "" });
+    if (att) this._attached = true;
+
+    const route = b.ROUTES.find((r) => r.test.test(text));
+    const say = (t) => setTimeout(() => this.push({ k: "a", text: t }), 350);
+    if (!route) { say(b.FALLBACK); return; }
+    if (route.needsAttach && !this._attached && !this.state.invoice) { say(b.NEEDS_INVOICE); return; }
+    if (route.needs === "invoice" && !this.state.invoice) { say(b.NEEDS_INVOICE); return; }
+    if (route.needs === "payout" && !this.state.payout) { say(b.NEEDS_PAYOUT); return; }
+
+    if (route.id === "settle" && !this.state.online) {
+      this.push({ k: "t", id: ++Component._id, tool: "settle_payout", api: b.TOOLS.settle_payout.api, phase: "online", status: "error", result: "blocked · network unavailable" });
+      say(b.OFFLINE_BLOCK);
+      return;
+    }
+
+    if (b.TOOLS[route.chain[0]].confirm) {
+      this.setState({ confirm: route.id });
+      this._pendingRoute = route;
+      if (opts.beat) this._pendingBeat = opts.beat;
+      return;
+    }
+    this.exec(route, opts.beat);
+  }
+
+  async exec(route, beat) {
+    const b = this.b;
+    this.setState({ busy: true });
+    for (const tool of route.chain) {
+      const id = ++Component._id;
+      this.push({ k: "t", id, tool, api: b.TOOLS[tool].api, phase: b.TOOLS[tool].phase, status: "running" });
+      await this.delay(b.TOOLS[tool].ms);
+      this.applyTool(tool, route.id);
+      this.patchMsg(id, { status: "done", result: b.RESULTS[tool] });
+      await this.delay(250);
+    }
+    if (route.id === "settle") this.push({ k: "p" });
+    this.push({ k: "a", text: route.reply });
+    this.setState((s) => ({ busy: false, doneBeats: beat ? { ...s.doneBeats, [beat]: true } : s.doneBeats }));
+  }
+
+  applyTool(tool, routeId) {
+    const b = this.b;
+    if (tool === "extract_invoice") this.setState({ invoice: b.INVOICE });
+    if (tool === "detect_language") this.setState({ detected: true });
+    if (tool === "summarize_terms") this.setState({ summary: b.SUMMARY });
+    if (tool === "translate_document") {
+      if (routeId === "reply") this.setState({ replies: b.REPLIES.slice(0, 4), replyIx: 3 });
+      else this.setState({ translated: true, showEn: true });
+    }
+    if (tool === "draft_reply") this.setState({ replies: b.REPLIES.slice(0, 1), replyIx: 0 });
+    if (tool === "restyle_reply") this.setState({ replies: b.REPLIES.slice(0, 2), replyIx: 1 });
+    if (tool === "polish_reply") this.setState({ replies: b.REPLIES.slice(0, 3), replyIx: 2 });
+    if (tool === "queue_payout") this.setState({ payout: b.PAYOUT });
+    if (tool === "settle_payout") this.setState({ settled: true });
+  }
+
+  runBeat(bt) {
+    if (this.state.busy || this.state.confirm) return;
+    if (bt.goOnline && !this.state.online) {
+      this.setNet(true);
+      setTimeout(() => this.send(bt.msg, { attach: bt.attach, beat: bt.n }), 500);
+    } else {
+      this.send(bt.msg, { attach: bt.attach, beat: bt.n });
+    }
+  }
+
+  reset() {
+    this._attached = false;
+    this._pendingRoute = null;
+    this.setState({
+      online: false, busy: false, draft: "", pendingAttach: false,
+      messages: [{ k: "a", text: "Offline and ready. Drop an invoice — I'll read it, translate it, draft the reply, and stage the payout, all on this device." }],
+      invoice: null, detected: false, translated: false, showEn: true,
+      summary: null, replies: [], replyIx: 0, payout: null, settled: false,
+      confirm: null, doneBeats: {},
+    });
+  }
+
+  renderVals() {
+    const s = this.state;
+    const b = this.b;
+
+    const msgs = s.messages.map((m) => {
+      if (m.k !== "t") return { ...m, u: m.k === "u", a: m.k === "a", s: m.k === "s", p: m.k === "p", t: false };
+      const running = m.status === "running";
+      const err = m.status === "error";
+      return {
+        ...m, t: true, u: false, a: false, s: false, p: false,
+        dotBg: err ? "#1E1E28" : running ? "#0033FF" : "#977DFF",
+        dotAnim: running ? "cbd-pulse 1s infinite" : "none",
+        pill: m.phase === "online" ? "network" : "on-device",
+        pillBg: m.phase === "online" ? "#0033FF" : "#C1B1FF",
+        pillFg: m.phase === "online" ? "#FFFFFF" : "#1E1E28",
+        result: m.result || false,
+        resultFg: err ? "#1E1E28" : "#78787E",
+      };
+    });
+
+    const beats = (b ? b.BEATS : []).map((bt) => {
+      const done = !!s.doneBeats[bt.n];
+      return {
+        num: done ? "✓" : String(bt.n), label: bt.label,
+        bg: "transparent", border: done ? "#4B4B53" : "#4B4B53",
+        numBg: done ? "#977DFF" : "#35353E", numFg: done ? "#1E1E28" : "#FFFFFF",
+        go: () => this.runBeat(bt),
+      };
+    });
+
+    const inv = s.invoice;
+    const en = s.translated && s.showEn;
+    const items = inv ? inv.items.map((it) => ({ desc: en ? it.en : it.ja, amt: it.amt })) : [];
+
+    const replyTabs = s.replies.map((r, i) => {
+      const act = i === s.replyIx;
+      return {
+        label: r.label, go: () => this.setState({ replyIx: i }),
+        bg: act ? "#1E1E28" : "#FFFFFF", fg: act ? "#FFFFFF" : "#4B4B53", border: act ? "#1E1E28" : "#D9D9D9",
+      };
+    });
+
+    const cQueue = s.confirm === "queue";
+    const layout = this.props.layout ?? "panels";
+
+    return {
+      msgs, beats, items, replyTabs,
+      busy: s.busy,
+      draft: s.draft,
+      pendingAttach: s.pendingAttach,
+      showRail: layout === "panels",
+      showBeats: this.props.presenterRail ?? true,
+      railEmpty: !inv && !s.summary && !s.replies.length && !s.payout,
+      invoice: !!inv,
+      vendorName: en ? "Sato Design Studio" : "佐藤デザイン事務所",
+      totalLabel: en ? "Total" : "合計",
+      detected: s.detected,
+      translated: s.translated,
+      jaBg: !s.showEn ? "#1E1E28" : "#FFFFFF", jaFg: !s.showEn ? "#FFFFFF" : "#4B4B53", jaBorder: !s.showEn ? "#1E1E28" : "#D9D9D9",
+      enBg: s.showEn ? "#1E1E28" : "#FFFFFF", enFg: s.showEn ? "#FFFFFF" : "#4B4B53", enBorder: s.showEn ? "#1E1E28" : "#D9D9D9",
+      showJa: () => this.setState({ showEn: false }),
+      showEnFn: () => this.setState({ showEn: true }),
+      summary: s.summary,
+      hasReplies: s.replies.length > 0,
+      replyText: s.replies[s.replyIx] ? s.replies[s.replyIx].text : "",
+      payout: !!s.payout,
+      payoutPill: s.settled ? "Settled" : "Staged · offline",
+      payoutPillBg: s.settled ? "#0033FF" : "#C1B1FF",
+      payoutPillFg: s.settled ? "#FFFFFF" : "#1E1E28",
+      payoutHalo: s.settled ? "#99ADFF" : "#C1B1FF",
+      payoutNote: s.settled
+        ? "Transmitted: the four fields above. The documents never left this device."
+        : "Signed and staged on this device. Idempotent — reconnecting can't double-send.",
+      netLabel: s.online ? "Network on" : "Network off — airplane",
+      netBg: s.online ? "#0033FF" : "#1E1E28",
+      netDot: s.online ? "#99ADFF" : "#977DFF",
+      toggleNet: () => this.setNet(!s.online),
+      confirm: !!s.confirm,
+      confirmTitle: cQueue ? "Queue this payout?" : "Settle this payout?",
+      confirmBody: cQueue
+        ? "Signs and stages the instruction on this device. Nothing is transmitted until you settle."
+        : "Transmits the three fields below (plus currency) to the payment rail. No documents, no PII.",
+      confirmCta: cQueue ? "Queue payout" : "Settle now",
+      confirmOk: () => {
+        const r = this._pendingRoute; const beat = this._pendingBeat;
+        this._pendingRoute = null; this._pendingBeat = null;
+        this.setState({ confirm: null });
+        if (r) this.exec(r, beat);
+      },
+      confirmCancel: () => {
+        this._pendingRoute = null; this._pendingBeat = null;
+        this.setState({ confirm: null });
+        this.push({ k: "a", text: "Cancelled — nothing was staged or sent." });
+      },
+      onDraft: (e) => this.setState({ draft: e.target.value }),
+      onKey: (e) => { if (e.key === "Enter" && s.draft.trim()) this.send(s.draft.trim()); },
+      sendClick: () => { if (s.draft.trim()) this.send(s.draft.trim()); },
+      attachSample: () => this.setState({ pendingAttach: true }),
+      clearAttach: () => this.setState({ pendingAttach: false }),
+      setScroller: (el) => { this._scroller = el; },
+      reset: () => this.reset(),
+    };
+  }
+}
+Component._id = 0;
+</script>
+</body>
+</html>

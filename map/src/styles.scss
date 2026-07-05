@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Payoneer Marketing Design System — type + tokens ──────────────────────
+   Fonts copied from the design handoff bundle (Avenir Next World OTFs).
+   Only the 4 weights the Cross-Border Desk uses are bundled. */
+@font-face {
+  font-family: 'Avenir Next World';
+  src: url('./assets/fonts/AvenirNextWorld-Regular.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Avenir Next World';
+  src: url('./assets/fonts/AvenirNextWorld-Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Avenir Next World';
+  src: url('./assets/fonts/AvenirNextWorld-Demi.otf') format('opentype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Avenir Next World';
+  src: url('./assets/fonts/AvenirNextWorld-Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-family-base: 'Avenir Next World', 'Avenir Next LT Pro', ui-sans-serif,
+    system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  /* soft, layered card shadow (design system --shadow-card-soft) */
+  --shadow-card-soft: 0px 2px 4px 0px rgba(153, 167, 199, 0.1),
+    0px 8px 8px 0px rgba(153, 167, 199, 0.08),
+    0px 17px 10px 0px rgba(153, 167, 199, 0.05),
+    0px 30px 12px 0px rgba(153, 167, 199, 0.01);
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+}
+
+@keyframes cbd-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+body { font-family: var(--font-family-base); font-size: 16px; line-height: 155%; box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }

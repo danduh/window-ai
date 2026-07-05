@@ -13,6 +13,7 @@
 
 import * as MealPlanStore from './MealPlanStore';
 import { wrapToolsWithEvents, type ToolCallEvent } from './toolAdapter';
+import { getModelContext } from './modelContext';
 import { getRecipes } from './RecipePersistence';
 import * as recipeCarouselRegistry from './recipeCarouselRegistry';
 
@@ -44,13 +45,12 @@ export function setCommitListener(cb: ((recipeId: string) => void) | null): void
 // ── GEN_UI_TOOLS ──────────────────────────────────────────────────────────────
 
 /**
- * Stub tool array for the /generative-ui page.
+ * Tool array for the /generative-ui page. Two tools:
+ *  - `commitRecipeToPlan` — carries `annotations.visibility: ['app']` so it is
+ *    hidden from the LLM catalog and only the iframe Pick button calls it (GENUI-05).
+ *  - `searchRecipes` — returns a recipe-card carousel UI resource (GENUI-04).
  *
- * Contains exactly one entry (commitRecipeToPlan).
- * No visibility:["app"] annotation — that is Phase 6 GENUI-05.
- * No searchRecipes tool — that is Phase 6 GENUI-04.
- *
- * Source: 05-RESEARCH.md Pattern 10 commitRecipeToPlan tool definition.
+ * Source: 05-RESEARCH.md Pattern 10 (commitRecipeToPlan) + Pattern (searchRecipes).
  */
 export const GEN_UI_TOOLS: ModelContextTool[] = [
   {
@@ -155,9 +155,11 @@ export const GEN_UI_TOOLS: ModelContextTool[] = [
  * Source: 05-RESEARCH.md Pattern 1 navigator.modelContext.registerTool invocation.
  */
 export function registerGenUITools(): AbortController | null {
-  // Guard: navigator.modelContext may not exist (no WebMCP flag in Chrome)
-  if (typeof navigator === 'undefined' || !navigator.modelContext) {
-    console.warn('[GenUI] navigator.modelContext unavailable; tool registration skipped');
+  // Guard: WebMCP may not exist (no flag / older browser). Prefer the Chrome
+  // 150+ document.modelContext, fall back to the deprecated navigator one.
+  const modelContext = getModelContext();
+  if (!modelContext) {
+    console.warn('[GenUI] modelContext unavailable; tool registration skipped');
     return null;
   }
 
@@ -180,7 +182,7 @@ export function registerGenUITools(): AbortController | null {
   // (4) Register each tool; swallow DUPLICATE_NAME_PATTERN per Pitfall 1
   for (const tool of wrapped) {
     try {
-      navigator.modelContext.registerTool(tool, { signal: controller.signal });
+      modelContext.registerTool(tool, { signal: controller.signal });
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err);
       if (DUPLICATE_NAME_PATTERN.test(message)) {

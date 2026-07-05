@@ -54,7 +54,7 @@ export const SEOProvider: React.FC<SEOProviderProps> = ({ children }) => {
     }
   };
 
-  const updateMetaTag = (name: string, content: string, attribute: string = 'name') => {
+  const updateMetaTag = (name: string, content: string, attribute = 'name') => {
     let element = document.querySelector(`meta[${attribute}="${name}"]`) as HTMLMetaElement;
     if (element) {
       element.content = content;

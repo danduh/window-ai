@@ -1,4 +1,3 @@
-/// <reference path="../../types/dom-chromium-ai.d.ts" />
 
 import React, { useEffect, useRef, useState } from 'react';
 import ChatBox, { type Message } from '../ChatBox';

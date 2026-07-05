@@ -9,6 +9,65 @@ import {dracula} from 'react-syntax-highlighter/dist/cjs/styles/prism';
 import {loadMDFile} from "./md-loader";
 import {AppContext} from "../context";
 
+/**
+ * A syntax-highlighted code block with a copy-to-clipboard button so readers can
+ * paste snippets straight into the DevTools console. Inline styles are used
+ * intentionally — this renders inside a react-shadow shadow root where the page's
+ * Tailwind classes do not apply. navigator.clipboard works from the shadow root
+ * because the click provides the required user activation (secure-context only).
+ */
+function CodeBlock({language, value}: { language: string; value: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // Clipboard blocked (insecure context / permissions) — fail quietly.
+    }
+  };
+
+  return (
+    <div style={{position: 'relative'}}>
+      <button
+        type="button"
+        onClick={copy}
+        aria-label={copied ? 'Copied' : 'Copy code'}
+        style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
+          zIndex: 1,
+          fontFamily: 'inherit',
+          fontSize: 12,
+          fontWeight: 600,
+          lineHeight: 1,
+          border: 'none',
+          borderRadius: 6,
+          padding: '6px 10px',
+          cursor: 'pointer',
+          color: '#fff',
+          background: copied ? '#16a34a' : 'rgba(255,255,255,0.14)',
+          backdropFilter: 'blur(2px)',
+          transition: 'background 150ms',
+        }}
+      >
+        {copied ? 'Copied!' : 'Copy'}
+      </button>
+      <SyntaxHighlighter
+        className="rounded-md text-sm"
+        style={dracula}
+        PreTag="div"
+        language={language}
+      >
+        {value}
+      </SyntaxHighlighter>
+    </div>
+  );
+}
+
 export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: boolean }) {
   const mainContext = useContext(AppContext);
   const [isOpen, setIsOpen] = useState(initOpen || false);
@@ -48,11 +107,10 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
                     code({node, inline, className, children, ...props}: any) {
                       const match = /language-(\w+)/.exec(className || '');
                       return !inline && match ? (
-                        <SyntaxHighlighter
-                          className="rounded-md text-sm"
-                          style={dracula} PreTag="div" language={match[1]} {...props}>
-                          {String(children).replace(/\n$/, '')}
-                        </SyntaxHighlighter>
+                        <CodeBlock
+                          language={match[1]}
+                          value={String(children).replace(/\n$/, '')}
+                        />
                       ) : (
                         <code className={`${className} bg-gray-100 dark:bg-gray-800 rounded-md px-1 py-0.5 text-gray-900 dark:text-gray-100`} {...props}>
                           {children}

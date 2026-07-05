@@ -100,7 +100,9 @@ export const MultimodalWebcam: React.FC<MultimodalWebcamProps> = ({
     if ((mode === 'preview' || mode === 'live') && videoRef.current && streamRef.current) {
       videoRef.current.srcObject = streamRef.current;
       // play() can reject if the element is unmounted mid-call; swallow that.
-      void videoRef.current.play().catch(() => {});
+      void videoRef.current.play().catch(() => {
+        /* play() rejects if unmounted mid-call — safe to ignore */
+      });
     }
   }, [mode]);
 

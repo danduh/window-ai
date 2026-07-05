@@ -1,0 +1,418 @@
+/* ============================================================
+   Payoneer Marketing Design System — Tokens
+   ----------------------------------------------------------------
+   Sourced from Payoneer Brand Guidelines v2.1 (01/25) and the
+   Marketing DS Figma file ("Color Palette" + "New brand on a page").
+   ============================================================ */
+
+/* -------- Fonts --------
+   Licensed Linotype Avenir Next World — complete family, upright + italic.
+   ExtraBold (≈ weight 800) is omitted in favor of Heavy at 800; Black holds 900.
+*/
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Thin.otf") format("opentype");
+  font-weight: 100; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Thin_It.otf") format("opentype");
+  font-weight: 100; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_UltraLight.otf") format("opentype");
+  font-weight: 200; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_UltraLight_It.otf") format("opentype");
+  font-weight: 200; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Light.otf") format("opentype");
+  font-weight: 300; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Light_It.otf") format("opentype");
+  font-weight: 300; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Regular.otf") format("opentype");
+  font-weight: 400; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Italic.otf") format("opentype");
+  font-weight: 400; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Medium.otf") format("opentype");
+  font-weight: 500; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Medium_It.otf") format("opentype");
+  font-weight: 500; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Demi.otf") format("opentype");
+  font-weight: 600; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Demi_It.otf") format("opentype");
+  font-weight: 600; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Bold.otf") format("opentype");
+  font-weight: 700; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Bold_It.otf") format("opentype");
+  font-weight: 700; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Heavy.otf") format("opentype");
+  font-weight: 800; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Heavy_It.otf") format("opentype");
+  font-weight: 800; font-style: italic; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Black.otf") format("opentype");
+  font-weight: 900; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_Black_It.otf") format("opentype");
+  font-weight: 900; font-style: italic; font-display: swap;
+}
+/* Alternate-name alias so legacy "ExtraBold (800)" callers still resolve */
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_ExtraBold.otf") format("opentype");
+  font-weight: 850; font-style: normal; font-display: swap;
+}
+@font-face {
+  font-family: "Avenir Next World";
+  src: url("./fonts/Linotype_-_Avenir_Next_World_ExtraBold_It.otf") format("opentype");
+  font-weight: 850; font-style: italic; font-display: swap;
+}
+
+:root {
+  /* ============================================================
+     COLORS — Primary
+     Charcoal Black + Pure White carry 70–90% of every layout.
+     ============================================================ */
+  --color-charcoal-300: #A5A5A9;
+  --color-charcoal-500: #78787E;
+  --color-charcoal-700: #4B4B53;
+  --color-charcoal-800: #35353E;
+  --color-charcoal-900: #1E1E28; /* Charcoal Black — brand primary */
+  --color-white:        #FFFFFF; /* Pure White — brand primary */
+
+  /* ============================================================
+     COLORS — Secondary palette (10–30% of layouts; accents only)
+     ============================================================ */
+  /* Midnight Blue — trust & expertise */
+  --color-midnight-100: #E5E9F1;
+  --color-midnight-200: #CCD3E3;
+  --color-midnight-300: #99A7C7;
+  --color-midnight-400: #667BAB;
+  --color-midnight-600: #334F8F;
+  --color-midnight-800: #002373; /* Midnight Blue — main */
+
+  /* Electric Blue — efficiency & innovation (primary CTA) */
+  --color-electric-100: #99ADFF;
+  --color-electric-200: #6685FF;
+  --color-electric-300: #335CFF;
+  --color-electric-500: #0033FF; /* Electric Blue — main */
+  --color-electric-600: #001AE5; /* Hover */
+
+  /* Neon Purple — flexibility & connectivity (icon halos, accents) */
+  --color-purple-100:   #D5CBFF;
+  --color-purple-200:   #C1B1FF;
+  --color-purple-300:   #AC97FF;
+  --color-purple-500:   #977DFF; /* Neon Purple — main */
+  --color-purple-600:   #7E64E5;
+  --color-purple-800:   #4B31B2;
+
+  /* Hazy Pink — human-centric & approachable (Employer Brand lead) */
+  --color-pink-100:     #FFEBFA;
+  --color-pink-200:     #FFE0F7;
+  --color-pink-300:     #FFD6F5;
+  --color-pink-500:     #FFCCF2; /* Hazy Pink — main */
+  --color-pink-600:     #E5B2D8;
+  --color-pink-tint:    #FFE0F7;
+
+  /* ============================================================
+     SURFACES / SEMANTIC FILL & TEXT
+     ============================================================ */
+  --bg-canvas:          #FFFFFF;
+  --bg-surface:         #F1F2F7; /* light card surface (rgb 241,242,247) */
+  --bg-surface-tint:    #E5E9F1; /* secondary card / pull-quote bg */
+  --bg-inverse:         #1E1E28; /* dark mode background */
+  --bg-inverse-2:       #35353E; /* dark card on dark bg */
+  --bg-inverse-3:       #4B4B53;
+
+  --fg-primary:         #1E1E28;
+  --fg-secondary:       #4B4B53;
+  --fg-muted:           #78787E;
+  --fg-subtle:          #9CA3AF; /* swatch hex labels */
+  --fg-on-dark:         #FFFFFF;
+  --fg-on-dark-muted:   rgba(255,255,255,0.7);
+
+  --border-subtle:      #E9E9E9; /* rgb(233,233,233) — divider */
+  --border-default:     #D9D9D9; /* rgb(217,217,217) — input/border */
+  --border-strong:      #1E1E28;
+
+  /* CTA tokens — primary CTA is Electric Blue, secondary is Charcoal */
+  --cta-primary-bg:        var(--color-electric-500);
+  --cta-primary-bg-hover:  var(--color-electric-600);
+  --cta-primary-fg:        #FFFFFF;
+  --cta-secondary-bg:      var(--color-charcoal-900);
+  --cta-secondary-bg-hover:var(--color-midnight-800);
+  --cta-secondary-fg:      #FFFFFF;
+  --cta-link-fg:           var(--color-purple-200);
+  --cta-pink-bg:           var(--color-pink-500);
+  --cta-pink-fg:           var(--color-charcoal-900);
+
+  /* Icon halo (filled circle behind every level-1 icon) */
+  --halo-bg:            var(--color-purple-200); /* #C1B1FF */
+  --halo-bg-pink:       var(--color-pink-500);
+  --halo-bg-electric:   var(--color-electric-100);
+  --halo-bg-midnight:   var(--color-midnight-200);
+  --halo-fg:            var(--color-charcoal-900);
+
+  /* ============================================================
+     TYPOGRAPHY
+     ============================================================ */
+  --font-family-base: "Avenir Next World", "Avenir Next LT Pro",
+                      ui-sans-serif, system-ui, -apple-system,
+                      "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --fw-thin:    200;
+  --fw-regular: 400; /* body, long-form */
+  --fw-medium:  500;
+  --fw-demi:    600; /* headers, sub-headers, callouts — primary weight */
+  --fw-bold:    700; /* campaign lines, oversized hero only */
+  --fw-black:   900;
+
+  /* Scale (px). Headers are Demi; long-form is Regular.
+     Display sizes are seen on social/OOH; do not pair with body text. */
+  --fs-display-1: 120px; /* OOH / big-format campaign */
+  --fs-display-2: 90px;
+  --fs-hero:      60px;  /* New-brand-on-a-page hero */
+  --fs-h1:        36px;  /* page title */
+  --fs-h2:        28px;  /* "Primary colors" section */
+  --fs-h3:        22px;  /* feature box title */
+  --fs-h4:        18px;  /* sub-heading */
+  --fs-body-lg:   18px;  /* feature copy */
+  --fs-body:      16px;  /* default body */
+  --fs-body-sm:   14px;  /* metadata, swatch labels */
+  --fs-caption:   12px;  /* main color / tints labels */
+
+  /* Line heights are TIGHT — most marketing copy is 100%–125% */
+  --lh-tight:    100%;
+  --lh-snug:     115%;
+  --lh-default:  125%;
+  --lh-loose:    155%;
+
+  /* Letter spacing — headers run slightly negative for confidence */
+  --tracking-tight:  -0.02em;
+  --tracking-snug:   -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.02em;
+  --tracking-allcaps:0.06em;
+
+  /* ============================================================
+     SPACING / RADII / SHADOW / MOTION
+     ============================================================ */
+  /* 4-pt baseline used in feature boxes (16/24/32 internal padding) */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+  --space-20: 80px;
+
+  /* Radii — boxes are the brand's secondary shape and echo the Halo */
+  --radius-xs:  4px;
+  --radius-sm:  6px;   /* buttons */
+  --radius-md:  8px;
+  --radius-lg:  12px;
+  --radius-xl:  20px;  /* feature cards, hero modules */
+  --radius-2xl: 24px;
+  --radius-pill: 999px;
+  --radius-circle: 50%;
+
+  /* Shadows — soft layered drops over light surfaces */
+  --shadow-card-soft:
+    0px 2px 4px 0px rgba(153,167,199,0.10),
+    0px 8px 8px 0px rgba(153,167,199,0.08),
+    0px 17px 10px 0px rgba(153,167,199,0.05),
+    0px 30px 12px 0px rgba(153,167,199,0.01);
+  --shadow-icon-halo:
+    0px 0.15px 0.6px 0px rgba(44,67,75,0.04),
+    0px 1.23px 1.42px 0px rgba(44,67,75,0.05),
+    0px 3.96px 3.41px 0px rgba(44,67,75,0.06),
+    0px 10.17px 10.48px 0px rgba(44,67,75,0.07),
+    0px 18.64px 37.94px 0px rgba(44,67,75,0.50);
+  --shadow-press:
+    0 1px 2px rgba(30,30,40,0.10);
+
+  /* Motion — fades + gentle ease; no bounces in master brand */
+  --ease-out:    cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --dur-instant: 80ms;
+  --dur-fast:    160ms;
+  --dur-base:    220ms;
+  --dur-slow:    320ms;
+
+  /* Container widths */
+  --container-mobile:   375px;
+  --container-tablet:   768px;
+  --container-desktop:  1280px; /* Marketing grid baseline */
+  --container-wide:     1440px;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--font-family-base);
+  font-size: var(--fs-body);
+  line-height: var(--lh-loose);
+  color: var(--fg-primary);
+  background: var(--bg-canvas);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* ============================================================
+   SEMANTIC TYPE — use these classes by default
+   ============================================================ */
+h1, .h1, h2, .h2, h3, .h3, h4, .h4,
+.display-1, .display-2, .hero {
+  font-family: var(--font-family-base);
+  margin: 0;
+  text-wrap: balance;
+  color: inherit;
+}
+
+.display-1 {
+  font-size: var(--fs-display-1);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+.display-2 {
+  font-size: var(--fs-display-2);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+.hero {
+  font-size: var(--fs-hero);
+  font-weight: var(--fw-bold);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-tight);
+}
+h1, .h1 {
+  font-size: var(--fs-h1);
+  font-weight: var(--fw-demi);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-snug);
+}
+h2, .h2 {
+  font-size: var(--fs-h2);
+  font-weight: var(--fw-demi);
+  line-height: var(--lh-tight);
+  letter-spacing: var(--tracking-snug);
+}
+h3, .h3 {
+  font-size: var(--fs-h3);
+  font-weight: var(--fw-demi);
+  line-height: 1.18;
+  letter-spacing: var(--tracking-tight);
+}
+h4, .h4 {
+  font-size: var(--fs-h4);
+  font-weight: var(--fw-demi);
+  line-height: var(--lh-default);
+}
+
+p, .body {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-regular);
+  line-height: var(--lh-loose);
+  color: var(--fg-primary);
+  margin: 0 0 1em 0;
+  text-wrap: pretty;
+}
+.body-lg {
+  font-size: var(--fs-body-lg);
+  line-height: 1.56;
+}
+.body-sm, small {
+  font-size: var(--fs-body-sm);
+  line-height: 1.4;
+  color: var(--fg-secondary);
+}
+.caption {
+  font-size: var(--fs-caption);
+  line-height: 1.2;
+  color: var(--fg-muted);
+}
+.eyebrow {
+  font-size: 12px;
+  font-weight: var(--fw-demi);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-allcaps);
+  color: var(--color-electric-500);
+}
+
+a {
+  color: var(--color-electric-500);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+a:hover { color: var(--color-electric-600); text-decoration: underline; }
+a.link-on-dark { color: var(--color-purple-200); }
+a.link-on-dark:hover { color: var(--color-purple-100); }
+
+/* ============================================================
+   UTILITY BLOCKS — reused by cards & UI kits
+   ============================================================ */
+.surface-light  { background: var(--bg-surface);    color: var(--fg-primary); }
+.surface-tint   { background: var(--bg-surface-tint); color: var(--fg-primary); }
+.surface-dark   { background: var(--bg-inverse);    color: var(--fg-on-dark); }
+.surface-dark-2 { background: var(--bg-inverse-2);  color: var(--fg-on-dark); }
+.surface-pink   { background: var(--color-pink-500); color: var(--fg-primary); }
+.surface-purple { background: var(--color-purple-200); color: var(--fg-primary); }
+
+.card {
+  background: var(--bg-canvas);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-card-soft);
+}
