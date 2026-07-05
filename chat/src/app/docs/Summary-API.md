@@ -11,7 +11,7 @@ The Summarization API provides on-device text summarization capabilities with su
 ### Browser Support
 
 1. **Summarization API**:
-    - Available from Chrome 129+ on desktop
+    - Stable since Chrome 138 on desktop (current stable: Chrome 150, July 2026)
     - Supported platforms: Windows, Mac, and Linux
     - Requires at least 22GB free storage for model download
 

@@ -17,6 +17,7 @@ import { StepsList } from './RecipeWorkbench/StepsList';
 import { MissingFlagBanner } from './MissingFlagBanner';
 import { RECIPE_TOOLS } from '../services/recipeTools';
 import { wrapToolsWithEvents, type ToolCallEvent } from '../services/toolAdapter';
+import { getModelContext, isModelContextAvailable } from '../services/modelContext';
 import { subscribeRecipeStore, setActiveRecipeId } from '../services/recipeStore';
 import { ToolRegistrationPill, type ToolRegistrationStatus } from './RecipeWorkbench/ToolRegistrationPill';
 import { AgentDrawer } from './RecipeWorkbench/AgentDrawer';
@@ -88,7 +89,7 @@ interface RegistrationState {
 
 // Module-scope reference to the most recent registration controller. React
 // <StrictMode> (and Vite HMR) re-mount the page synchronously: cleanup fires
-// `controller.abort()` but Chrome 146 Canary's `navigator.modelContext` does
+// `controller.abort()` but Chrome 149/150's `document.modelContext` does
 // NOT synchronously remove the entries from its name-map, so the second mount
 // would throw `Duplicate tool name` on the first `registerTool` call. Eagerly
 // aborting any prior controller here — BEFORE the new mount registers — gives
@@ -97,7 +98,7 @@ interface RegistrationState {
 // `webmcp-duplicate-tool-name`.
 let previousRegistrationController: AbortController | null = null;
 
-// DOMException name thrown by Chrome 146 Canary's navigator.modelContext when
+// DOMException name thrown by Chrome 149/150's document.modelContext when
 // a tool with the same name is already registered. We treat this as success
 // (the tool IS registered, just from our previous-mount handler — same code,
 // same shape, same behavior, since RECIPE_TOOLS is module-static).
@@ -150,8 +151,9 @@ export const RecipeWorkbenchPage: React.FC = () => {
   }, []);
 
   // Tool registration mount-effect. Single AbortController per mount;
-  // controller.abort() in cleanup unregisters every tool atomically (per W3C
-  // WebMCP spec — there is no separate `unregisterTool` method).
+  // controller.abort() in cleanup unregisters every tool atomically. (Chrome
+  // 150+ also adds an explicit `unregisterTool(name)`, but the AbortSignal path
+  // works across 146–150 and deregisters the whole set in one shot.)
   // See 02-RESEARCH.md §Pattern 1 + §Pitfall 1 (empty deps) + §Pitfall 2 (controller inside effect).
   //
   // Hardening (debug `webmcp-duplicate-tool-name`):
@@ -162,7 +164,8 @@ export const RecipeWorkbenchPage: React.FC = () => {
   //      same name is already mapped to our previous-mount handler. All other
   //      errors fall through to the existing partial/error branch.
   useEffect(() => {
-    if (typeof navigator === 'undefined' || !navigator.modelContext) {
+    const modelContext = getModelContext();
+    if (!modelContext) {
       setRegistration({ status: 'unavailable', count: 0 });
       return;
     }
@@ -189,7 +192,7 @@ export const RecipeWorkbenchPage: React.FC = () => {
     let fatalError: unknown = null;
     for (const tool of wrapped) {
       try {
-        navigator.modelContext.registerTool(tool, { signal: controller.signal });
+        modelContext.registerTool(tool, { signal: controller.signal });
         registered.push(tool.name);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
@@ -312,7 +315,7 @@ export const RecipeWorkbenchPage: React.FC = () => {
           </div>
         </header>
 
-        {!navigator.modelContext && <MissingFlagBanner />}
+        {!isModelContextAvailable() && <MissingFlagBanner />}
 
         <Tabs basePath="/webmcp" defaultTab="workbench" tabs={tabs} />
       </div>

@@ -14,7 +14,7 @@ The two APIs are independent, but they meet in the middle:
 | API                | Input             | Output                              | Where it lives           |
 |--------------------|-------------------|-------------------------------------|--------------------------|
 | `SpeechRecognition`| microphone audio  | `interim` text + `isFinal` text     | Web Speech (all browsers)|
-| `Translator`       | text + lang pair  | translated text (sync or streaming) | Chrome 131+ on-device    |
+| `Translator`       | text + lang pair  | translated text (sync or streaming) | Chrome 138+ (stable)     |
 
 The bridge between them is **language tags**: speech recognition wants BCP 47 (`en-US`, `fr-FR`), while the Translator wants short ISO codes (`en`, `fr`). Stripping everything after the hyphen converts one to the other.
 
@@ -23,7 +23,7 @@ The bridge between them is **language tags**: speech recognition wants BCP 47 (`
 ### Browser Support
 
 - **`SpeechRecognition`** — Chromium-based browsers, desktop. Available as `window.SpeechRecognition` or the legacy-prefixed `window.webkitSpeechRecognition`. Not supported on Firefox or iOS Safari at the time of writing.
-- **`Translator`** — Chrome 131+ on Windows, macOS, Linux. Each `(sourceLanguage, targetLanguage)` pair downloads a language pack on first use.
+- **`Translator`** — stable since Chrome 138 on Windows, macOS, Linux. Each `(sourceLanguage, targetLanguage)` pair downloads a language pack on first use.
 
 ### Feature Detection
 

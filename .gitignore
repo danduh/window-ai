@@ -135,6 +135,20 @@ dist
 
 
 
+# macOS + local worktree junk
+.DS_Store
+**/.DS_Store
+.claude/worktrees/
+
+# Office temp/lock files
+~$*
+**/~$*
+
+# Large / redundant talk + design artifacts (kept on disk, out of git history)
+notebooklm/The_Browser_AI_Runtime_forClaude*.pptx
+design/*.zip
+design/**/fonts/
+
 .nx/cache
 .nx/workspace-data
 vite.config.*.timestamp*

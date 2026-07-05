@@ -15,12 +15,12 @@ Both APIs support streaming responses, download progress monitoring, and proper 
 ### Browser Support
 
 1. **Language Detection API**:
-    - Available from Chrome 129+ on desktop and Android
+    - Stable since Chrome 138 (current stable: Chrome 150, July 2026)
     - Supported platforms: Android, ChromeOS, Windows, Mac, and Linux (not iOS)
     - No special hardware requirements
 
 2. **Translation API**:
-    - Available from Chrome 131+ 
+    - Stable since Chrome 138 
     - Supported platforms: Windows, Mac, and Linux
     - Requires language packs to be downloaded
 
@@ -214,11 +214,11 @@ try {
 ```javascript
 const translator = await Translator.create({
   sourceLanguage: "en",
-  targetLanguage: "jp"
+  targetLanguage: "ja"
 });
 meterEl.max = translator.inputQuota;
 
-textbox.addEventListener("input", () => {
+textbox.addEventListener("input", async () => {
   meterEl.value = await translator.measureInputUsage(textbox.value);
   submitButton.disabled = meterEl.value > meterEl.max;
 });

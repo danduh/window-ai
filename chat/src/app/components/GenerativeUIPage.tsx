@@ -8,6 +8,7 @@ import { GenerativeUIHeader } from './GenerativeUI/GenerativeUIHeader';
 import { GenUIChatPanel } from './GenerativeUI/GenUIChatPanel';
 import { MealPlanColumn } from './GenerativeUI/MealPlanColumn';
 import { registerGenUITools } from '../services/genUITools';
+import { isModelContextAvailable } from '../services/modelContext';
 import Tabs from './Tabs';
 import { DocsRenderer } from '../tools/DocsRenderer';
 
@@ -95,7 +96,7 @@ export const GenerativeUIPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-4">
-        {!navigator.modelContext && <MissingFlagBanner />}
+        {!isModelContextAvailable() && <MissingFlagBanner />}
         <GenerativeUIHeader />
         <Tabs basePath="/generative-ui" defaultTab="workbench" tabs={tabs} />
         <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">

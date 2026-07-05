@@ -16,7 +16,7 @@ Both APIs support streaming responses, availability checking, and advanced confi
 ### Browser Support
 
 1. **Writer & Rewriter APIs**:
-    - Available from Chrome 129+ on desktop
+    - Still origin trial / behind a flag on desktop — not yet stable as of Chrome 150. Enable on localhost via `chrome://flags/#writer-api-for-gemini-nano` and `#rewriter-api-for-gemini-nano`
     - Supported platforms: Windows, Mac, and Linux
     - Requires at least 22GB free storage for model download
 
@@ -42,7 +42,7 @@ Both APIs support streaming responses, availability checking, and advanced confi
 
 ### Checking API Availability
 
-     ```javascript
+```javascript
 // Check Writer availability
 const writerAvailability = await Writer.availability();
 console.log('Writer:', writerAvailability); // "available", "downloadable", "downloading", or "unavailable"

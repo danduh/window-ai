@@ -1,4 +1,4 @@
-let session: any = null;
+let session: LanguageModel | null = null;
 
 export const resetModel = async () => {
   const availability = await LanguageModel.availability();
@@ -49,18 +49,14 @@ export const zeroShot = async (
     session.destroy();
     session = null;
   }
-  debugger
   if (!session) {
-    const createOptions: any = systemPrompt
-      ? { outputLanguage: 'en', initialPrompts: [{ role: "system", content: systemPrompt }] }
+    const createOptions = systemPrompt
+      ? { outputLanguage: 'en', initialPrompts: [{ role: 'system' as const, content: systemPrompt }] }
       : { outputLanguage: 'en' };
 
     session = await LanguageModel.create(createOptions);
   }
 
-  console.log(
-    `${session.inputUsage}/${session.inputQuota} tokens used`
-  );
   if (!streaming) {
     return await session.prompt(prompt);
   } else {

@@ -208,7 +208,7 @@ Always be helpful and use the most appropriate tool for the user's request.`,
     };
   }, [availableTools]);
 
-  const addMessage = (text: string, sender: string = 'User') => {
+  const addMessage = (text: string, sender = 'User') => {
     messageIdCounter.current += 1;
     const newMessage: Message = {
       id: messageIdCounter.current,

@@ -1,4 +1,3 @@
-/// <reference path="../types/dom-chromium-ai.d.ts" />
 
 import React, {useEffect, useState, useRef} from 'react';
 import { Link } from 'react-router-dom';
