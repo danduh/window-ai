@@ -5,16 +5,11 @@
 // context type, the latency simulator, the mock-result builder, and the
 // makeToolResult helper — shared across invoiceTools / replyTools / payoutTools.
 
-import {
-  INVOICE,
-  PAYOUT,
-  REPLIES,
-  RESULTS,
-  SUMMARY,
-} from '../brain';
+import { fixtureFor, resultLineFor } from '../brain';
 import type {
   DeskAction,
   DeskState,
+  Lang,
   MinimalPayload,
   PayoutData,
   Tier,
@@ -59,42 +54,50 @@ export function pickMinimal(p: PayoutData): MinimalPayload {
 export function cannedMutation(
   name: ToolName,
   args: Record<string, unknown>,
+  lang?: Lang,
 ): DeskAction {
+  const fx = fixtureFor(lang);
   switch (name) {
     case 'extract_invoice':
-      return { type: 'SET_INVOICE', invoice: INVOICE };
+      return { type: 'SET_INVOICE', invoice: fx.invoice };
     case 'detect_language':
       return {
         type: 'SET_DETECTED',
-        detected: { code: 'ja', name: 'Japanese', confidence: '98%' },
+        detected: {
+          code: fx.invoice.langCode,
+          name: fx.invoice.langName,
+          confidence: fx.invoice.confidence,
+        },
       };
     case 'translate_document':
-      if (args.target === 'ja') {
-        return { type: 'SET_REPLY', index: 3, reply: REPLIES[3] };
+      // reply route → translate back to native (any non-'en' target);
+      // translate route → 'en' sets the translated document.
+      if (args.target && args.target !== 'en') {
+        return { type: 'SET_REPLY', index: 3, reply: fx.replies[3] };
       }
       return {
         type: 'SET_TRANSLATED',
-        translated: { text: SUMMARY.join('\n'), items: INVOICE.items },
+        translated: { text: fx.summary.join('\n'), items: fx.invoice.items },
       };
     case 'summarize_terms':
-      return { type: 'SET_SUMMARY', summary: SUMMARY };
+      return { type: 'SET_SUMMARY', summary: fx.summary };
     case 'check_document':
       return {
         type: 'SET_INVOICE_CHECK',
         check: { itemsSumToTotal: true, datesOk: true, taxOk: true },
       };
     case 'draft_reply':
-      return { type: 'SET_REPLY', index: 0, reply: REPLIES[0] };
+      return { type: 'SET_REPLY', index: 0, reply: fx.replies[0] };
     case 'restyle_reply':
-      return { type: 'SET_REPLY', index: 1, reply: REPLIES[1] };
+      return { type: 'SET_REPLY', index: 1, reply: fx.replies[1] };
     case 'polish_reply':
-      return { type: 'SET_REPLY', index: 2, reply: REPLIES[2] };
+      return { type: 'SET_REPLY', index: 2, reply: fx.replies[2] };
     case 'queue_payout':
-      return { type: 'SET_PAYOUT', payout: PAYOUT };
+      return { type: 'SET_PAYOUT', payout: fx.payout };
     case 'settle_payout':
       return {
         type: 'SET_SETTLED',
-        settled: { payload: pickMinimal(PAYOUT), status: '202 Accepted' },
+        settled: { payload: pickMinimal(fx.payout), status: '202 Accepted' },
       };
     default:
       // Exhaustiveness guard — every ToolName is handled above.
@@ -102,15 +105,16 @@ export function cannedMutation(
   }
 }
 
-/** Canned Tier-3 result: brain.ts slice + RESULTS line + `mocked:true`. */
+/** Canned Tier-3 result: brain.ts slice + fixture result line + `mocked:true`. */
 export function mockResult(
   name: ToolName,
   args: Record<string, unknown> = {},
+  lang?: Lang,
 ): ToolResult {
   return {
-    resultLine: RESULTS[name],
+    resultLine: resultLineFor(name, fixtureFor(lang)),
     mocked: true,
-    mutation: cannedMutation(name, args),
+    mutation: cannedMutation(name, args, lang),
   };
 }
 

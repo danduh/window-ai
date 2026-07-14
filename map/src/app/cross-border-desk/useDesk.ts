@@ -10,6 +10,7 @@
 import { useCallback, useEffect, useReducer, useRef } from 'react';
 import {
   BEATS,
+  FIXTURES,
   INVOICE,
   NET_OFF_MSG,
   NET_ON_MSG,
@@ -34,19 +35,42 @@ import type {
   ConfirmKind,
   DeskAction,
   DeskState,
+  Lang,
   Tier,
 } from './types';
-// Real demo invoice image (JP freelance invoice matching the INVOICE fixture).
-// Used by the "Use demo invoice" attach action; on Tier 1 the multimodal
-// extract reads its actual pixels, on Tier 3 it's shown but the mock is used.
-import demoInvoice from '../../assets/invoice-2026-0614.png';
+// Real demo invoice images (freelance invoices matching each FIXTURES entry).
+// Used by the "Demo: … invoice" attach actions; on Tier 1 the multimodal
+// extract reads their actual pixels, on Tier 3 they're shown but the mock is used.
+import invoiceJa from '../../assets/invoice-2026-0614.png';
+import invoiceDe from '../../assets/invoice-de-2026-0614.png';
+import invoiceEs from '../../assets/invoice-es-2026-0614.png';
 
-// ── Sample invoice attachment (§6) ──────────────────────────────────────────
-const SAMPLE_ATTACH: AttachmentRef = {
-  file: INVOICE.file,
-  dataUrl: demoInvoice,
-  kind: 'sample',
+// ── Demo invoice attachments (§6) — one bundled image per language ───────────
+const DEMO_IMAGE: Record<Lang, string> = {
+  ja: invoiceJa,
+  de: invoiceDe,
+  es: invoiceEs,
 };
+
+function demoAttach(lang: Lang): AttachmentRef {
+  return {
+    file: FIXTURES[lang].invoice.file,
+    dataUrl: DEMO_IMAGE[lang],
+    kind: 'sample',
+    lang,
+  };
+}
+
+// Back-compat: the JA demo attachment (used by attachSample + the presenter rail).
+const SAMPLE_ATTACH: AttachmentRef = demoAttach('ja');
+
+/** Filename → language for uploaded images (falls back to ja). */
+function langFromFilename(name: string): Lang {
+  const lower = name.toLowerCase();
+  if (lower.includes('invoice-de')) return 'de';
+  if (lower.includes('invoice-es')) return 'es';
+  return 'ja';
+}
 
 // ── ID generation ─────────────────────────────────────────────────────────────
 let seedCounter = 0;
@@ -152,6 +176,7 @@ export interface UseDeskReturn {
   handlers: {
     send(text: string): void;
     attachSample(): void;
+    attachDemo(lang: Lang): void;
     attachFile(file: File): void;
     attachCapture(dataUrl: string): void;
     clearAttach(): void;
@@ -269,6 +294,11 @@ export function useDesk(): UseDeskReturn {
     rawDispatch({ type: 'SET_PENDING_ATTACH', att: SAMPLE_ATTACH });
   }, []);
 
+  // Seed the bundled demo invoice image for a given language.
+  const attachDemo = useCallback((lang: Lang) => {
+    rawDispatch({ type: 'SET_PENDING_ATTACH', att: demoAttach(lang) });
+  }, []);
+
   // Upload: read the chosen image file into a data-URL (stays on-device — the
   // extract tool turns it into a Blob for the multimodal Prompt API).
   const attachFile = useCallback((file: File) => {
@@ -281,7 +311,12 @@ export function useDesk(): UseDeskReturn {
       if (typeof result !== 'string' || !result.startsWith('data:')) return;
       rawDispatch({
         type: 'SET_PENDING_ATTACH',
-        att: { file: file.name, dataUrl: result, kind: 'upload' },
+        att: {
+          file: file.name,
+          dataUrl: result,
+          kind: 'upload',
+          lang: langFromFilename(file.name),
+        },
       });
     };
     reader.onerror = () => {
@@ -363,6 +398,7 @@ export function useDesk(): UseDeskReturn {
     handlers: {
       send,
       attachSample,
+      attachDemo,
       attachFile,
       attachCapture,
       clearAttach,

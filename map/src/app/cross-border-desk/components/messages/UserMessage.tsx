@@ -17,11 +17,10 @@ export function UserMessage({ m }: { m: Msg }) {
       }}
     >
       {m.att &&
-        (m.att.kind === 'sample' ? (
-          // Demo sample → the stylized 請求書 card (design fixture).
-          <InvoiceAttachmentCard att={m.att} />
-        ) : (
-          // Uploaded / captured image → show the actual attached image.
+        (m.att.dataUrl ? (
+          // Real attached image (demo, uploaded, or captured) → show the actual
+          // pixels the multimodal extract reads. The demo picks now ship a
+          // bundled invoice image, so they render here too.
           <div
             style={{
               width: 220,
@@ -48,6 +47,9 @@ export function UserMessage({ m }: { m: Msg }) {
             />
             <div style={{ fontSize: 10, color: COLORS.ink400, marginTop: 6 }}>{m.att.file}</div>
           </div>
+        ) : (
+          // No real image (edge case) → fall back to the stylized fixture card.
+          <InvoiceAttachmentCard att={m.att} />
         ))}
       <div
         style={{

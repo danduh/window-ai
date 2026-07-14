@@ -1,4 +1,4 @@
-// InvoiceCard — vendor halo, detected pill, lang toggle (原文/English),
+// InvoiceCard — vendor halo, detected pill, lang toggle (originalLabel/English),
 // line items, total + USD/FX (D§5b).
 import type { DetectedLang, InvoiceData, TranslatedDoc } from '../../types';
 import { COLORS, SHADOW_CARD_SOFT } from '../../tokens';
@@ -90,7 +90,7 @@ export function InvoiceCard({ invoice, detected, translated, showEn, onSelectLan
       {/* Lang toggle (only when translated exists) */}
       {translated && (
         <div style={{ display: 'flex', gap: 8, marginTop: 16 }}>
-          {langPill('原文', !showEn, false)}
+          {langPill(invoice.originalLabel, !showEn, false)}
           {langPill('English', showEn, true)}
         </div>
       )}
@@ -99,10 +99,10 @@ export function InvoiceCard({ invoice, detected, translated, showEn, onSelectLan
       <div style={{ marginTop: 16, display: 'flex', flexDirection: 'column', gap: 8 }}>
         {invoice.items.map((item) => (
           <div
-            key={item.ja}
+            key={item.native}
             style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, gap: 12 }}
           >
-            <span style={{ color: COLORS.ink600 }}>{en ? item.en : item.ja}</span>
+            <span style={{ color: COLORS.ink600 }}>{en ? item.en : item.native}</span>
             <span style={{ fontWeight: 500, flex: 'none' }}>{item.amt}</span>
           </div>
         ))}
@@ -117,7 +117,9 @@ export function InvoiceCard({ invoice, detected, translated, showEn, onSelectLan
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>{en ? 'Total' : '合計'}</span>
+          <span style={{ fontSize: 14, fontWeight: 600 }}>
+            {en ? 'Total' : invoice.langCode === 'ja' ? '合計' : 'Total'}
+          </span>
           <span style={{ fontSize: 20, fontWeight: 600 }}>{invoice.totalDisplay}</span>
         </div>
         <div style={{ fontSize: 12, color: COLORS.ink500, marginTop: 4, textAlign: 'right' }}>
