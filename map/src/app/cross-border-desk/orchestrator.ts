@@ -14,8 +14,8 @@ import {
   OFFLINE_BLOCK,
   ROUTES,
   TOOLS,
+  buildRouteReply,
   keywordChain,
-  routeReplyFor,
 } from './brain';
 import type {
   AttachmentRef,
@@ -23,6 +23,7 @@ import type {
   ConfirmKind,
   DeskAction,
   DeskState,
+  Lang,
   Msg,
   RouteDef,
   ToolName,
@@ -245,10 +246,24 @@ export async function dispatch(
     state.tier === 3
       ? keywordChain(msg) ?? { route: null, steps: [] }
       : await nanoChain(msg, state);
-  const { route, steps } = routed;
+  let { route, steps } = routed;
   if (steps.length === 0) {
-    send({ type: 'ADD_MSG', msg: { id: newId(), k: 'a', text: FALLBACK } });
-    return;
+    // Nothing matched — but if there's an unread invoice sitting in the
+    // composer ("check this", "look at this", or any stray message with an
+    // attachment and no invoice yet), treat the turn as the `read` route so
+    // the dropped invoice always gets read. Synthesize the read chain from
+    // ROUTES (deterministic, same expansion the keyword router uses).
+    if (state.pendingAttach && !state.invoice) {
+      const readRoute = ROUTES.find((r) => r.id === 'read') ?? null;
+      if (readRoute) {
+        route = readRoute;
+        steps = readRoute.chain.map((tool) => ({ tool, args: {} }));
+      }
+    }
+    if (steps.length === 0) {
+      send({ type: 'ADD_MSG', msg: { id: newId(), k: 'a', text: FALLBACK } });
+      return;
+    }
   }
 
   // 3. Precondition guard (pending attach still present, so needsAttach passes).
@@ -259,6 +274,15 @@ export async function dispatch(
     send({ type: 'ADD_MSG', msg: { id: newId(), k: 'a', text: guard } });
     return;
   }
+
+  // Resolve the turn's language ONCE and thread it through every step's args.
+  // Deterministic — avoids each tool re-reading a possibly-stale invoice.langCode
+  // (extract sets the invoice mid-loop; detect/translate must agree with it).
+  // Attachment lang wins (read turn); else the already-extracted invoice's lang.
+  const langState = withSeed(getState());
+  const rawLang = langState.pendingAttach?.lang ?? langState.invoice?.langCode;
+  const turnLang: Lang =
+    rawLang === 'de' || rawLang === 'es' || rawLang === 'ja' ? rawLang : 'ja';
 
   // 4. Run each step.
   send({ type: 'SET_BUSY', busy: true });
@@ -294,7 +318,7 @@ export async function dispatch(
       },
     });
     try {
-      const result = await callTool(step.tool, step.args);
+      const result = await callTool(step.tool, { ...step.args, lang: turnLang });
       send({
         type: 'UPDATE_CHIP',
         id: chipId,
@@ -317,11 +341,18 @@ export async function dispatch(
   // The attachment has now been consumed by the tool chain — clear the pill.
   if (pending) send({ type: 'SET_PENDING_ATTACH', att: null });
 
-  // 5. Closing assistant line; settle route also emits the privacy card.
+  // 5. Closing assistant line; settle route also emits the privacy card. Built
+  //    from the now-populated invoice/detected panels so the reply is
+  //    language-aware (read/translate/reply routes reference live facts).
   if (route) {
+    const s = getState();
     send({
       type: 'ADD_MSG',
-      msg: { id: newId(), k: 'a', text: routeReplyFor(route.id) },
+      msg: {
+        id: newId(),
+        k: 'a',
+        text: buildRouteReply(route.id, s.invoice, s.detected),
+      },
     });
     if (route.id === 'settle') {
       send({ type: 'ADD_MSG', msg: { id: newId(), k: 'p' } });

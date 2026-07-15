@@ -38,7 +38,7 @@ export function CrossBorderDesk() {
             pendingAttach={state.pendingAttach}
             busy={state.busy}
             onSend={handlers.send}
-            onAttachSample={handlers.attachSample}
+            onAttachDemo={handlers.attachDemo}
             onAttachFile={handlers.attachFile}
             onOpenWebcam={() => setWebcamOpen(true)}
             onClearAttach={handlers.clearAttach}

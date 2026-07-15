@@ -1,6 +1,9 @@
 // ── Tiers ────────────────────────────────────────────────────────────────
 export type Tier = 1 | 2 | 3;
 
+// ── Language ─────────────────────────────────────────────────────────────
+export type Lang = 'ja' | 'de' | 'es';
+
 // ── Tool identity ────────────────────────────────────────────────────────
 export type ToolName =
   | 'extract_invoice' | 'detect_language' | 'translate_document'
@@ -20,7 +23,7 @@ export interface ToolMeta {
 }
 
 // ── Domain data (from brain.js) ──────────────────────────────────────────
-export interface InvoiceItem { ja: string; en: string; amt: string; }
+export interface InvoiceItem { native: string; en: string; amt: string; }
 
 export interface InvoiceData {
   file: string;
@@ -37,6 +40,7 @@ export interface InvoiceData {
   langCode: string;      // "ja"
   confidence: string;    // "98%"
   recipientToken: string;// "rcp_7f3a…9c21"
+  originalLabel: string;  // toggle label for the untranslated view — "原文" (ja), "Original" (de/es)
   items: InvoiceItem[];
   check?: { itemsSumToTotal: boolean; datesOk: boolean; taxOk: boolean }; // set by check_document
 }
@@ -76,6 +80,7 @@ export type ChipStatus = 'running' | 'done' | 'error';
 export interface AttachmentRef {
   file: string;
   dataUrl: string;
+  lang?: Lang;
   /**
    * Where the attachment came from. `sample` renders the stylized 請求書 card
    * (design fixture); `upload`/`webcam` render the actual captured image so the

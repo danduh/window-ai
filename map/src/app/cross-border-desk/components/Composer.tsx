@@ -1,7 +1,7 @@
 // Composer — footer: pending-attach pill + attach button + text input (focus
 // ring) + Send button. Inputs disabled while busy (D§4).
 import { useEffect, useRef, useState } from 'react';
-import type { AttachmentRef } from '../types';
+import type { AttachmentRef, Lang } from '../types';
 import { COLORS, SHADOW_CARD_SOFT } from '../tokens';
 import { BillYen } from '../icons';
 
@@ -9,7 +9,7 @@ interface Props {
   pendingAttach: AttachmentRef | null;
   busy: boolean;
   onSend: (text: string) => void;
-  onAttachSample: () => void;
+  onAttachDemo: (lang: Lang) => void;
   onAttachFile: (file: File) => void;
   onOpenWebcam: () => void;
   onClearAttach: () => void;
@@ -19,7 +19,7 @@ export function Composer({
   pendingAttach,
   busy,
   onSend,
-  onAttachSample,
+  onAttachDemo,
   onAttachFile,
   onOpenWebcam,
   onClearAttach,
@@ -51,7 +51,9 @@ export function Composer({
   };
 
   const menuItems: { label: string; onSelect: () => void }[] = [
-    { label: 'Use demo invoice', onSelect: onAttachSample },
+    { label: 'Demo: Japanese invoice', onSelect: () => onAttachDemo('ja') },
+    { label: 'Demo: German invoice', onSelect: () => onAttachDemo('de') },
+    { label: 'Demo: Spanish invoice', onSelect: () => onAttachDemo('es') },
     { label: 'Upload image…', onSelect: () => fileInputRef.current?.click() },
     { label: 'Take a photo', onSelect: onOpenWebcam },
   ];
