@@ -33,6 +33,16 @@ async function promptCheck(): Promise<Avail> {
   return safe(() => LanguageModel.availability({ outputLanguage: 'en' }));
 }
 
+// Embedding API is EPP-only (Chrome 152 Canary) and not in the shared window.ai
+// typings yet, so read the bare global off globalThis rather than referencing it.
+async function embeddingsCheck(): Promise<Avail> {
+  const embedder = (
+    globalThis as { SemanticEmbedder?: { availability(): Promise<string> } }
+  ).SemanticEmbedder;
+  if (!embedder) return 'unavailable';
+  return safe(() => embedder.availability());
+}
+
 // ── Status badge (live, per browser) ────────────────────────────────────────
 const BADGE: Record<
   Avail | 'checking',
@@ -239,6 +249,22 @@ const CATALOG: ApiEntry[] = [
     verify: "'modelContext' in document || 'modelContext' in navigator",
     tryTo: { href: '/webmcp', label: 'WebMCP' },
     check: async () => (isModelContextAvailable() ? 'available' : 'unavailable'),
+  },
+  {
+    name: 'Embeddings — SemanticEmbedder',
+    blurb:
+      'Turns text into on-device semantic vectors (embeddinggemma-300m) — the basis for similarity search, “find similar”, clustering and on-device RAG, with no backend.',
+    stability: 'flag',
+    since: 'EPP · Chrome 152 Canary',
+    enable:
+      'Early Preview Program — Chrome Canary 152+ on desktop (Linux/macOS/Windows) only. Enable the flag below (+ the on-device model flag) and relaunch.',
+    flags: [
+      'chrome://flags/#semantic-embedder-api',
+      'chrome://flags/#optimization-guide-on-device-model',
+    ],
+    verify: 'await SemanticEmbedder.availability()',
+    tryTo: { href: '/embeddings', label: 'Embeddings' },
+    check: () => embeddingsCheck(),
   },
 ];
 

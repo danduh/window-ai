@@ -120,5 +120,17 @@ export const seoConfigs = {
     title: 'Multimodal API Docs — expectedInputs, image types, webcam-live pattern | Chrome AI APIs',
     description: 'Drag, paste, or capture an image — Gemini Nano answers your questions about it on-device with zero network. Chrome 148+ stable or flag-gated Canary.',
     keywords: 'Multimodal API docs, expectedInputs, image types, webcam-live, LanguageModel, promptStreaming, content parts, ImageBitmap, Chrome 148'
+  },
+  // Must match prerender-react.js seoConfigs['/embeddings'] verbatim — single source of truth.
+  embeddings: {
+    title: 'Embeddings — On-device semantic vectors with SemanticEmbedder | Chrome AI APIs',
+    description: 'Turn text into on-device semantic vectors (embeddinggemma-300m) with Chrome\'s SemanticEmbedder — cross-lingual search and clustering, no backend. Chrome 152+ Canary, desktop only.',
+    keywords: 'Embeddings API, SemanticEmbedder, embeddinggemma-300m, semantic vectors, cross-lingual search, clustering, cosine similarity, Matryoshka, on-device AI, Chrome 152'
+  },
+  // Must match prerender-react.js seoConfigs['/embeddings/docs'] verbatim — single source of truth.
+  embeddingsDocs: {
+    title: 'Embeddings API Docs — SemanticEmbedder surface, taskType, Matryoshka dims | Chrome AI APIs',
+    description: 'How to use Chrome\'s SemanticEmbedder: availability, create, embed with taskType, and Matryoshka dimension truncation for on-device similarity and clustering. Chrome 152+ Canary, desktop only.',
+    keywords: 'Embeddings API docs, SemanticEmbedder, embeddinggemma-300m, taskType, retrieval-query, retrieval-document, Matryoshka, cosine similarity, Float32Array, Chrome 152'
   }
 } as const;

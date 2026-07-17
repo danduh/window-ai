@@ -14,6 +14,7 @@ const DEMOS: { href: string; label: string; desc: string }[] = [
   { href: '/live-translate', label: 'Live translate', desc: 'Speech → live translation' },
   { href: '/writer', label: 'Write & Rewrite', desc: 'Draft and transform text' },
   { href: '/proofreader', label: 'Proofread', desc: 'Positioned grammar fixes' },
+  { href: '/embeddings', label: 'Embeddings', desc: 'Semantic vectors: cross-lingual search & clustering' },
   { href: '/webmcp', label: 'WebMCP', desc: 'Page as agent tools' },
   { href: '/generative-ui', label: 'Generative UI', desc: 'Tool-driven UI (WebMCP)' },
 ];
