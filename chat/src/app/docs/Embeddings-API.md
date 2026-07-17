@@ -128,6 +128,12 @@ embeddings.forEach((e, i) => {
 
 Batching is the right choice when indexing a collection — it's both simpler and cheaper than looping one string at a time.
 
+### Input size and truncation
+
+Each input is capped at roughly **2048 tokens** (the model's context window), and the API does **not** chunk for you. Crucially — confirmed on Chrome 152 Canary — passing a longer string does **not** throw: `embed()` resolves normally, but only the **first ~2048 tokens are embedded** and the rest is **silently ignored**, so the vector reflects only the beginning of the text.
+
+Because over-long input fails *silently* (a weaker embedding, not an error), **pre-chunk long documents yourself** — split on paragraphs or headings so each passage stays comfortably under the limit — and embed the chunks as a batch. No maximum batch size is documented, but embedding runs on-device, so very large batches are slower.
+
 ### Cleaning Up
 
 ```javascript
@@ -278,20 +284,15 @@ Embeddings are only comparable when they come from the **same model version** �
 
 ## Error Handling
 
+Over-long input does **not** throw — it's silently truncated (see *Input size and truncation*), so never rely on `embed()` to reject large text. Guard with `availability()` up front, and wrap `embed()` to catch genuine failures such as the model not being ready or an unsupported option:
+
 ```javascript
 try {
   const result = await embedder.embed(text, { taskType: "semantic-similarity" });
   use(result.embeddings[0].values);
 } catch (e) {
-  if (e instanceof DOMException) {
-    if (e.name === "QuotaExceededError") {
-      console.error("Input too long for the embedding model — shorten the text");
-    }
-    if (e.name === "NotSupportedError") {
-      console.error("This input or option is not supported in this build");
-    }
-  }
-  console.error(e);
+  // e.g. the session couldn't be created, or an option isn't supported in this build.
+  console.error("embed() failed:", e);
 }
 ```
 
@@ -339,7 +340,8 @@ If it moves `"downloadable" → "available"`, you're ready to `create()`. If it 
 4. **Match the task type.** `retrieval-document` for stored items, `retrieval-query` for the user's search string, `semantic-similarity` for symmetric comparisons.
 5. **Pick one dimension and stick to it.** If you truncate for storage, truncate every vector to the same Matryoshka size and re-normalize.
 6. **Never cross embedding spaces.** Only compare vectors from the same model version; re-embed when the model changes.
-7. **Destroy on teardown.** Call `destroy()` when you're done to release the model from memory.
+7. **Pre-chunk long text.** Inputs over ~2048 tokens are silently truncated (not rejected), so split long documents into passages yourself or you'll only embed their beginnings.
+8. **Destroy on teardown.** Call `destroy()` when you're done to release the model from memory.
 
 ## Using with TypeScript
 
