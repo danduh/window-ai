@@ -17,6 +17,7 @@ const DEMOS: { href: string; label: string; desc: string }[] = [
   { href: '/embeddings', label: 'Embeddings', desc: 'Semantic vectors: cross-lingual search & clustering' },
   { href: '/webmcp', label: 'WebMCP', desc: 'Page as agent tools' },
   { href: '/generative-ui', label: 'Generative UI', desc: 'Tool-driven UI (WebMCP)' },
+  { href: '/mcp-client', label: 'MCP Client', desc: 'Chat with a remote MCP server via the built-in LLM' },
 ];
 
 export const HomePage: React.FC = () => {

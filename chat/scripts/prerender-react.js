@@ -70,6 +70,9 @@ const routes = [
   { path: '/multimodal', filename: 'multimodal.html' },
   { path: '/multimodal/docs', filename: 'multimodal-docs.html' },
 
+  // MCP Client routes
+  { path: '/mcp-client', filename: 'mcp-client.html' },
+  { path: '/mcp-client/docs', filename: 'mcp-client-docs.html' },
   // Embeddings routes
   { path: '/embeddings', filename: 'embeddings.html' },
   { path: '/embeddings/docs', filename: 'embeddings-docs.html' },
@@ -481,6 +484,27 @@ function getSEODataForRoute(routePath) {
         description: 'Technical documentation for the LanguageModel multimodal API surface, expectedInputs, and image types',
       },
     },
+    '/mcp-client': {
+      title: 'MCP Client — Chat with a remote MCP server via the built-in LLM | Chrome AI APIs',
+      description: 'Connect to a remote Model Context Protocol server over Streamable HTTP, browse its tools, and drive them from Chrome\'s built-in LLM (Gemini Nano) — a manual responseFormat agent loop, no server-side model.',
+      keywords: 'MCP client, Model Context Protocol, Streamable HTTP, remote MCP server, Gemini Nano, built-in LLM, agent loop, bearer token, browser MCP, tool calling',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'MCP Client Demo',
+        description: 'Browser MCP client that chats with a remote MCP server via the built-in LLM',
+      },
+    },
+    '/mcp-client/docs': {
+      title: 'MCP Client API Docs — Streamable HTTP transport + agent loop | Chrome AI APIs',
+      description: 'How the browser MCP client connects over Streamable HTTP with a bearer token, lists tools, and dispatches them from a built-in-LLM responseFormat agent loop.',
+      keywords: 'MCP client docs, Model Context Protocol, StreamableHTTPClientTransport, listTools, callTool, CORS, bearer token, responseFormat agent loop, Gemini Nano',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'MCP Client API Documentation',
+        description: 'Technical documentation for the browser MCP client transport and built-in-LLM agent loop',
+      },
     '/embeddings': {
       title: 'Embeddings — On-device semantic vectors with SemanticEmbedder | Chrome AI APIs',
       description: 'Turn text into on-device semantic vectors (embeddinggemma-300m) with Chrome\'s SemanticEmbedder — cross-lingual search and clustering, no backend. Chrome 152+ Canary, desktop only.',
