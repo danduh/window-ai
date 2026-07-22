@@ -30,6 +30,14 @@ export const useSEOData = (config: SEOConfig, path?: string) => {
 // SEO configurations for each page
 export const seoConfigs = {
   home: {
+    title: 'Chrome Built-in AI — on-device AI APIs in your browser | window.ai',
+    description: 'The window.ai showcase: run Gemini Nano and Chrome\'s built-in AI APIs entirely on-device — prompt, summarize, translate, write, embed, and Model Context Protocol tools. Live interactive demos and developer docs, no server, no API key.',
+    keywords: 'window.ai, Chrome built-in AI, Gemini Nano, on-device AI, browser AI APIs, LanguageModel, Prompt API, Summarizer, Translator, Writer, Rewriter, embeddings, Model Context Protocol, MCP'
+  },
+  // /status — the capabilities / browser-status page (live availability checks).
+  // Carries the keyword-rich Chrome built-in AI / Gemini Nano status copy that
+  // previously lived on '/'. Keep in sync with any prerender entry for /status.
+  checkBrowser: {
     title: 'Chrome AI APIs - Built-in AI capabilities for modern web applications',
     description: 'Explore Chrome\'s experimental AI APIs including Chat (Gemini Nano), Summarization, Translation, and Writer/Rewriter. Interactive demos and comprehensive documentation for developers.',
     keywords: 'Chrome AI, Gemini Nano, AI APIs, web development, machine learning, browser AI, chat API, translation API, summarization API, writer API'

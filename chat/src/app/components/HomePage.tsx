@@ -1,138 +1,190 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
-import { ApiStatusGrid } from './ApiStatus';
-import { useShell } from './AppShell/ShellContext';
 import './HomePage.css';
 
-// Full demo index — every interactive page in the app.
-const DEMOS: { href: string; label: string; desc: string }[] = [
-  { href: '/chat', label: 'Chat', desc: 'Conversational Gemini Nano' },
-  { href: '/tool-calling', label: 'Tool calling', desc: 'Structured JSON + tools' },
-  { href: '/multimodal', label: 'Multimodal', desc: 'Image & webcam input' },
-  { href: '/summary', label: 'Summarize', desc: 'Key-points / TL;DR / headline' },
-  { href: '/translate', label: 'Translate', desc: 'Translate + detect language' },
-  { href: '/live-translate', label: 'Live translate', desc: 'Speech → live translation' },
-  { href: '/writer', label: 'Write & Rewrite', desc: 'Draft and transform text' },
-  { href: '/proofreader', label: 'Proofread', desc: 'Positioned grammar fixes' },
-  { href: '/embeddings', label: 'Embeddings', desc: 'Semantic vectors: cross-lingual search & clustering' },
-  { href: '/webmcp', label: 'WebMCP', desc: 'Page as agent tools' },
-  { href: '/generative-ui', label: 'Generative UI', desc: 'Tool-driven UI (WebMCP)' },
-  { href: '/mcp-client', label: 'MCP Client', desc: 'Chat with a remote MCP server via the built-in LLM' },
+// Capability pills — the suite of built-in AI APIs, shown under the hero.
+const PILLS = [
+  'Chat',
+  'Summarize',
+  'Translate',
+  'Multimodal',
+  'Embeddings',
+  'Proofread',
+  'Write & Rewrite',
 ];
 
-// Status-color legend shown in the intro card (matches ApiStatus badge colors).
-const LEGEND: { dot: string; label: string }[] = [
-  { dot: '#22c55e', label: 'Ready — usable now' },
-  { dot: '#3b82f6', label: 'Ready · downloads on first use' },
-  { dot: '#f59e0b', label: 'Downloading the model' },
-  { dot: '#94a3b8', label: 'Unavailable — see “How to enable”' },
+// Words the hero headline cycles through via the typewriter morph.
+const MORPH_WORDS = [
+  'chat.',
+  'summarize.',
+  'translate.',
+  'embed.',
+  'proofread.',
+  'see images.',
 ];
 
-// On mobile Chrome the built-in AI isn't available yet — point at the docs instead.
-const MOBILE_DOCS: { href: string; label: string }[] = [
-  { href: '/chat', label: 'Prompt API' },
-  { href: '/summary', label: 'Summarizer' },
-  { href: '/translate', label: 'Translator' },
-  { href: '/multimodal', label: 'Multimodal' },
-];
-
-const ArrowRight: React.FC<{ stroke?: string }> = ({ stroke = '#64748b' }) => (
-  <svg
-    width="1em"
-    height="1em"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke={stroke}
-    strokeWidth={2.2}
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ flexShrink: 0 }}
-  >
-    <path d="M9 5l7 7-7 7" />
-  </svg>
-);
+const GITHUB_URL = 'https://github.com/danduh/window-ai';
+const X_URL = 'https://x.com/danduh81';
 
 export const HomePage: React.FC = () => {
   useSEOData(seoConfigs.home, '/');
-  const { present } = useShell();
+
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const morphRef = useRef<HTMLSpanElement>(null);
+
+  // Canvas scanning-grid animation. Self-contained rAF loop + resize handler,
+  // all torn down on unmount via an `alive` guard.
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    let alive = true;
+    let rafId = 0;
+
+    const fit = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      canvas.width = w * dpr;
+      canvas.height = h * dpr;
+      const ctx = canvas.getContext('2d');
+      if (ctx) ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, w, h };
+    };
+
+    let { ctx, w, h } = fit();
+    const onResize = () => {
+      const f = fit();
+      ctx = f.ctx;
+      w = f.w;
+      h = f.h;
+    };
+    window.addEventListener('resize', onResize);
+
+    const gap = 44;
+    const loop = (t: number) => {
+      if (!alive || !ctx) return;
+      ctx.clearRect(0, 0, w, h);
+      ctx.lineWidth = 1;
+      ctx.strokeStyle = 'rgba(96,165,250,.06)';
+      const off = (t * 0.02) % gap;
+      for (let x = -off; x < w; x += gap) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+        ctx.stroke();
+      }
+      for (let y = -off; y < h; y += gap) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+        ctx.stroke();
+      }
+      const cx = ((t * 0.00007) % 1) * (w + 400) - 200;
+      const g = ctx.createLinearGradient(cx - 170, 0, cx + 170, h);
+      g.addColorStop(0, 'rgba(59,130,246,0)');
+      g.addColorStop(0.5, 'rgba(96,165,250,.10)');
+      g.addColorStop(1, 'rgba(147,51,234,0)');
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, w, h);
+      rafId = requestAnimationFrame(loop);
+    };
+    rafId = requestAnimationFrame(loop);
+
+    return () => {
+      alive = false;
+      cancelAnimationFrame(rafId);
+      window.removeEventListener('resize', onResize);
+    };
+  }, []);
+
+  // Typewriter morph on the gradient headline word. Mutates textContent via a
+  // ref (no per-keystroke re-render). Every timeout is tracked and cleared, and
+  // the `alive` guard prevents any DOM write after unmount.
+  useEffect(() => {
+    const el = morphRef.current;
+    if (!el) return;
+
+    let alive = true;
+    const timers = new Set<ReturnType<typeof setTimeout>>();
+
+    const wait = (ms: number) =>
+      new Promise<void>((res) => {
+        const t = setTimeout(() => {
+          timers.delete(t);
+          res();
+        }, ms);
+        timers.add(t);
+      });
+
+    const type = (text: string, speed: number) =>
+      new Promise<void>((res) => {
+        let i = 0;
+        const step = () => {
+          if (!alive) return res();
+          el.textContent = text.slice(0, ++i);
+          if (i < text.length) {
+            const t = setTimeout(() => {
+              timers.delete(t);
+              step();
+            }, speed);
+            timers.add(t);
+          } else res();
+        };
+        step();
+      });
+
+    const del = (text: string, speed: number) =>
+      new Promise<void>((res) => {
+        let i = text.length;
+        const step = () => {
+          if (!alive) return res();
+          el.textContent = text.slice(0, --i);
+          if (i > 0) {
+            const t = setTimeout(() => {
+              timers.delete(t);
+              step();
+            }, speed);
+            timers.add(t);
+          } else res();
+        };
+        step();
+      });
+
+    const run = async () => {
+      let k = 0;
+      await wait(500);
+      while (alive) {
+        const wd = MORPH_WORDS[k % MORPH_WORDS.length];
+        await type(wd, 65);
+        await wait(1500);
+        await del(wd, 34);
+        await wait(250);
+        k++;
+      }
+    };
+    run();
+
+    return () => {
+      alive = false;
+      timers.forEach((t) => clearTimeout(t));
+      timers.clear();
+    };
+  }, []);
 
   return (
-    <div className="home-root" style={{ minHeight: 'calc(100vh - 60px)' }}>
-      <div style={{ maxWidth: '1120px', margin: '0 auto', padding: '2.2em 2em 3em' }}>
-        {/* Presentation-mode banner */}
-        {present && (
-          <div
-            className="animate-fade-up"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: '16px',
-              marginBottom: '1.6em',
-              padding: '.7em 1.1em',
-              borderRadius: '12px',
-              background: 'rgba(59,130,246,.1)',
-              border: '1px solid rgba(59,130,246,.3)',
-            }}
-          >
-            <span
-              className="font-mono-code"
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '10px',
-                fontSize: '.8em',
-                fontWeight: 600,
-                color: '#93c5fd',
-              }}
-            >
-              <span
-                className="animate-pulse-dot"
-                style={{
-                  width: '9px',
-                  height: '9px',
-                  borderRadius: '99px',
-                  background: '#3b82f6',
-                }}
-              />
-              PRESENTATION MODE
-            </span>
-            <span
-              className="font-mono-code"
-              style={{ fontSize: '.75em', color: 'var(--fg3)' }}
-            >
-              press <b style={{ color: 'var(--fg2)' }}>P</b> or{' '}
-              <b style={{ color: 'var(--fg2)' }}>Esc</b> to exit
-            </span>
-          </div>
-        )}
+    <div className="landing-root">
+      <canvas ref={canvasRef} className="landing-canvas" />
+      <div className="landing-glow" />
 
-        {/* Hero */}
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'flex-start',
-            gap: '1.1em',
-            marginBottom: '1.8em',
-          }}
-        >
-          <div
-            style={{
-              flexShrink: 0,
-              width: '3.4em',
-              height: '3.4em',
-              borderRadius: '1em',
-              background: 'linear-gradient(135deg, #3b82f6, #9333ea)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              boxShadow: '0 12px 30px -8px rgba(59,130,246,.5)',
-            }}
-          >
+      {/* Top bar */}
+      <div className="landing-topbar">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div className="landing-logo-tile">
             <svg
-              width="1.7em"
-              height="1.7em"
+              width="18"
+              height="18"
               viewBox="0 0 24 24"
               fill="none"
               stroke="#fff"
@@ -143,285 +195,85 @@ export const HomePage: React.FC = () => {
               <path d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <div>
-            <h1
-              className="font-display"
-              style={{
-                margin: 0,
-                fontWeight: 700,
-                fontSize: '2.55em',
-                lineHeight: 1.02,
-                letterSpacing: '-.025em',
-                color: 'var(--fg)',
-              }}
-            >
-              Chrome Built-in AI APIs
-            </h1>
-            <p style={{ margin: '.35em 0 0', fontSize: '1.05em', color: 'var(--fg3)' }}>
-              On-device AI for web apps — live status for your browser
-            </p>
-          </div>
+          <span className="landing-brand">AI Tools</span>
         </div>
-
-        {/* Intro card */}
-        <div
-          style={{
-            borderRadius: '1em',
-            border: '1px solid var(--border)',
-            background: 'var(--surface)',
-            padding: '1.5em 1.6em',
-            marginBottom: '1.4em',
-          }}
-        >
-          <p
-            style={{
-              margin: 0,
-              fontSize: '1.06em',
-              lineHeight: 1.6,
-              color: 'var(--fg2)',
-            }}
+        <div className="landing-nav">
+          <Link to="/status" className="landing-nav-link">
+            Check your browser
+          </Link>
+          <Link to="/status" className="landing-nav-link">
+            Demos
+          </Link>
+          <a
+            href={GITHUB_URL}
+            title="GitHub"
+            target="_blank"
+            rel="noreferrer"
+            className="landing-social"
           >
-            Chrome ships a set of built-in AI APIs that run{' '}
-            <strong style={{ color: 'var(--fg)' }}>on-device</strong> via Gemini Nano — no
-            backend, no API keys, no per-request cost, and no data leaving the browser. Some
-            are stable, others are in an origin trial or behind a flag. The status on each card
-            below is checked{' '}
-            <strong style={{ color: 'var(--fg)' }}>live in your current browser</strong>.
-          </p>
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
-              gap: '.6em 1.5em',
-              marginTop: '1.2em',
-            }}
+            <svg width="18" height="18" viewBox="0 0 496 512" fill="currentColor">
+              <path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8" />
+            </svg>
+          </a>
+          <a
+            href={X_URL}
+            title="X"
+            target="_blank"
+            rel="noreferrer"
+            className="landing-social"
           >
-            {LEGEND.map((l) => (
-              <div
-                key={l.label}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '.6em',
-                  fontSize: '.9em',
-                  color: 'var(--fg3)',
-                }}
-              >
-                <span
-                  style={{
-                    width: '.65em',
-                    height: '.65em',
-                    borderRadius: '99px',
-                    background: l.dot,
-                  }}
-                />
-                {l.label}
-              </div>
-            ))}
-          </div>
-          {!present && (
-            <p style={{ margin: '1.2em 0 0', fontSize: '.84em', color: 'var(--fg3)' }}>
-              Requires a desktop Chrome 150+ (Windows, macOS, Linux) that meets the Gemini Nano
-              hardware bar (~22&nbsp;GB free disk, &gt;4&nbsp;GB VRAM or 16&nbsp;GB RAM). After
-              enabling a flag, relaunch Chrome.
-            </p>
-          )}
+            <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+              <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z" />
+            </svg>
+          </a>
         </div>
+      </div>
 
-        {/* Live API status cards (self-checked availability — do not hardcode) */}
-        <ApiStatusGrid />
-
-        {!present && (
-          <>
-            {/* Try the demos — desktop / tablet */}
-            <div
-              className="hidden md:block"
-              style={{
-                marginTop: '2.4em',
-                borderRadius: '1em',
-                border: '1px solid var(--border)',
-                background: 'var(--surface)',
-                padding: '1.6em',
-              }}
+      {/* Hero */}
+      <div className="landing-hero">
+        <div className="landing-badge">
+          <span className="landing-badge-dot" />
+          ONE ENGINE · MANY APIS
+        </div>
+        <h1 className="landing-h1">
+          The browser
+          <br />
+          that can <span ref={morphRef} className="landing-morph" />
+          <span className="landing-cursor" />
+        </h1>
+        <p className="landing-subtitle">
+          A whole suite of built-in AI APIs on Gemini Nano — pick a capability and it
+          just runs, locally. No backend, no API keys, no data leaving your machine.
+        </p>
+        <div className="landing-cta-row">
+          <Link to="/status" className="landing-cta-primary">
+            Check your browser
+            <svg
+              width="17"
+              height="17"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="round"
             >
-              <div
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '.7em',
-                  marginBottom: '1.2em',
-                }}
-              >
-                <div
-                  style={{
-                    width: '2.2em',
-                    height: '2.2em',
-                    borderRadius: '.6em',
-                    background: 'linear-gradient(135deg, #22c55e, #2563eb)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}
-                >
-                  <svg
-                    width="1.1em"
-                    height="1.1em"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#fff"
-                    strokeWidth={2.2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <h2
-                  className="font-display"
-                  style={{ margin: 0, fontWeight: 700, fontSize: '1.5em', color: 'var(--fg)' }}
-                >
-                  Try the demos
-                </h2>
-              </div>
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-                  gap: '.7em',
-                }}
-              >
-                {DEMOS.map((d) => (
-                  <Link
-                    key={d.href}
-                    to={d.href}
-                    className="home-demo-card"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: '.5em',
-                      padding: '.9em 1em',
-                      borderRadius: '.7em',
-                    }}
-                  >
-                    <div>
-                      <div
-                        className="font-display"
-                        style={{ fontWeight: 600, fontSize: '.95em', color: 'var(--fg)' }}
-                      >
-                        {d.label}
-                      </div>
-                      <div style={{ fontSize: '.8em', color: 'var(--fg3)' }}>{d.desc}</div>
-                    </div>
-                    <ArrowRight />
-                  </Link>
-                ))}
-              </div>
-            </div>
+              <path d="M5 12h14M13 6l6 6-6 6" />
+            </svg>
+          </Link>
+          <Link to="/status" className="landing-cta-secondary">
+            Explore the demos
+          </Link>
+        </div>
+      </div>
 
-            {/* Footer note — desktop / tablet */}
-            <p
-              className="hidden md:block"
-              style={{
-                margin: '1.6em 0 0',
-                textAlign: 'center',
-                fontSize: '.82em',
-                color: 'var(--fg3)',
-              }}
-            >
-              Status verified against the Chrome for Developers docs (July 2026, Chrome 150).
-              These APIs are evolving — flags and availability can change between releases.
-            </p>
-
-            {/* Mobile — built-in AI isn't on mobile Chrome yet */}
-            <div className="md:hidden" style={{ marginTop: '2.4em' }}>
-              <div
-                style={{
-                  borderRadius: '16px',
-                  border: '1px solid rgba(59,130,246,.3)',
-                  background: 'rgba(59,130,246,.08)',
-                  padding: '18px 16px',
-                }}
-              >
-                <div
-                  style={{
-                    width: '40px',
-                    height: '40px',
-                    borderRadius: '11px',
-                    background: 'rgba(59,130,246,.15)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    marginBottom: '12px',
-                  }}
-                >
-                  <svg
-                    width="20"
-                    height="20"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#60a5fa"
-                    strokeWidth={2}
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <rect x="5" y="2" width="14" height="20" rx="3" />
-                    <path d="M12 18h.01" />
-                  </svg>
-                </div>
-                <div
-                  className="font-display"
-                  style={{
-                    fontWeight: 700,
-                    color: 'var(--fg)',
-                    fontSize: '17px',
-                    lineHeight: 1.25,
-                    marginBottom: '6px',
-                  }}
-                >
-                  Built-in AI isn't on mobile Chrome yet
-                </div>
-                <div style={{ fontSize: '12.5px', lineHeight: 1.5, color: 'var(--fg3)' }}>
-                  Gemini Nano runs on desktop Chrome for now. Stay tuned — mobile support is
-                  coming. Meanwhile, you can browse the docs below.
-                </div>
-              </div>
-              <div
-                className="font-mono-code"
-                style={{
-                  fontSize: '10px',
-                  letterSpacing: '.1em',
-                  textTransform: 'uppercase',
-                  color: 'var(--fg3)',
-                  margin: '16px 4px 8px',
-                }}
-              >
-                Read the docs
-              </div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
-                {MOBILE_DOCS.map((m) => (
-                  <Link
-                    key={m.href}
-                    to={m.href}
-                    className="home-doc-row"
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      padding: '11px 13px',
-                      borderRadius: '11px',
-                    }}
-                  >
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--fg2)' }}>
-                      {m.label}
-                    </span>
-                    <ArrowRight />
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </>
-        )}
+      {/* Pills */}
+      <div className="landing-pills">
+        {PILLS.map((p) => (
+          <span key={p} className="landing-pill">
+            {p}
+          </span>
+        ))}
       </div>
     </div>
   );
