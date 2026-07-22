@@ -44,34 +44,43 @@ async function embeddingsCheck(): Promise<Avail> {
 }
 
 // ── Status badge (live, per browser) ────────────────────────────────────────
-const BADGE: Record<
+// Colors are taken verbatim from the Home Redesign mock and are intentionally
+// theme-independent (they read well on both the dark and light surfaces).
+const STATUS: Record<
   Avail | 'checking',
-  { label: string; cls: string; dot: string }
+  { label: string; dot: string; bg: string; fg: string; pulse?: boolean }
 > = {
   checking: {
     label: 'Checking…',
-    cls: 'bg-gray-100 text-gray-500 dark:bg-gray-700 dark:text-gray-400',
-    dot: 'bg-gray-400 animate-pulse',
+    dot: '#94a3b8',
+    bg: 'rgba(148,163,184,.15)',
+    fg: '#cbd5e1',
+    pulse: true,
   },
   available: {
     label: 'Ready',
-    cls: 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300',
-    dot: 'bg-green-500',
+    dot: '#22c55e',
+    bg: 'rgba(34,197,94,.15)',
+    fg: '#4ade80',
   },
   downloadable: {
-    label: 'Ready · downloads on first use',
-    cls: 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300',
-    dot: 'bg-blue-500',
+    label: 'Downloads on first use',
+    dot: '#3b82f6',
+    bg: 'rgba(59,130,246,.15)',
+    fg: '#60a5fa',
   },
   downloading: {
-    label: 'Downloading…',
-    cls: 'bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300',
-    dot: 'bg-amber-500 animate-pulse',
+    label: 'Downloading',
+    dot: '#f59e0b',
+    bg: 'rgba(245,158,11,.15)',
+    fg: '#fbbf24',
+    pulse: true,
   },
   unavailable: {
     label: 'Unavailable here',
-    cls: 'bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400',
-    dot: 'bg-gray-400',
+    dot: '#94a3b8',
+    bg: 'rgba(148,163,184,.15)',
+    fg: '#cbd5e1',
   },
 };
 
@@ -84,31 +93,60 @@ const StatusBadge: React.FC<{ check: () => Promise<Avail> }> = ({ check }) => {
       alive = false;
     };
   }, [check]);
-  const b = BADGE[state];
+  const s = STATUS[state];
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-semibold whitespace-nowrap ${b.cls}`}
+      className="font-mono-code"
       title="Live availability in this browser"
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '.4em',
+        whiteSpace: 'nowrap',
+        borderRadius: '99px',
+        padding: '.25em .6em',
+        fontSize: '.68em',
+        fontWeight: 600,
+        background: s.bg,
+        color: s.fg,
+      }}
     >
-      <span className={`w-2 h-2 rounded-full ${b.dot}`} />
-      {b.label}
+      <span
+        style={{
+          width: '.5em',
+          height: '.5em',
+          borderRadius: '99px',
+          background: s.dot,
+          animation: s.pulse ? 'pulseDot 1.4s infinite' : undefined,
+        }}
+      />
+      {s.label}
     </span>
   );
 };
 
 type Stability = 'stable' | 'origin-trial' | 'flag';
-const STABILITY: Record<Stability, { label: string; cls: string }> = {
+const STABILITY: Record<
+  Stability,
+  { label: string; bg: string; fg: string; border: string }
+> = {
   stable: {
     label: 'Stable',
-    cls: 'bg-green-50 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-300 dark:border-green-800',
+    bg: 'rgba(34,197,94,.12)',
+    fg: '#4ade80',
+    border: 'rgba(34,197,94,.3)',
   },
   'origin-trial': {
     label: 'Origin trial',
-    cls: 'bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-900/20 dark:text-blue-300 dark:border-blue-800',
+    bg: 'rgba(59,130,246,.12)',
+    fg: '#60a5fa',
+    border: 'rgba(59,130,246,.3)',
   },
   flag: {
     label: 'Behind a flag',
-    cls: 'bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-300 dark:border-amber-800',
+    bg: 'rgba(245,158,11,.12)',
+    fg: '#fbbf24',
+    border: 'rgba(245,158,11,.3)',
   },
 };
 
@@ -268,37 +306,131 @@ const CATALOG: ApiEntry[] = [
   },
 ];
 
+// ── Reusable presentational bits ─────────────────────────────────────────────
+const MONO_LABEL: React.CSSProperties = {
+  fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+  fontSize: '.66em',
+  letterSpacing: '.08em',
+  textTransform: 'uppercase',
+  color: 'var(--fg3, #64748b)',
+  marginBottom: '.35em',
+};
+
 const FlagPill: React.FC<{ flag: string }> = ({ flag }) => (
-  <code className="block bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-2 py-1 rounded font-mono text-xs break-all">
+  <code
+    style={{
+      fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+      fontSize: '.72em',
+      wordBreak: 'break-all',
+      padding: '.35em .5em',
+      borderRadius: '.4em',
+      background: 'var(--surface2, rgba(148,163,184,.08))',
+      color: 'var(--fg2, #cbd5e1)',
+    }}
+  >
     {flag}
   </code>
 );
 
 const ApiCard: React.FC<{ api: ApiEntry }> = ({ api }) => {
+  const [hover, setHover] = useState(false);
   const s = STABILITY[api.stability];
   return (
-    <div className="bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 p-5 flex flex-col transition-colors duration-200">
-      <div className="flex items-start justify-between gap-3 mb-2">
-        <h3 className="text-lg font-bold text-gray-900 dark:text-white leading-snug">
+    <div
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '.9em',
+        border: `1px solid ${hover ? 'rgba(59,130,246,.5)' : 'var(--border, #1e293b)'}`,
+        background: 'var(--surface, #131c2b)',
+        padding: '1.15em',
+        transition: 'border-color .15s ease',
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          gap: '.6em',
+          marginBottom: '.7em',
+        }}
+      >
+        <h3
+          className="font-display"
+          style={{
+            margin: 0,
+            fontWeight: 600,
+            fontSize: '1.08em',
+            lineHeight: 1.2,
+            color: 'var(--fg, #f8fafc)',
+          }}
+        >
           {api.name}
         </h3>
         <StatusBadge check={api.check} />
       </div>
-      <div className="flex flex-wrap items-center gap-2 mb-3">
-        <span className={`text-xs font-semibold px-2 py-0.5 rounded-full border ${s.cls}`}>
+
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          alignItems: 'center',
+          gap: '.5em',
+          marginBottom: '.8em',
+        }}
+      >
+        <span
+          style={{
+            fontSize: '.68em',
+            fontWeight: 600,
+            padding: '.2em .55em',
+            borderRadius: '99px',
+            border: `1px solid ${s.border}`,
+            background: s.bg,
+            color: s.fg,
+          }}
+        >
           {s.label}
         </span>
-        <span className="text-xs text-gray-500 dark:text-gray-400">{api.since}</span>
+        <span
+          style={{
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: '.72em',
+            color: 'var(--fg3, #64748b)',
+          }}
+        >
+          {api.since}
+        </span>
       </div>
-      <p className="text-sm text-gray-700 dark:text-gray-300 mb-4">{api.blurb}</p>
 
-      <div className="mb-3">
-        <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          How to enable
+      <p
+        style={{
+          margin: '0 0 1em',
+          fontSize: '.84em',
+          lineHeight: 1.5,
+          color: 'var(--fg2, #cbd5e1)',
+        }}
+      >
+        {api.blurb}
+      </p>
+
+      <div style={{ marginBottom: '.8em' }}>
+        <div style={MONO_LABEL}>How to enable</div>
+        <p
+          style={{
+            margin: '0 0 .5em',
+            fontSize: '.8em',
+            lineHeight: 1.45,
+            color: 'var(--fg3, #94a3b8)',
+          }}
+        >
+          {api.enable}
         </p>
-        <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">{api.enable}</p>
         {api.flags && (
-          <div className="space-y-1">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '.3em' }}>
             {api.flags.map((f) => (
               <FlagPill key={f} flag={f} />
             ))}
@@ -306,11 +438,20 @@ const ApiCard: React.FC<{ api: ApiEntry }> = ({ api }) => {
         )}
       </div>
 
-      <div className="mb-4">
-        <p className="text-xs font-semibold text-gray-900 dark:text-gray-100 mb-1">
-          Check availability
-        </p>
-        <code className="block bg-gray-900 text-gray-100 dark:bg-gray-950 px-3 py-2 rounded font-mono text-xs break-all">
+      <div style={{ marginBottom: '1em' }}>
+        <div style={MONO_LABEL}>Check availability</div>
+        <code
+          style={{
+            display: 'block',
+            fontFamily: "'JetBrains Mono', ui-monospace, monospace",
+            fontSize: '.72em',
+            wordBreak: 'break-all',
+            padding: '.55em .6em',
+            borderRadius: '.45em',
+            background: 'var(--codebg, #060a12)',
+            color: 'var(--codefg, #e2e8f0)',
+          }}
+        >
           {api.verify}
         </code>
       </div>
@@ -318,11 +459,28 @@ const ApiCard: React.FC<{ api: ApiEntry }> = ({ api }) => {
       {api.tryTo && (
         <Link
           to={api.tryTo.href}
-          className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-primary-600 dark:text-primary-400 hover:text-primary-700 dark:hover:text-primary-300"
+          style={{
+            marginTop: 'auto',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '.4em',
+            fontSize: '.85em',
+            fontWeight: 600,
+            color: hover ? '#93c5fd' : '#60a5fa',
+          }}
         >
           Try it: {api.tryTo.label}
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          <svg
+            width=".9em"
+            height=".9em"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.2}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </Link>
       )}
@@ -332,7 +490,13 @@ const ApiCard: React.FC<{ api: ApiEntry }> = ({ api }) => {
 
 /** Grid of live API-status cards. */
 export const ApiStatusGrid: React.FC = () => (
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+  <div
+    style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(290px, 1fr))',
+      gap: '1em',
+    }}
+  >
     {CATALOG.map((api) => (
       <ApiCard key={api.name} api={api} />
     ))}

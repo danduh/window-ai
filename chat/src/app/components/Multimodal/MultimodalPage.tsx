@@ -94,7 +94,7 @@ export const MultimodalPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">

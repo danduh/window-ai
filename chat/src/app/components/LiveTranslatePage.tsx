@@ -361,7 +361,7 @@ const LiveTranslatePage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">
@@ -404,7 +404,7 @@ const LiveTranslatePage: React.FC = () => {
           </div>
         </header>
 
-        <Tabs basePath="/live-translate" defaultTab="demo" tabs={tabs} />
+        <Tabs basePath="/live-translate" defaultTab="docs" tabs={tabs} />
       </div>
     </div>
   );

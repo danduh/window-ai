@@ -108,3 +108,86 @@ input[type="range"]::-moz-range-thumb {
 .animate-pulse-subtle {
   animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
+
+/* ── App shell palette (Home Redesign) ─────────────────────────────
+   CSS custom properties consumed by the AppShell + HomePage. They flip
+   with the ThemeProvider's `dark` class on <html>. Light is the base;
+   `html.dark` overrides to the dark palette. */
+.app-shell {
+  --page: #f1f5f9;
+  --rail: #ffffff;
+  --surface: #ffffff;
+  --surface2: #f1f5f9;
+  --border: #e2e8f0;
+  --fg: #0f172a;
+  --fg2: #334155;
+  --fg3: #64748b;
+  --codebg: #0f172a;
+  --codefg: #e2e8f0;
+  --topbar: rgba(255, 255, 255, 0.82);
+  --accent: #3b82f6;
+  --accent2: #60a5fa;
+  --accent3: #93c5fd;
+}
+
+html.dark .app-shell {
+  --page: #0d1420;
+  --rail: #0b131f;
+  --surface: #131c2b;
+  --surface2: rgba(148, 163, 184, 0.06);
+  --border: #1e293b;
+  --fg: #f8fafc;
+  --fg2: #cbd5e1;
+  --fg3: #94a3b8;
+  --codebg: #060a12;
+  --codefg: #e2e8f0;
+  --topbar: rgba(13, 20, 32, 0.82);
+}
+
+/* Shell fonts */
+.font-display {
+  font-family: 'Space Grotesk', system-ui, sans-serif;
+}
+.font-mono-code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+/* Thin scrollbar for the rail / main */
+.om-scroll::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.om-scroll::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.4);
+  border-radius: 99px;
+}
+.om-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Animations used by the shell / home present banner */
+@keyframes pulseDot {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.animate-pulse-dot {
+  animation: pulseDot 1.4s infinite;
+}
+.animate-fade-up {
+  animation: fadeUp 0.3s ease;
+}

@@ -261,7 +261,7 @@ export const RecipeWorkbenchPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">
@@ -317,7 +317,7 @@ export const RecipeWorkbenchPage: React.FC = () => {
 
         {!isModelContextAvailable() && <MissingFlagBanner />}
 
-        <Tabs basePath="/webmcp" defaultTab="workbench" tabs={tabs} />
+        <Tabs basePath="/webmcp" defaultTab="docs" tabs={tabs} />
       </div>
     </div>
   );

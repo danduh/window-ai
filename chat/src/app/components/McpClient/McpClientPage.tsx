@@ -101,7 +101,7 @@ export const McpClientPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">
@@ -162,7 +162,7 @@ export const McpClientPage: React.FC = () => {
             Connect to a remote MCP server and chat with it via the browser&apos;s built-in LLM.
           </p>
         </header>
-        <Tabs basePath="/mcp-client" defaultTab="client" tabs={tabs} />
+        <Tabs basePath="/mcp-client" defaultTab="docs" tabs={tabs} />
       </div>
     </div>
   );

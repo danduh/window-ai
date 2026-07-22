@@ -74,7 +74,7 @@ export const GenerativeUIPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">
@@ -98,7 +98,7 @@ export const GenerativeUIPage: React.FC = () => {
       <div className="max-w-6xl mx-auto p-4">
         {!isModelContextAvailable() && <MissingFlagBanner />}
         <GenerativeUIHeader />
-        <Tabs basePath="/generative-ui" defaultTab="workbench" tabs={tabs} />
+        <Tabs basePath="/generative-ui" defaultTab="docs" tabs={tabs} />
         <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
           🔒 Zero network during demo — open DevTools → Network tab
         </p>
