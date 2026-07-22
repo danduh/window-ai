@@ -12,6 +12,7 @@ import {GenerativeUIPage} from "./components/GenerativeUIPage";
 import {ProofreaderPage} from './components/Proofreader/ProofreaderPage';
 import {MultimodalPage} from './components/Multimodal/MultimodalPage';
 import {McpClientPage} from './components/McpClient/McpClientPage';
+import {EmbeddingsPage} from './components/Embeddings/EmbeddingsPage';
 import {AppContext} from "./context";
 import {ThemeProvider} from "./context/ThemeContext";
 import {useGoogleAnalytics} from "./hooks/useGoogleAnalytics";
@@ -86,6 +87,9 @@ const AppRouter: React.FC = () => {
                     <Link to="/multimodal"
                           onClick={() => trackUserInteraction('navigation_click', 'multimodal_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Multimodal</Link>
+                    <Link to="/embeddings"
+                          onClick={() => trackUserInteraction('navigation_click', 'embeddings_link')}
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Embeddings</Link>
                     <Link to="/writer"
                           onClick={() => trackUserInteraction('navigation_click', 'writer_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Writer/Rewriter</Link>
@@ -188,6 +192,9 @@ const AppRouter: React.FC = () => {
                 <Link to="/multimodal"
                       onClick={() => trackUserInteraction('navigation_click', 'multimodal_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Multimodal</Link>
+                <Link to="/embeddings"
+                      onClick={() => trackUserInteraction('navigation_click', 'embeddings_link_mobile')}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Embeddings</Link>
                 <Link to="/writer"
                       onClick={() => trackUserInteraction('navigation_click', 'writer_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Writer/Rewriter</Link>
@@ -276,6 +283,9 @@ const AppRouter: React.FC = () => {
               {/* MCP Client routes */}
               <Route path="/mcp-client" element={<McpClientPage/>}/>
               <Route path="/mcp-client/docs" element={<McpClientPage/>}/>
+              {/* Embeddings routes */}
+              <Route path="/embeddings" element={<EmbeddingsPage/>}/>
+              <Route path="/embeddings/docs" element={<EmbeddingsPage/>}/>
 
               {/* Writer/Rewriter routes */}
               <Route path="/writer" element={<Navigate to="/writer/writer-api-documentation" replace/>}/>

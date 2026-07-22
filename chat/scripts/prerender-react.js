@@ -73,6 +73,9 @@ const routes = [
   // MCP Client routes
   { path: '/mcp-client', filename: 'mcp-client.html' },
   { path: '/mcp-client/docs', filename: 'mcp-client-docs.html' },
+  // Embeddings routes
+  { path: '/embeddings', filename: 'embeddings.html' },
+  { path: '/embeddings/docs', filename: 'embeddings-docs.html' },
 ];
 
 // Build configuration
@@ -501,6 +504,27 @@ function getSEODataForRoute(routePath) {
         '@type': 'TechArticle',
         name: 'MCP Client API Documentation',
         description: 'Technical documentation for the browser MCP client transport and built-in-LLM agent loop',
+      },
+    '/embeddings': {
+      title: 'Embeddings — On-device semantic vectors with SemanticEmbedder | Chrome AI APIs',
+      description: 'Turn text into on-device semantic vectors (embeddinggemma-300m) with Chrome\'s SemanticEmbedder — cross-lingual search and clustering, no backend. Chrome 152+ Canary, desktop only.',
+      keywords: 'Embeddings API, SemanticEmbedder, embeddinggemma-300m, semantic vectors, cross-lingual search, clustering, cosine similarity, Matryoshka, on-device AI, Chrome 152',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Embeddings Demo',
+        description: 'On-device semantic vectors with SemanticEmbedder for cross-lingual search and clustering',
+      },
+    },
+    '/embeddings/docs': {
+      title: 'Embeddings API Docs — SemanticEmbedder surface, taskType, Matryoshka dims | Chrome AI APIs',
+      description: 'How to use Chrome\'s SemanticEmbedder: availability, create, embed with taskType, and Matryoshka dimension truncation for on-device similarity and clustering. Chrome 152+ Canary, desktop only.',
+      keywords: 'Embeddings API docs, SemanticEmbedder, embeddinggemma-300m, taskType, retrieval-query, retrieval-document, Matryoshka, cosine similarity, Float32Array, Chrome 152',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Embeddings API Documentation',
+        description: 'Technical documentation for the SemanticEmbedder API surface, taskType, and Matryoshka dimension truncation',
       },
     },
   };
