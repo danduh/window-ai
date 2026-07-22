@@ -16,6 +16,15 @@ module.exports = {
         ],
     },
 
+    // @modelcontextprotocol/sdk ships .js.map files that reference .ts sources not
+    // included in the published package, so source-map-loader can't resolve them.
+    // These warnings are harmless — suppress only those (leave other packages' intact).
+    ignoreWarnings: [
+        (warning) =>
+            /Failed to parse source map/.test(warning.message || '') &&
+            /@modelcontextprotocol[\\/]sdk/.test(warning.message || ''),
+    ],
+
     output: {
         path: join(__dirname, '../dist/chat'),
     },

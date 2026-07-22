@@ -11,6 +11,7 @@ import {RecipeWorkbenchPage} from "./components/RecipeWorkbenchPage";
 import {GenerativeUIPage} from "./components/GenerativeUIPage";
 import {ProofreaderPage} from './components/Proofreader/ProofreaderPage';
 import {MultimodalPage} from './components/Multimodal/MultimodalPage';
+import {McpClientPage} from './components/McpClient/McpClientPage';
 import {AppContext} from "./context";
 import {ThemeProvider} from "./context/ThemeContext";
 import {useGoogleAnalytics} from "./hooks/useGoogleAnalytics";
@@ -73,6 +74,9 @@ const AppRouter: React.FC = () => {
                     <Link to="/webmcp"
                           onClick={() => trackUserInteraction('navigation_click', 'webmcp_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">WebMCP</Link>
+                    <Link to="/mcp-client"
+                          onClick={() => trackUserInteraction('navigation_click', 'mcp_client_link')}
+                          className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">MCP Client</Link>
                     <Link to="/generative-ui"
                           onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link')}
                           className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200">Generative UI</Link>
@@ -172,6 +176,9 @@ const AppRouter: React.FC = () => {
                 <Link to="/webmcp"
                       onClick={() => trackUserInteraction('navigation_click', 'webmcp_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">WebMCP</Link>
+                <Link to="/mcp-client"
+                      onClick={() => trackUserInteraction('navigation_click', 'mcp_client_link_mobile')}
+                      className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">MCP Client</Link>
                 <Link to="/generative-ui"
                       onClick={() => trackUserInteraction('navigation_click', 'generative_ui_link_mobile')}
                       className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white block px-3 py-2 rounded-md text-base font-medium transition-colors duration-200">Generative UI</Link>
@@ -265,6 +272,10 @@ const AppRouter: React.FC = () => {
               {/* Multimodal routes */}
               <Route path="/multimodal" element={<MultimodalPage/>}/>
               <Route path="/multimodal/docs" element={<MultimodalPage/>}/>
+
+              {/* MCP Client routes */}
+              <Route path="/mcp-client" element={<McpClientPage/>}/>
+              <Route path="/mcp-client/docs" element={<McpClientPage/>}/>
 
               {/* Writer/Rewriter routes */}
               <Route path="/writer" element={<Navigate to="/writer/writer-api-documentation" replace/>}/>
