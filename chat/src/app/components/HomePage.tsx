@@ -4,14 +4,15 @@ import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 import './HomePage.css';
 
 // Capability pills — the suite of built-in AI APIs, shown under the hero.
-const PILLS = [
-  'Chat',
-  'Summarize',
-  'Translate',
-  'Multimodal',
-  'Embeddings',
-  'Proofread',
-  'Write & Rewrite',
+// Each links to its demo/docs route (inside the app shell).
+const PILLS: { label: string; href: string }[] = [
+  { label: 'Chat', href: '/chat' },
+  { label: 'Summarize', href: '/summary' },
+  { label: 'Translate', href: '/translate' },
+  { label: 'Multimodal', href: '/multimodal' },
+  { label: 'Embeddings', href: '/embeddings' },
+  { label: 'Proofread', href: '/proofreader' },
+  { label: 'Write & Rewrite', href: '/writer' },
 ];
 
 // Words the hero headline cycles through via the typewriter morph.
@@ -25,7 +26,7 @@ const MORPH_WORDS = [
 ];
 
 const GITHUB_URL = 'https://github.com/danduh/window-ai';
-const X_URL = 'https://x.com/danduh81';
+const LINKEDIN_URL = 'https://www.linkedin.com/in/danduh';
 
 export const HomePage: React.FC = () => {
   useSEOData(seoConfigs.home, '/');
@@ -216,14 +217,14 @@ export const HomePage: React.FC = () => {
             </svg>
           </a>
           <a
-            href={X_URL}
-            title="X"
+            href={LINKEDIN_URL}
+            title="LinkedIn"
             target="_blank"
             rel="noreferrer"
             className="landing-social"
           >
-            <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
-              <path d="M389.2 48h70.6L305.6 224.2 487 464H345L233.7 318.6 106.5 464H35.8l164.9-188.5L26.8 48h145.6l100.5 132.9zm-24.8 373.8h39.1L151.1 88h-42z" />
+            <svg width="16" height="16" viewBox="0 0 448 512" fill="currentColor">
+              <path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5m282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z" />
             </svg>
           </a>
         </div>
@@ -270,9 +271,9 @@ export const HomePage: React.FC = () => {
       {/* Pills */}
       <div className="landing-pills">
         {PILLS.map((p) => (
-          <span key={p} className="landing-pill">
-            {p}
-          </span>
+          <Link key={p.href} to={p.href} className="landing-pill">
+            {p.label}
+          </Link>
         ))}
       </div>
     </div>
