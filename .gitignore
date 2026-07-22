@@ -149,6 +149,9 @@ notebooklm/The_Browser_AI_Runtime_forClaude*.pptx
 design/*.zip
 design/**/fonts/
 
+# Local-only MCP dev helper — references an internal gateway URL, keep out of this public repo
+mcp-cors-proxy.mjs
+
 .nx/cache
 .nx/workspace-data
 vite.config.*.timestamp*
