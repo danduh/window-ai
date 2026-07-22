@@ -142,9 +142,9 @@ Still — this is a demo. Use a scoped, revocable, low-privilege token, not a lo
 
 ## Run a local test server
 
-The repo ships a minimal CORS-enabled Streamable HTTP MCP server for exactly this demo: `mcp-spike-server.mjs` at the repo root. It exposes two tools — `add` (sums two numbers) and `echo` (echoes a message) — and sets the CORS headers this browser client needs (`Access-Control-Allow-Origin: *`, `Mcp-Session-Id` exposed, `Authorization` allowed).
+The repo ships a minimal CORS-enabled Streamable HTTP MCP server for exactly this demo: [`mcp-spike-server.mjs`](https://github.com/danduh/window-ai/blob/main/mcp-spike-server.mjs) at the repo root. It exposes two tools — `add` (sums two numbers) and `echo` (echoes a message) — and sets the CORS headers this browser client needs (`Access-Control-Allow-Origin: *`, `Mcp-Session-Id` exposed, `Authorization` allowed).
 
-From the repo root:
+Clone the repo — [github.com/danduh/window-ai](https://github.com/danduh/window-ai) — then from its root:
 
 ```bash
 node ./mcp-spike-server.mjs
@@ -192,5 +192,6 @@ Because it's local and permissive, it sidesteps the CORS problem entirely — wh
 - Streamable HTTP transport — the `StreamableHTTPClientTransport` / `StreamableHTTPServerTransport` pair used here
 - Chrome Prompt API (`LanguageModel`) — https://developer.chrome.com/docs/ai/prompt-api
 - The inverse demo — the `/webmcp` Recipe Workbench (this page's mirror: page-as-server instead of page-as-client)
-- Client source — `chat/src/app/services/McpClientService.ts`
-- Local test server — `mcp-spike-server.mjs` (repo root; `node ./mcp-spike-server.mjs`)
+- Source repository — https://github.com/danduh/window-ai
+- Client source — [`chat/src/app/services/McpClientService.ts`](https://github.com/danduh/window-ai/blob/main/chat/src/app/services/McpClientService.ts)
+- Local test server — [`mcp-spike-server.mjs`](https://github.com/danduh/window-ai/blob/main/mcp-spike-server.mjs) (repo root; `node ./mcp-spike-server.mjs`)

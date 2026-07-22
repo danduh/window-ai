@@ -166,6 +166,29 @@ const ConnectionPanel: React.FC<ConnectionPanelProps> = ({
         Authorization / Mcp-Session-Id headers.
       </p>
 
+      {!isConnected && (
+        <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+          No server handy? Clone the{' '}
+          <a
+            href="https://github.com/danduh/window-ai"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+          >
+            repo ↗
+          </a>{' '}
+          and run{' '}
+          <code className="rounded bg-gray-100 dark:bg-gray-700 px-1 py-0.5 font-mono">
+            node ./mcp-spike-server.mjs
+          </code>{' '}
+          from its root, then connect to{' '}
+          <code className="rounded bg-gray-100 dark:bg-gray-700 px-1 py-0.5 font-mono">
+            {DEFAULT_URL}
+          </code>
+          .
+        </p>
+      )}
+
       {status === 'error' && error && (
         <div className="mt-4 rounded-lg border border-red-200 dark:border-red-800/60 bg-red-50 dark:bg-red-900/20 p-4">
           <p className="text-sm font-medium text-red-800 dark:text-red-300">Connection failed</p>
