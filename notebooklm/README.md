@@ -35,7 +35,7 @@ This folder is the **input + production pack** for a NotebookLM-driven content p
 
 1. Create a new NotebookLM notebook titled *"Small LLM in your Browser"*.
 2. Upload all 11 files from `sources/` as separate sources. NotebookLM works better with multiple focused sources than one giant document — its retrieval surfaces tighter quotes.
-3. Optionally upload the current deck `slides/Small-LLM-in-your-Browser-v2.pptx` for slide context (not the superseded v1 `Small-LLM-in-your-Browser.pptx` at the repo root).
+3. Optionally upload the current deck `slides/Small-LLM-in-your-Browser-v2.pptx` for slide context.
 4. Generate the **Audio Overview** ("Deep Dive") — useful for reviewing the talk's coherence by listening to the AI hosts discuss it.
 5. Generate the **Mind Map** — sanity-check that the structure flows.
 6. Use the Q&A box to interrogate your own material: *"What's the strongest counterargument to running LLMs in the browser?"* / *"What demo should open the talk?"* / *"Which API is most likely to disappear?"*
