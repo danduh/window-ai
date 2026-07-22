@@ -19,6 +19,21 @@ const HomeIcon: React.FC = () => (
   </svg>
 );
 
+const PulseIcon: React.FC = () => (
+  <svg
+    width="17"
+    height="17"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth={2}
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M3 12h4l3 8 4-16 3 8h4" />
+  </svg>
+);
+
 const BoltIcon: React.FC = () => (
   <svg
     width="17"
@@ -45,6 +60,7 @@ export const SidebarRail: React.FC = () => {
 
   const showLabels = railOpen;
   const homeActive = pathname === '/';
+  const statusActive = matchesRoute(pathname, '/status');
 
   // On mobile the drawer either slides in (open) or off-screen (closed); on
   // desktop it is always visible, only its width changes.
@@ -120,6 +136,34 @@ export const SidebarRail: React.FC = () => {
               style={{ color: homeActive ? '#dbeafe' : 'var(--fg2)' }}
             >
               Home
+            </span>
+          )}
+        </Link>
+
+        {/* Check your browser (capabilities / status) */}
+        <Link
+          to="/status"
+          title="Check your browser"
+          onClick={() => {
+            trackUserInteraction('navigation_click', 'status_link');
+            closeOnMobile();
+          }}
+          className="flex items-center gap-3 rounded-[10px] p-2.5 transition-colors"
+          style={
+            statusActive
+              ? { background: 'rgba(96,165,250,.14)', color: '#93c5fd' }
+              : { color: 'var(--fg2)' }
+          }
+        >
+          <span className="flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center">
+            <PulseIcon />
+          </span>
+          {showLabels && (
+            <span
+              className="font-display whitespace-nowrap text-[14.5px] font-semibold"
+              style={{ color: statusActive ? '#dbeafe' : 'var(--fg2)' }}
+            >
+              Check your browser
             </span>
           )}
         </Link>

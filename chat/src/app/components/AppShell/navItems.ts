@@ -35,6 +35,7 @@ export const matchesRoute = (pathname: string, href: string): boolean =>
 /** Top-bar title derived from the active route. Home → "Overview". */
 export const titleForPath = (pathname: string): string => {
   if (pathname === '/') return 'Overview';
+  if (pathname.startsWith('/status')) return 'Check your browser';
   const hit = RAIL_NAV.find((n) => matchesRoute(pathname, n.href));
   return hit ? hit.label : 'Overview';
 };

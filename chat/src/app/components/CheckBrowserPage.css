@@ -1,0 +1,32 @@
+/* CheckBrowserPage (capabilities / browser-status page) — styles that inline
+   React style props can't express (:hover states) plus the dotted-grid main
+   background + body font. Palette comes from the shell's `.app-shell` CSS
+   custom properties, so everything flips with the ThemeProvider `dark` class. */
+
+.home-root {
+  font-family: 'Public Sans', system-ui, sans-serif;
+  background-image: radial-gradient(
+    circle at 1px 1px,
+    rgba(148, 163, 184, 0.055) 1px,
+    transparent 0
+  );
+  background-size: 26px 26px;
+}
+
+/* "Try the demos" cards */
+.home-demo-card {
+  border: 1px solid var(--border);
+  background: var(--surface2);
+}
+.home-demo-card:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+}
+
+/* Mobile "read the docs" rows */
+.home-doc-row {
+  border: 1px solid var(--border);
+  background: var(--surface);
+}
+.home-doc-row:hover {
+  border-color: rgba(59, 130, 246, 0.5);
+}

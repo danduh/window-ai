@@ -24,7 +24,10 @@ global.navigator = dom.window.navigator;
 // Routes to prerender
 const routes = [
   { path: '/', filename: 'index.html' },
-  
+
+  // Browser capabilities / status dashboard (the old home)
+  { path: '/status', filename: 'status.html' },
+
   // Chat routes
   { path: '/chat', filename: 'chat.html' },
   { path: '/chat/chat-api-documentation', filename: 'chat-api-documentation.html' },
@@ -137,6 +140,23 @@ function getSEODataForRoute(routePath) {
   const seoConfigs = {
     '/': {
       title:
+        'Chrome Built-in AI — on-device AI APIs in your browser | window.ai',
+      description:
+        "The window.ai showcase: run Gemini Nano and Chrome's built-in AI APIs entirely on-device — prompt, summarize, translate, write, embed, and Model Context Protocol tools. Live interactive demos and developer docs, no server, no API key.",
+      keywords:
+        'window.ai, Chrome built-in AI, Gemini Nano, on-device AI, browser AI APIs, LanguageModel, Prompt API, Summarizer, Translator, Writer, Rewriter, embeddings, Model Context Protocol, MCP',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        name: 'window.ai — Chrome Built-in AI Showcase',
+        description:
+          "Live demos and documentation for Chrome's on-device built-in AI APIs (window.ai / Gemini Nano)",
+        applicationCategory: 'DeveloperApplication',
+        operatingSystem: 'Chrome Browser',
+      },
+    },
+    '/status': {
+      title:
         'Chrome AI APIs - Built-in AI capabilities for modern web applications',
       description:
         "Explore Chrome's experimental AI APIs including Chat (Gemini Nano), Summarization, Translation, and Writer/Rewriter. Interactive demos and comprehensive documentation for developers.",
@@ -144,12 +164,10 @@ function getSEODataForRoute(routePath) {
         'Chrome AI, Gemini Nano, AI APIs, web development, machine learning, browser AI, chat API, translation API, summarization API, writer API',
       structuredData: {
         '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        name: 'Chrome AI APIs Demo',
+        '@type': 'WebPage',
+        name: 'Check your browser — Chrome AI capabilities status',
         description:
-          "Interactive demos and documentation for Chrome's experimental AI APIs",
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'Chrome Browser',
+          "Live availability checks for Chrome's built-in AI APIs in your browser",
       },
     },
     '/chat': {
