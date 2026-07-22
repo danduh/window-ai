@@ -203,7 +203,7 @@ export const ProofreaderPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: docsContent,
       },
@@ -241,7 +241,7 @@ export const ProofreaderPage: React.FC = () => {
           />
         )}
         <ProofreaderHeader />
-        <Tabs basePath="/proofreader" defaultTab="workbench" tabs={tabs} />
+        <Tabs basePath="/proofreader" defaultTab="docs" tabs={tabs} />
         <p className="mt-4 text-center text-xs text-gray-500 dark:text-gray-400">
           🔒 Zero network during demo — open DevTools → Network tab
         </p>

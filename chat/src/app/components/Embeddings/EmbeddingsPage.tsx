@@ -39,7 +39,7 @@ export const EmbeddingsPage: React.FC = () => {
     () => [
       {
         id: 'docs',
-        label: 'Docs',
+        label: 'API Documentation',
         path: '/docs',
         content: (
           <div className="max-w-none">
@@ -92,7 +92,7 @@ export const EmbeddingsPage: React.FC = () => {
             search and clustering, no backend.
           </p>
         </header>
-        <Tabs basePath="/embeddings" defaultTab="cross-lingual" tabs={tabs} />
+        <Tabs basePath="/embeddings" defaultTab="docs" tabs={tabs} />
         <p className="mt-4 text-center text-xs font-medium text-gray-500 dark:text-gray-400">
           🔒 Zero network during demo — open DevTools → Network tab
         </p>

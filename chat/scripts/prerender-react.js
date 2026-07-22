@@ -505,6 +505,7 @@ function getSEODataForRoute(routePath) {
         name: 'MCP Client API Documentation',
         description: 'Technical documentation for the browser MCP client transport and built-in-LLM agent loop',
       },
+    },
     '/embeddings': {
       title: 'Embeddings — On-device semantic vectors with SemanticEmbedder | Chrome AI APIs',
       description: 'Turn text into on-device semantic vectors (embeddinggemma-300m) with Chrome\'s SemanticEmbedder — cross-lingual search and clustering, no backend. Chrome 152+ Canary, desktop only.',
