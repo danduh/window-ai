@@ -181,7 +181,11 @@ export const HomePage: React.FC = () => {
 
       {/* Top bar */}
       <div className="landing-topbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <Link
+          to="/"
+          aria-label="Window.AI — Home"
+          style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}
+        >
           <div className="landing-logo-tile">
             <svg
               width="18"
@@ -196,8 +200,8 @@ export const HomePage: React.FC = () => {
               <path d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
-          <span className="landing-brand">AI Tools</span>
-        </div>
+          <span className="landing-brand">Window.AI</span>
+        </Link>
         <div className="landing-nav">
           <Link to="/status" className="landing-nav-link">
             Check your browser

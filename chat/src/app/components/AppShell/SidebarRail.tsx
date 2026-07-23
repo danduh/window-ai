@@ -94,8 +94,17 @@ export const SidebarRail: React.FC = () => {
         }}
         aria-label="Primary"
       >
-        {/* Logo tile + wordmark */}
-        <div className="flex items-center gap-2.5 px-1.5 pb-4 pt-1">
+        {/* Logo tile + wordmark — links home */}
+        <Link
+          to="/"
+          title="Window.AI"
+          onClick={() => {
+            trackUserInteraction('navigation_click', 'logo_home');
+            closeOnMobile();
+          }}
+          className="flex items-center gap-2.5 px-1.5 pb-4 pt-1"
+          style={{ textDecoration: 'none' }}
+        >
           <div
             className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[9px]"
             style={{ background: 'linear-gradient(135deg,#3b82f6,#9333ea)' }}
@@ -107,10 +116,10 @@ export const SidebarRail: React.FC = () => {
               className="font-display whitespace-nowrap text-base font-bold"
               style={{ color: 'var(--fg)' }}
             >
-              AI Tools
+              Window.AI
             </span>
           )}
-        </div>
+        </Link>
 
         {/* Home */}
         <Link
