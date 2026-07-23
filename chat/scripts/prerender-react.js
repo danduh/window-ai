@@ -561,6 +561,18 @@ function createEnhancedHTML(htmlTemplate, seoData, routePath) {
     `<title>${seoData.title}</title>`,
   );
 
+  // Strip the template's baked-in / any previously-injected head tags that we
+  // re-emit below, so every route ends up with exactly one correct set instead
+  // of the template's stale generic copy duplicated alongside the route's own.
+  [
+    /<meta\s+name="(?:description|keywords|title)"[^>]*>/gi,
+    /<meta\s+(?:name|property)="og:[^"]*"[^>]*>/gi,
+    /<meta\s+(?:name|property)="twitter:[^"]*"[^>]*>/gi,
+    /<link\s+rel="canonical"[^>]*>/gi,
+  ].forEach((re) => {
+    html = html.replace(re, '');
+  });
+
   // Create comprehensive meta tags
   const metaTags = `
     <!-- Primary Meta Tags -->
