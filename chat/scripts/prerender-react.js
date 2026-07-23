@@ -630,10 +630,9 @@ function createSitemap() {
 }
 
 function createRobotsTxt() {
-  const baseUrl =
-    process.env.NODE_ENV === 'production'
-      ? 'https://your-domain.com/window-ai'
-      : 'http://localhost:4300';
+  // Always the production origin — matches createSitemap()'s baseUrl so the
+  // Sitemap directive is discoverable by crawlers.
+  const baseUrl = 'https://windowai.danduh.me';
 
   const robotsTxt = `User-agent: *
 Allow: /
