@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useGoogleAnalytics } from '../../hooks/useGoogleAnalytics';
 import { useShell } from './ShellContext';
-import { RAIL_NAV, matchesRoute, navLetter } from './navItems';
+import { RAIL_NAV, matchesRoute } from './navItems';
 
 const HomeIcon: React.FC = () => (
   <svg
@@ -200,13 +200,21 @@ export const SidebarRail: React.FC = () => {
               }
             >
               <span
-                className="font-mono-code flex h-[26px] w-[26px] flex-shrink-0 items-center justify-center rounded-[7px] text-xs font-semibold"
-                style={{
-                  color: '#7dd3fc',
-                  background: 'var(--surface2)',
-                }}
+                className="flex h-[30px] w-[30px] flex-shrink-0 items-center justify-center rounded-[8px]"
+                style={{ background: 'var(--surface2)' }}
               >
-                {navLetter(item.label)}
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke={active ? '#93c5fd' : '#94a3b8'}
+                  strokeWidth={1.9}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d={item.icon} />
+                </svg>
               </span>
               {showLabels && (
                 <span
