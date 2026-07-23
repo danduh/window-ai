@@ -7,7 +7,6 @@ import {
   AvailabilityStatus
 } from '../services/TranslateService';
 import {DocsRenderer} from "../tools/DocsRenderer";
-import ThemeToggle from './ThemeToggle';
 import Tabs from './Tabs';
 import { useSEOData, seoConfigs } from '../hooks/useSEOData';
 
@@ -33,7 +32,6 @@ const TranslatePage: React.FC = () => {
   const [translationAbility, setTranslationAbility] = useState<AvailabilityStatus>();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [useStreaming, setUseStreaming] = useState<boolean>(false);
-  const [showSettings, setShowSettings] = useState<boolean>(false);
   const selectRef = useRef<HTMLSelectElement>(null);
 
   const handleTranslate = async () => {
@@ -87,11 +85,6 @@ const TranslatePage: React.FC = () => {
     }
   };
 
-  const clearTranslation = () => {
-    setTranslation('');
-    setSourceText('');
-  };
-
   return (
     <div className="min-h-screen bg-white dark:bg-gray-800 rounded-lg shadow-md transition-colors duration-200">
       <div className="max-w-6xl mx-auto p-4">
@@ -107,28 +100,6 @@ const TranslatePage: React.FC = () => {
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white">AI Translator</h1>
               <p className="text-gray-600 dark:text-gray-400">Powered by Chrome's Translation API</p>
             </div>
-          </div>
-          <div className="flex items-center space-x-3">
-            <button
-              onClick={() => setShowSettings(!showSettings)}
-              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-              aria-label="Settings"
-            >
-              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </button>
-            <button
-              onClick={clearTranslation}
-              className="p-2 rounded-lg bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200"
-              aria-label="Clear translation"
-            >
-              <svg className="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-              </svg>
-            </button>
-            <ThemeToggle />
           </div>
         </header>
 
@@ -153,7 +124,7 @@ const TranslatePage: React.FC = () => {
               content: (
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
                   {/* Settings Panel */}
-                  <div className={`lg:col-span-1 space-y-6 ${showSettings ? 'block' : 'hidden lg:block'}`}>
+                  <div className="lg:col-span-1 space-y-6">
                     {/* Language Settings */}
                     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 p-6 transition-colors duration-200">
                       <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
