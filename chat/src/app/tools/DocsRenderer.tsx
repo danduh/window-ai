@@ -72,7 +72,20 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
   const mainContext = useContext(AppContext);
   const [isOpen, setIsOpen] = useState(initOpen || false);
   const [docsContent, setDocsContent] = useState('');
-  
+  const [copiedMd, setCopiedMd] = useState(false);
+
+  // Copy the entire doc page as its original Markdown source. docsContent is the
+  // raw .md (loaded via raw-loader), so this is verbatim markdown, not rendered.
+  const copyMarkdown = async () => {
+    try {
+      await navigator.clipboard.writeText(docsContent);
+      setCopiedMd(true);
+      setTimeout(() => setCopiedMd(false), 1500);
+    } catch {
+      // Clipboard blocked (insecure context / permissions) — fail quietly.
+    }
+  };
+
   useEffect(() => {
     const fetchDocs = async () => {
       setDocsContent(await loadMDFile(docFile));
@@ -98,6 +111,30 @@ export function DocsRenderer({docFile, initOpen}: { docFile: string, initOpen?: 
       <section className="docs-section mt-2 ">
         {(isOpen || initOpen) && (
           <div className="docs-content mt-4 bg-white dark:bg-gray-800 rounded-lg overflow-hidden transition-colors duration-200">
+            <div className="flex items-center justify-end border-b border-gray-200 px-4 py-2.5 dark:border-gray-700 md:px-6">
+              <button
+                type="button"
+                onClick={copyMarkdown}
+                disabled={!docsContent}
+                title="Copy this page as Markdown"
+                className="inline-flex items-center gap-1.5 rounded-md border border-gray-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-gray-700 transition-colors hover:border-blue-500 hover:text-blue-600 disabled:opacity-50 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-200 dark:hover:text-blue-400"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <rect x="9" y="9" width="13" height="13" rx="2" />
+                  <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                </svg>
+                {copiedMd ? 'Copied!' : 'Copy MD'}
+              </button>
+            </div>
             <root.div>
               <div className="p-4 md:p-6">
                 <Markdown
