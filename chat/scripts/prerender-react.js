@@ -585,13 +585,20 @@ function createEnhancedHTML(htmlTemplate, seoData, routePath) {
     <meta property="og:url" content="${fullUrl}">
     <meta property="og:title" content="${seoData.title}">
     <meta property="og:description" content="${seoData.description}">
-    <meta property="og:site_name" content="Chrome AI APIs">
-    
+    <meta property="og:site_name" content="window.ai">
+    <meta property="og:image" content="${baseUrl}/assets/Social_Card-selection.png">
+    <meta property="og:image:secure_url" content="${baseUrl}/assets/Social_Card-selection.png">
+    <meta property="og:image:type" content="image/png">
+    <meta property="og:image:width" content="1928">
+    <meta property="og:image:height" content="1260">
+    <meta property="og:image:alt" content="${seoData.title}">
+
     <!-- Twitter -->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:url" content="${fullUrl}">
     <meta property="twitter:title" content="${seoData.title}">
     <meta property="twitter:description" content="${seoData.description}">
+    <meta property="twitter:image" content="${baseUrl}/assets/Social_Card-selection.png">
     
     <!-- Additional SEO -->
     <link rel="canonical" href="${fullUrl}">

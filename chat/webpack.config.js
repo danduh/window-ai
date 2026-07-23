@@ -44,7 +44,7 @@ module.exports = {
             index: './src/index.html',
             // baseHref: process.env.NODE_ENV === 'production' ? '/window-ai/' : '/',
             baseHref: '/',
-            assets: ['./src/favicon.ico', './src/llms.txt', './src/assets'],
+            assets: ['./src/favicon.ico', './src/favicon.svg', './src/llms.txt', './src/assets'],
             styles: ['./src/global.css'],
             outputHashing: process.env['NODE_ENV'] === 'production' ? 'all' : 'none',
             optimization: process.env['NODE_ENV'] === 'production',
