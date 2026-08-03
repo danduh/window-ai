@@ -147,10 +147,10 @@ export const MiniEval: React.FC = () => {
         />
       )}
 
-      {/* Pick a test case */}
+      {/* Golden set — pick a case, then see exactly what it sends + its pass rule */}
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">
-          Test case
+          Golden set
         </p>
         <div className="flex flex-wrap gap-2">
           {EVAL_CASES.map((c) => (
@@ -171,10 +171,23 @@ export const MiniEval: React.FC = () => {
             </button>
           ))}
         </div>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          <span className="font-mono text-xs text-gray-500 dark:text-gray-400">{selected.api}</span>{' '}
-          — passes when the answer is <span className="font-medium">{selected.rule}</span>.
-        </p>
+
+        {/* The exact input the model receives + the rule its answer must satisfy */}
+        <div className="space-y-2 rounded-lg border border-gray-200 p-3 dark:border-gray-700">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="rounded bg-gray-100 px-2 py-0.5 font-mono text-gray-600 dark:bg-gray-700 dark:text-gray-300">
+              {selected.api}
+            </span>
+            <span className="text-gray-400 dark:text-gray-500">input sent to the model</span>
+          </div>
+          <p className="whitespace-pre-wrap rounded bg-gray-50 p-2 text-sm text-gray-800 dark:bg-gray-900/40 dark:text-gray-200">
+            {selected.input}
+          </p>
+          <p className="text-sm text-gray-600 dark:text-gray-300">
+            <span className="font-medium text-gray-500 dark:text-gray-400">Passes when:</span>{' '}
+            {selected.rule}
+          </p>
+        </div>
       </div>
 
       {/* Runs + go */}
@@ -240,22 +253,29 @@ export const MiniEval: React.FC = () => {
       {results.length > 0 && (
         <details className="text-sm">
           <summary className="cursor-pointer text-gray-600 dark:text-gray-300">Per-run detail</summary>
-          <ul className="mt-2 space-y-1">
+          <ul className="mt-2 space-y-2">
             {results.map((r) => (
-              <li key={r.index} className="font-mono text-xs text-gray-600 dark:text-gray-300">
-                <span
-                  className={
-                    r.status === 'pass'
-                      ? 'text-green-600 dark:text-green-400'
-                      : r.status === 'fail'
-                        ? 'text-red-600 dark:text-red-400'
-                        : 'text-gray-400'
-                  }
-                >
-                  {r.status.toUpperCase()}
-                </span>{' '}
-                run {r.index + 1}
-                {r.reason ? ` — ${r.reason}` : ''}
+              <li key={r.index} className="text-xs text-gray-600 dark:text-gray-300">
+                <span className="font-mono">
+                  <span
+                    className={
+                      r.status === 'pass'
+                        ? 'text-green-600 dark:text-green-400'
+                        : r.status === 'fail'
+                          ? 'text-red-600 dark:text-red-400'
+                          : 'text-gray-400'
+                    }
+                  >
+                    {r.status.toUpperCase()}
+                  </span>{' '}
+                  run {r.index + 1}
+                  {r.reason ? ` — ${r.reason}` : ''}
+                </span>
+                {r.output != null && r.output.trim() !== '' && (
+                  <p className="mt-0.5 whitespace-pre-wrap rounded bg-gray-50 px-2 py-1 text-gray-700 dark:bg-gray-900/40 dark:text-gray-300">
+                    {r.output}
+                  </p>
+                )}
               </li>
             ))}
           </ul>
