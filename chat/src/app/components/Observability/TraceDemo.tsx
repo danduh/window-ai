@@ -36,17 +36,9 @@ export const TraceDemo: React.FC = () => {
   const [spans, setSpans] = useState<AiSpan[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [output, setOutput] = useState('');
+  const [availability, setAvailability] = useState<string | null>(null);
+  const [downloadPct, setDownloadPct] = useState<number | null>(null);
   const [promptUnavailable, setPromptUnavailable] = useState(false);
-
-  // Capture every AiSpan the tracer emits into local state (most recent first).
-  useEffect(
-    () =>
-      addSink((span) => {
-        setSpans((prev) => [span, ...prev].slice(0, 12));
-        setSelectedId(span.id);
-      }),
-    [],
-  );
 
   // Prompt (Gemini Nano) needs Canary / flags on stable — check when selected.
   useEffect(() => {
@@ -77,20 +69,55 @@ export const TraceDemo: React.FC = () => {
   const run = async () => {
     setRunning(true);
     setOutput('');
+    setAvailability(null);
+    setDownloadPct(null);
+
+    // Signals captured at create() time (before the stream trace).
+    let seenAvailability: string | undefined;
+    let seenDownloadPct: number | undefined;
+    const monitor = (m: AICreateMonitor) => {
+      m.addEventListener('downloadprogress', (e: ProgressEvent) => {
+        const pct = Math.round(e.loaded * 100);
+        seenDownloadPct = pct;
+        setDownloadPct(pct);
+      });
+    };
+
+    // One-shot sink: capture this run's span so we can enrich it with the
+    // create-time signals (availability + download progress) before rendering.
+    let captured: AiSpan | undefined;
+    const off = addSink((span) => {
+      captured = span;
+    });
+
     try {
       let stream: ReadableStream<string>;
       if (api === 'summarizer') {
+        seenAvailability = await window.Summarizer.availability({ outputLanguage: 'en' });
+        setAvailability(seenAvailability ?? null);
         const s = await window.Summarizer.create({
           type: 'key-points',
           format: 'plain-text',
           outputLanguage: 'en',
+          monitor,
         });
         stream = traceStream('summarizer', 'summarize', s, () => s.summarizeStreaming(input));
       } else if (api === 'translator') {
-        const t = await window.Translator.create({ sourceLanguage: 'en', targetLanguage: 'es' });
+        seenAvailability = await window.Translator.availability({
+          sourceLanguage: 'en',
+          targetLanguage: 'es',
+        });
+        setAvailability(seenAvailability ?? null);
+        const t = await window.Translator.create({
+          sourceLanguage: 'en',
+          targetLanguage: 'es',
+          monitor,
+        });
         stream = traceStream('translator', 'translate', t, () => t.translateStreaming(input));
       } else {
-        const s = await LanguageModel.create({ outputLanguage: 'en' });
+        seenAvailability = await LanguageModel.availability({ outputLanguage: 'en' });
+        setAvailability(seenAvailability ?? null);
+        const s = await LanguageModel.create({ outputLanguage: 'en', monitor });
         stream = traceStream('prompt', 'prompt', s, () => s.promptStreaming(input));
       }
 
@@ -104,10 +131,9 @@ export const TraceDemo: React.FC = () => {
       }
     } catch (e) {
       // create() can fail before the tracer wraps the stream (e.g. the Prompt API
-      // is not executable on stable Chrome). Record it as an error span so the
-      // demo also shows what error observability looks like.
-      const errorName = (e as { name?: string })?.name;
-      const errSpan: AiSpan = {
+      // is not executable on stable Chrome). Synthesize an error span so the demo
+      // also shows what error observability looks like.
+      captured = {
         id: uid(),
         ts: Date.now(),
         api,
@@ -115,11 +141,19 @@ export const TraceDemo: React.FC = () => {
         stream: true,
         latencyMs: 0,
         finish: 'error',
-        errorName,
+        errorName: (e as { name?: string })?.name,
       };
-      setSpans((prev) => [errSpan, ...prev].slice(0, 12));
-      setSelectedId(errSpan.id);
     } finally {
+      off();
+      if (captured) {
+        const enriched: AiSpan = {
+          ...captured,
+          availability: seenAvailability,
+          downloadPct: seenDownloadPct,
+        };
+        setSpans((prev) => [enriched, ...prev].slice(0, 12));
+        setSelectedId(enriched.id);
+      }
       setRunning(false);
     }
   };
@@ -158,6 +192,31 @@ export const TraceDemo: React.FC = () => {
           onRun={run}
           running={running}
         />
+
+        {(availability || downloadPct != null) && (
+          <div className="space-y-1 text-xs">
+            {availability && (
+              <p className="text-gray-500 dark:text-gray-400">
+                <code className="font-mono">availability()</code> →{' '}
+                <span className="font-medium text-gray-700 dark:text-gray-200">{availability}</span>
+              </p>
+            )}
+            {downloadPct != null && (
+              <div>
+                <p className="text-gray-500 dark:text-gray-400">
+                  <code className="font-mono">monitor(m)</code> → <code className="font-mono">downloadprogress</code>{' '}
+                  {downloadPct}%
+                </p>
+                <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-gray-700">
+                  <div
+                    className="h-full bg-primary-500 transition-all"
+                    style={{ width: `${downloadPct}%` }}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {output && (
           <div>

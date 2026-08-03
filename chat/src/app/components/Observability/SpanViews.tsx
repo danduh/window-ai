@@ -18,6 +18,8 @@ function structured(span: AiSpan): Record<string, unknown> {
   if (span.outChars != null) out.outChars = span.outChars;
   if (span.contextUsage != null) out.contextUsage = span.contextUsage;
   if (span.contextWindow != null) out.contextWindow = span.contextWindow;
+  if (span.availability) out.availability = span.availability;
+  if (span.downloadPct != null) out.downloadPct = span.downloadPct;
   if (span.errorName) out.errorName = span.errorName;
   return out;
 }
