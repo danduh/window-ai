@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { addSink, traceCall, traceStream } from './tracer';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { addSink, isTracingEnabled, traceCall, traceStream } from './tracer';
 import type { AiSpan } from './types';
 
 function streamOf(chunks: string[]): ReadableStream<string> {
@@ -98,5 +98,42 @@ describe('observability tracer', () => {
     unsub();
     await traceCall('prompt', 'prompt', undefined, async () => 'x');
     expect(local).toHaveLength(0);
+  });
+
+  it('does not throw when a session getter throws (destroyed session)', async () => {
+    const destroyed = {
+      get contextUsage(): number {
+        throw new DOMException('destroyed', 'InvalidStateError');
+      },
+    };
+    const res = await traceCall('prompt', 'prompt', destroyed, async () => 'ok');
+    expect(res).toBe('ok');
+    expect(spans[0].finish).toBe('ok');
+    expect(spans[0].contextUsage).toBeUndefined();
+  });
+});
+
+describe('isTracingEnabled (opt-in)', () => {
+  afterEach(() => {
+    delete (globalThis as { __AI_TRACE__?: boolean }).__AI_TRACE__;
+    try {
+      localStorage.removeItem('ai:trace');
+    } catch {
+      /* no-op */
+    }
+  });
+
+  it('is off by default', () => {
+    expect(isTracingEnabled()).toBe(false);
+  });
+
+  it('honors globalThis.__AI_TRACE__', () => {
+    (globalThis as { __AI_TRACE__?: boolean }).__AI_TRACE__ = true;
+    expect(isTracingEnabled()).toBe(true);
+  });
+
+  it('honors the localStorage flag', () => {
+    localStorage.setItem('ai:trace', '1');
+    expect(isTracingEnabled()).toBe(true);
   });
 });

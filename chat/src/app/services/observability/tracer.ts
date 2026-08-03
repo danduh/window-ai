@@ -35,21 +35,20 @@ function emit(span: AiSpan): void {
 }
 
 /**
- * Whether tracing is active. On by default in Vite dev; in any build it can be
- * forced with `localStorage['ai:trace'] = '1'` (or disabled with `'0'`), or via
- * `globalThis.__AI_TRACE__ = true`.
+ * Whether tracing is active. **Opt-in only** (off by default) so production —
+ * and normal dev — behavior is completely untouched: no wrapping of AI calls,
+ * nothing logged, nothing captured. Enable with `localStorage['ai:trace'] = '1'`
+ * (then reload) or `globalThis.__AI_TRACE__ = true` (or call `enableTracing()`).
  */
 export function isTracingEnabled(): boolean {
-  try {
-    const v = localStorage.getItem('ai:trace');
-    if (v === '1') return true;
-    if (v === '0') return false;
-  } catch {
-    /* localStorage can throw in sandboxed / privacy contexts */
-  }
   const g = globalThis as { __AI_TRACE__?: boolean };
   if (typeof g.__AI_TRACE__ === 'boolean') return g.__AI_TRACE__;
-  return import.meta.env.DEV === true;
+  try {
+    return localStorage.getItem('ai:trace') === '1';
+  } catch {
+    /* localStorage can throw in sandboxed / privacy contexts */
+    return false;
+  }
 }
 
 /** Drift-safe view of Prompt API context accounting (context* ?? legacy input*). */
@@ -61,11 +60,18 @@ interface ContextUsageLike {
 }
 
 function readContext(session: unknown): Pick<AiSpan, 'contextUsage' | 'contextWindow'> {
-  const s = (session ?? {}) as ContextUsageLike;
-  return {
-    contextUsage: s.contextUsage ?? s.inputUsage,
-    contextWindow: s.contextWindow ?? s.inputQuota,
-  };
+  // Reading accounting getters on a destroyed/invalidated session can throw
+  // (InvalidStateError). Trace bookkeeping must never break — or mask — the
+  // underlying call, so swallow any failure and just omit the numbers.
+  try {
+    const s = (session ?? {}) as ContextUsageLike;
+    return {
+      contextUsage: s.contextUsage ?? s.inputUsage,
+      contextWindow: s.contextWindow ?? s.inputQuota,
+    };
+  } catch {
+    return {};
+  }
 }
 
 function uid(): string {
