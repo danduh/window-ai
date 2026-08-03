@@ -7,23 +7,19 @@ import { TraceDemo } from './TraceDemo';
 
 export const ObservabilityPage: React.FC = () => {
   const location = useLocation();
-  // Use startsWith (NOT includes) — exact-prefix match, mirroring the other pages.
-  const isDocs = location.pathname.startsWith('/observability/docs');
+  const isDocs = location.pathname.endsWith('-api-documentation');
   useSEOData(
     isDocs ? seoConfigs.observabilityDocs : seoConfigs.observability,
-    isDocs ? '/observability/docs' : '/observability',
+    isDocs ? '/observability/observability-api-documentation' : '/observability/observability-demo',
   );
 
-  // Tabs ordering: Docs FIRST. Tabs.tsx matches currentPath.includes(tab.path);
-  // the demo tab has path '' (falsy → skipped by the matcher), so the docs tab
-  // (path '/docs') must precede it so /observability/docs resolves to Docs and
-  // /observability falls back to the default demo tab.
+  // Docs tab first; every tab has a real path and Tabs derives the active tab from the URL.
   const tabs = useMemo(
     () => [
       {
         id: 'docs',
         label: 'API Documentation',
-        path: '/docs',
+        path: '/observability-api-documentation',
         content: (
           <div className="max-w-none">
             <DocsRenderer docFile="Observability-API.md" initOpen={true} />
@@ -33,7 +29,7 @@ export const ObservabilityPage: React.FC = () => {
       {
         id: 'demo',
         label: 'Demo',
-        path: '',
+        path: '/observability-demo',
         content: <TraceDemo />,
       },
     ],

@@ -7,21 +7,19 @@ import { MiniEval } from './MiniEval';
 
 export const EvaluationPage: React.FC = () => {
   const location = useLocation();
-  // Use startsWith (NOT includes) — exact-prefix match, mirroring the other pages.
-  const isDocs = location.pathname.startsWith('/evaluation/docs');
+  const isDocs = location.pathname.endsWith('-api-documentation');
   useSEOData(
     isDocs ? seoConfigs.evaluationDocs : seoConfigs.evaluation,
-    isDocs ? '/evaluation/docs' : '/evaluation',
+    isDocs ? '/evaluation/evaluation-api-documentation' : '/evaluation/evaluation-demo',
   );
 
-  // Docs tab FIRST (its path '/docs' is matched by Tabs; the demo tab has the
-  // falsy path '' and is the default fallback for /evaluation).
+  // Docs tab first; every tab has a real path and Tabs derives the active tab from the URL.
   const tabs = useMemo(
     () => [
       {
         id: 'docs',
         label: 'API Documentation',
-        path: '/docs',
+        path: '/evaluation-api-documentation',
         content: (
           <div className="max-w-none">
             <DocsRenderer docFile="Evaluation-API.md" initOpen={true} />
@@ -31,7 +29,7 @@ export const EvaluationPage: React.FC = () => {
       {
         id: 'demo',
         label: 'Demo',
-        path: '',
+        path: '/evaluation-demo',
         content: <MiniEval />,
       },
     ],
