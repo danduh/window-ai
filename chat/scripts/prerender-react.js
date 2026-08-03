@@ -83,6 +83,10 @@ const routes = [
   // Observability (Advanced)
   { path: '/observability', filename: 'observability.html' },
   { path: '/observability/docs', filename: 'observability-docs.html' },
+
+  // Evaluation (Advanced)
+  { path: '/evaluation', filename: 'evaluation.html' },
+  { path: '/evaluation/docs', filename: 'evaluation-docs.html' },
 ];
 
 // Build configuration
@@ -570,6 +574,28 @@ function getSEODataForRoute(routePath) {
         '@type': 'TechArticle',
         name: 'Observability API Documentation',
         description: 'How to add logging and tracing to Chrome built-in on-device AI',
+      },
+    },
+    '/evaluation': {
+      title: 'Evaluation — Test on-device AI answer quality with a stability rate | Chrome AI APIs',
+      description: 'Evaluate Chrome\'s built-in on-device AI (Gemini Nano): golden datasets, rule-based checks, LLM-as-judge, and a 5–10-run stability rate. Run a live mini-eval in the browser, then wire it into CI with Playwright. No backend.',
+      keywords: 'AI evaluation, evals, golden dataset, rule-based eval, LLM-as-judge, stability rate, Playwright, Vitest, CI, on-device AI, Gemini Nano, Chrome built-in AI',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: 'Evaluation Demo',
+        description: 'Test on-device AI answer quality with golden sets and a stability rate',
+      },
+    },
+    '/evaluation/docs': {
+      title: 'Evaluation API Docs — golden sets, judges, stability rate & CI | Chrome AI APIs',
+      description: 'How to evaluate Chrome built-in AI answer quality: build a golden set, score with rule-based checks and an LLM judge, report a stability rate, and run it against window.ai in CI with Playwright. Framework-agnostic.',
+      keywords: 'evaluation docs, evals, golden dataset, rule-based scorer, LLM-as-judge, stability rate, Playwright, Vitest, promptfoo, evalite, CI, Gemini Nano, Chrome built-in AI',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Evaluation API Documentation',
+        description: 'How to evaluate Chrome built-in on-device AI answer quality and run it in CI',
       },
     },
   };
