@@ -1,4 +1,4 @@
-export type DocLang = 'ja' | 'de' | 'es' | 'en';
+export type DocLang = 'ja' | 'de' | 'es' | 'it' | 'en';
 
 export interface SampleDoc {
   id: string;
@@ -13,6 +13,7 @@ export const DOC_LANG_LABEL: Record<DocLang, string> = {
   ja: 'Japanese',
   de: 'German',
   es: 'Spanish',
+  it: 'Italian',
   en: 'English',
 };
 
@@ -41,6 +42,33 @@ Operamos en más de 60 países de Europa, América y Asia. Puedes consultar la l
 
 ## Contactar con soporte
 Nuestro equipo está disponible por chat las 24 horas y por correo en soporte@example.com. Ten a mano el número de referencia del pago para agilizar la gestión.
+`;
+
+const IT_MARKDOWN = `# Centro assistenza per i pagamenti internazionali
+
+## Richiedere un rimborso
+Puoi richiedere un rimborso dalla schermata dei dettagli del pagamento entro 30 giorni dall'invio. L'importo torna sul metodo di pagamento originale entro 5-10 giorni lavorativi.
+
+## Quanto dura un bonifico internazionale
+La maggior parte dei bonifici internazionali arriva entro 1-3 giorni lavorativi. I pagamenti verso paesi che richiedono controlli aggiuntivi possono richiedere fino a 5 giorni.
+
+## Commissioni di trasferimento
+Applichiamo una commissione fissa più una piccola percentuale sull'importo convertito. Vedrai il dettaglio completo e il tasso di cambio prima di confermare l'invio.
+
+## Verificare la tua identità
+Per operare senza limiti devi caricare un documento d'identità valido e un documento che attesti il tuo indirizzo. La verifica di solito si completa in meno di 24 ore.
+
+## Reimpostare la password
+Clicca su "Hai dimenticato la password?" nella schermata di accesso e segui il link che ti inviamo via email. Per sicurezza, il link scade dopo 60 minuti.
+
+## Limiti di invio e ricezione
+Gli account non verificati possono movimentare fino a 1.000 € al mese. Una volta verificata la tua identità, i limiti vengono aumentati automaticamente.
+
+## Paesi supportati
+Operiamo in più di 60 paesi in Europa, nelle Americhe e in Asia. Puoi trovare l'elenco completo e le valute disponibili nelle impostazioni del tuo account.
+
+## Contattare l'assistenza
+Il nostro team è disponibile in chat 24 ore su 24 e via email all'indirizzo supporto@example.com. Tieni a portata di mano il numero di riferimento del pagamento per velocizzare la pratica.
 `;
 
 const DE_MARKDOWN = `# Hilfe-Center für grenzüberschreitende Zahlungen
@@ -148,6 +176,14 @@ export const SAMPLE_DOCS: ReadonlyArray<SampleDoc> = [
     flag: '🇯🇵',
     label: '日本語',
     markdown: JA_MARKDOWN,
+  },
+  {
+    id: 'it-payments',
+    title: 'Centro assistenza per i pagamenti internazionali',
+    lang: 'it',
+    flag: '🇮🇹',
+    label: 'Italiano',
+    markdown: IT_MARKDOWN,
   },
   {
     id: 'en-payments',

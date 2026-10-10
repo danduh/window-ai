@@ -31,11 +31,12 @@ const LANG_FLAG: Record<DocLang, string> = {
   ja: '🇯🇵',
   de: '🇩🇪',
   es: '🇪🇸',
+  it: '🇮🇹',
   en: '🇬🇧',
 };
 
 const isKnownLang = (code: string): code is DocLang =>
-  code === 'ja' || code === 'de' || code === 'es' || code === 'en';
+  code === 'ja' || code === 'de' || code === 'es' || code === 'it' || code === 'en';
 
 const initialDoc = SAMPLE_DOCS.find((d) => d.id === DEFAULT_DOC_ID) ?? SAMPLE_DOCS[0];
 
@@ -43,7 +44,7 @@ const initialDoc = SAMPLE_DOCS.find((d) => d.id === DEFAULT_DOC_ID) ?? SAMPLE_DO
  * Cross-Lingual Document Search.
  *
  * Pick a help-center document written in one language (Spanish / German / Japanese
- * / English) or upload your own .md, then search it with an ENGLISH query. The
+ * / Italian / English) or upload your own .md, then search it with an ENGLISH query. The
  * document's passages are embedded once with taskType 'retrieval-document' (full
  * 768 dims, no truncation); the query is embedded with 'retrieval-query'. Ranking
  * is pure cosine similarity in one shared multilingual vector space — an English
@@ -305,7 +306,7 @@ const CrossLingualTab: React.FC = () => {
         </h2>
         <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
           Search a document written in one language using a query in another. Embeddings map meaning
-          into a shared space, so an English question finds the right Spanish, German or Japanese
+          into a shared space, so an English question finds the right Spanish, German, Italian or Japanese
           passage — with no translation.
         </p>
       </div>
