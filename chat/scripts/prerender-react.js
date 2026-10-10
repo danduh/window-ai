@@ -60,6 +60,7 @@ const routes = [
   // WebMCP routes
   { path: '/webmcp', filename: 'webmcp.html' },
   { path: '/webmcp/webmcp-api-documentation', filename: 'webmcp-api-documentation.html' },
+  { path: '/webmcp/webmcp-declarative', filename: 'webmcp-declarative.html' },
 
   // Generative UI routes
   { path: '/generative-ui', filename: 'generative-ui.html' },
@@ -444,6 +445,17 @@ function getSEODataForRoute(routePath) {
         description: 'Technical documentation for the WebMCP Recipe Workbench',
       },
     },
+    '/webmcp/webmcp-declarative': {
+      title: 'Declarative WebMCP — HTML forms as AI agent tools | Chrome AI APIs',
+      description: 'Turn a plain HTML form into a WebMCP tool with toolname and tooldescription — no registerTool(). A live product-search and add-to-cart example, the JSON Schema Chrome derives from the form, and results returned with respondWith().',
+      keywords: 'declarative WebMCP, toolname, tooldescription, toolautosubmit, toolparamdescription, HTML form tools, SubmitEvent respondWith, agentInvoked, document.modelContext',
+      structuredData: {
+        '@context': 'https://schema.org',
+        '@type': 'TechArticle',
+        name: 'Declarative WebMCP',
+        description: 'How HTML forms become WebMCP tools, with a live product-search and add-to-cart example',
+      },
+    },
     '/generative-ui': {
       title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
       description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
@@ -686,8 +698,11 @@ function createSitemap() {
   //  - the base `/x` paths (they 301 to the docs tab — a redirect in a sitemap
   //    is an SEO anti-pattern), and
   //  - interactive demo tabs (the documentation pages carry the indexable meta).
-  // This keeps the sitemap to `/`, `/status`, and each feature's docs page.
-  const inSitemap = (p) => p === '/' || p === '/status' || p.endsWith('-api-documentation');
+  // This keeps the sitemap to `/`, `/status`, and each feature's docs page —
+  // plus a few standalone guide pages that aren't named `-api-documentation`.
+  const extraContentPages = new Set(['/webmcp/webmcp-declarative']);
+  const inSitemap = (p) =>
+    p === '/' || p === '/status' || p.endsWith('-api-documentation') || extraContentPages.has(p);
   const priority = (p) => (p === '/' ? '1.0' : p === '/status' ? '0.7' : '0.8');
 
   const paths = routes.map((r) => r.path).filter(inSitemap);

@@ -11,6 +11,8 @@ This guide documents WebMCP as of the **W3C Draft Community Group Report dated A
 
 > **Spec history.** Earlier drafts (≤ February 2026) defined `provideContext`, `unregisterTool`, and `clearContext` on `ModelContext`; they were briefly removed in March 2026, then `unregisterTool(name)` and `clearContext()` returned in the Chrome 150 implementation. The `AbortSignal` unregistration path below works across all of Chrome 146–150 and is what this demo uses.
 
+> **Declarative WebMCP.** You don't always need `registerTool()`. A plain HTML `<form>` with `toolname` and `tooldescription` attributes becomes a tool too, and Chrome builds its input schema from the form fields. See the **Declarative** tab for a live product-search and add-to-cart example and the full guide.
+
 ## Overview
 
 WebMCP is a browser-mediated alternative to running a local Model Context Protocol (MCP) server: the page itself IS the tool surface. Every tool is registered against the live page, runs with the user's signed-in session and DOM, and disappears when the page navigates away.

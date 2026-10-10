@@ -91,6 +91,12 @@ export const seoConfigs = {
     description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
     keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools'
   },
+  // Must match prerender-react.js seoConfigs['/webmcp/webmcp-declarative'] verbatim.
+  webmcpDeclarative: {
+    title: 'Declarative WebMCP — HTML forms as AI agent tools | Chrome AI APIs',
+    description: 'Turn a plain HTML form into a WebMCP tool with toolname and tooldescription — no registerTool(). A live product-search and add-to-cart example, the JSON Schema Chrome derives from the form, and results returned with respondWith().',
+    keywords: 'declarative WebMCP, toolname, tooldescription, toolautosubmit, toolparamdescription, HTML form tools, SubmitEvent respondWith, agentInvoked, document.modelContext'
+  },
   // Must match prerender-react.js seoConfigs['/generative-ui'] verbatim.
   // See Phase 3 D-08 + D-12 — prerender drift caused a Phase 3 hotfix.
   generativeUI: {

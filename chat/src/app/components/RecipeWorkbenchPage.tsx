@@ -21,6 +21,7 @@ import { getModelContext, isModelContextAvailable, registerToolSafely } from '..
 import { subscribeRecipeStore, setActiveRecipeId } from '../services/recipeStore';
 import { ToolRegistrationPill, type ToolRegistrationStatus } from './RecipeWorkbench/ToolRegistrationPill';
 import { AgentDrawer } from './RecipeWorkbench/AgentDrawer';
+import { DeclarativeShopDemo } from './WebMCPDeclarative/DeclarativeShopDemo';
 
 interface WorkbenchPanelProps {
   recipes: Recipe[];
@@ -114,9 +115,14 @@ export const RecipeWorkbenchPage: React.FC = () => {
   // Use startsWith (NOT includes) per RESEARCH Pitfall 6 — exact-prefix match.
   const location = useLocation();
   const isDocs = location.pathname.endsWith('-api-documentation');
+  const isDeclarative = location.pathname.endsWith('/webmcp-declarative');
   useSEOData(
-    isDocs ? seoConfigs.webmcpDocs : seoConfigs.webmcp,
-    isDocs ? '/webmcp/webmcp-api-documentation' : '/webmcp/webmcp-demo',
+    isDocs ? seoConfigs.webmcpDocs : isDeclarative ? seoConfigs.webmcpDeclarative : seoConfigs.webmcp,
+    isDocs
+      ? '/webmcp/webmcp-api-documentation'
+      : isDeclarative
+        ? '/webmcp/webmcp-declarative'
+        : '/webmcp/webmcp-demo',
   );
   const [recipes, setRecipes] = useState<Recipe[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -282,6 +288,17 @@ export const RecipeWorkbenchPage: React.FC = () => {
             liveToolName={liveToolName}
             onLiveToolNameChange={setLiveToolName}
           />
+        ),
+      },
+      {
+        id: 'declarative',
+        label: 'Declarative',
+        path: '/webmcp-declarative',
+        content: (
+          <div className="space-y-8">
+            <DeclarativeShopDemo />
+            <DocsRenderer docFile="WebMCP-Declarative-API.md" initOpen={true} />
+          </div>
         ),
       },
     ],

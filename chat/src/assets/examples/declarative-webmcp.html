@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Declarative WebMCP — product search &amp; add to cart</title>
+  <!--
+    Declarative WebMCP, with NO JavaScript.
+
+    A <form> that has BOTH `toolname` and `tooldescription` is registered as a
+    tool for browser agents. Chrome builds the tool's JSON input schema from the
+    form fields (verified on Chrome Canary 157):
+      <input type=text>          -> string
+      <input type=number min max>-> number with minimum / maximum / multipleOf
+      <select>, radio group      -> string with anyOf [{const, title}] + enum
+      `required`                 -> listed in the schema's "required" array
+      `toolparamdescription`     -> the property description (falls back to <label>)
+
+    Try it: Chrome with chrome://flags/#enable-webmcp-testing enabled (or an
+    origin-trial token), served over http://localhost or HTTPS. In DevTools:
+      const tools = await document.modelContext.getTools();
+      await document.modelContext.executeTool(tools.find(t => t.name === "searchProducts"),
+                                              { category: "audio", maxPrice: "100" });
+
+    This page has no backend and no JavaScript, so:
+      - searchProducts (toolautosubmit) is filled and submitted by the agent; the
+        catalog filters live with CSS (:has()). With no navigation and no
+        respondWith(), the agent receives null.
+      - addToCart (no toolautosubmit) is only pre-filled by the agent; the person
+        presses "Add to cart", which submits to #added (:target shows a confirmation).
+    To return data without JS, point `action` at a page whose first
+    <script type="application/ld+json"> holds the result.
+    Full guide: https://windowai.danduh.me/webmcp/webmcp-declarative
+  -->
+  <style>
+    :root { color-scheme: light dark; --accent: #4f46e5; --line: #8884; --muted: #6b7280; }
+    * { box-sizing: border-box; }
+    body { font: 16px/1.5 system-ui, sans-serif; max-width: 52rem; margin: 0 auto; padding: 1.5rem 1rem 4rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 .25rem; }
+    h2 { font-size: 1.1rem; margin: 0 0 .75rem; }
+    .lede { color: var(--muted); margin: 0 0 1.5rem; }
+    code { font-size: .9em; background: var(--line); padding: .1em .35em; border-radius: 4px; }
+
+    form.tool { border: 1px solid var(--line); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem; }
+    .row { display: flex; flex-wrap: wrap; gap: 1rem; align-items: end; }
+    label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; color: var(--muted); }
+    select, input { font: inherit; padding: .45rem .6rem; border: 1px solid var(--line); border-radius: 8px; background: transparent; color: inherit; min-width: 11rem; }
+    button { font: inherit; font-weight: 600; padding: .5rem 1rem; border: 0; border-radius: 8px; background: var(--accent); color: #fff; cursor: pointer; }
+    .tool-name { font-size: .75rem; color: var(--muted); margin: 0 0 .5rem; }
+
+    /* Highlight a form / its button while an AI agent is driving it. Separate rules
+       on purpose: a browser without these pseudo-classes drops only its own rule. */
+    form.tool:tool-form-active { outline: 3px solid var(--accent); outline-offset: 2px; }
+    form.tool button:tool-submit-active { background: #059669; }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .product { border: 1px solid var(--line); border-radius: 12px; padding: 1rem; }
+    .product h3 { margin: 0 0 .25rem; font-size: 1rem; }
+    .product p { margin: 0; color: var(--muted); font-size: .85rem; }
+    .price { font-weight: 700; margin-top: .5rem !important; color: inherit !important; font-size: 1rem !important; }
+    .empty { display: none; color: var(--muted); margin-bottom: 1.5rem; }
+
+    /* --- Live filter: the selects are the state, :has() reads them. No JS. --- */
+    body:has(#category option[value="audio"]:checked)       .product:not([data-cat="audio"]),
+    body:has(#category option[value="peripherals"]:checked) .product:not([data-cat="peripherals"]),
+    body:has(#category option[value="displays"]:checked)    .product:not([data-cat="displays"]) { display: none; }
+
+    /* data-tier = smallest budget bucket (50/100/200/999) that fits the price. */
+    body:has(#maxPrice option[value="50"]:checked)  .product:is([data-tier="100"], [data-tier="200"], [data-tier="999"]),
+    body:has(#maxPrice option[value="100"]:checked) .product:is([data-tier="200"], [data-tier="999"]),
+    body:has(#maxPrice option[value="200"]:checked) .product[data-tier="999"] { display: none; }
+
+    /* Only combination with zero matches: displays are all above $100. */
+    body:has(#category option[value="displays"]:checked):has(#maxPrice option[value="50"]:checked)  .empty,
+    body:has(#category option[value="displays"]:checked):has(#maxPrice option[value="100"]:checked) .empty { display: block; }
+
+    /* --- Add-to-cart confirmation, revealed by the #added fragment. --- */
+    .banner { display: none; border: 1px solid #059669; background: #05966922; border-radius: 12px; padding: .75rem 1rem; margin-bottom: 1.5rem; }
+    .banner:target { display: block; }
+  </style>
+</head>
+<body>
+  <h1>Gadget Shop</h1>
+  <p class="lede">A no-JavaScript page whose two forms are exposed to browser agents as WebMCP tools.</p>
+
+  <p id="added" class="banner">✓ Added to cart. (Demo: there is no backend, so nothing is stored.)</p>
+
+  <!-- Tool 1: searchProducts. method="dialog" outside a <dialog> is a no-op, so
+       submitting keeps the page (and the CSS filter state) exactly as it is. -->
+  <form class="tool"
+        toolname="searchProducts"
+        tooldescription="Search the shop's product catalog by category and maximum price. Returns the matching products on the page."
+        toolautosubmit
+        method="dialog">
+    <p class="tool-name">Tool: <code>searchProducts</code></p>
+    <div class="row">
+      <label>Category
+        <select id="category" name="category" required
+                toolparamdescription="Product category to show. Use 'all' for every category.">
+          <option value="all">All categories</option>
+          <option value="audio">Audio</option>
+          <option value="peripherals">Peripherals</option>
+          <option value="displays">Displays</option>
+        </select>
+      </label>
+      <label>Max price
+        <select id="maxPrice" name="maxPrice"
+                toolparamdescription="Maximum price in US dollars. Use 'any' for no limit.">
+          <option value="any">Any price</option>
+          <option value="50">Up to $50</option>
+          <option value="100">Up to $100</option>
+          <option value="200">Up to $200</option>
+        </select>
+      </label>
+      <button type="submit">Search</button>
+    </div>
+  </form>
+
+  <div class="grid" id="results">
+    <article class="product" data-cat="audio" data-tier="100">
+      <h3>Studio Headphones</h3><p>SKU hp-100 · Audio</p><p class="price">$89</p>
+    </article>
+    <article class="product" data-cat="audio" data-tier="50">
+      <h3>Pocket Speaker</h3><p>SKU sp-020 · Audio</p><p class="price">$39</p>
+    </article>
+    <article class="product" data-cat="peripherals" data-tier="100">
+      <h3>Mechanical Keyboard</h3><p>SKU kb-310 · Peripherals</p><p class="price">$79</p>
+    </article>
+    <article class="product" data-cat="peripherals" data-tier="50">
+      <h3>Wireless Mouse</h3><p>SKU ms-050 · Peripherals</p><p class="price">$29</p>
+    </article>
+    <article class="product" data-cat="displays" data-tier="999">
+      <h3>27&quot; 4K Monitor</h3><p>SKU mn-270 · Displays</p><p class="price">$349</p>
+    </article>
+    <article class="product" data-cat="displays" data-tier="200">
+      <h3>Portable 15&quot; Monitor</h3><p>SKU mn-150 · Displays</p><p class="price">$129</p>
+    </article>
+  </div>
+  <p class="empty">No products match that category and price.</p>
+
+  <!-- Tool 2: addToCart. A normal GET form; without `toolautosubmit` the agent
+       only pre-fills it and the user presses the button to confirm. -->
+  <form class="tool"
+        toolname="addToCart"
+        tooldescription="Add a product from the catalog to the shopping cart. Choose the product by SKU and set a quantity."
+        method="get"
+        action="#added">
+    <p class="tool-name">Tool: <code>addToCart</code></p>
+    <div class="row">
+      <label>Product
+        <select name="sku" required
+                toolparamdescription="The product to add, identified by its SKU.">
+          <option value="hp-100">Studio Headphones — $89</option>
+          <option value="sp-020">Pocket Speaker — $39</option>
+          <option value="kb-310">Mechanical Keyboard — $79</option>
+          <option value="ms-050">Wireless Mouse — $29</option>
+          <option value="mn-270">27&quot; 4K Monitor — $349</option>
+          <option value="mn-150">Portable 15&quot; Monitor — $129</option>
+        </select>
+      </label>
+      <label>Quantity
+        <input type="number" name="quantity" min="1" max="10" value="1" required
+               toolparamdescription="How many units to add (1 to 10).">
+      </label>
+      <button type="submit">Add to cart</button>
+    </div>
+  </form>
+</body>
+</html>
