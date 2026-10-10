@@ -424,20 +424,20 @@ function getSEODataForRoute(routePath) {
       },
     },
     '/webmcp': {
-      title: 'WebMCP Recipe Workbench - navigator.modelContext demo | Chrome AI APIs',
-      description: 'A page-side WebMCP demo using navigator.modelContext in Chrome 146+ Canary. Browse seeded recipes from IndexedDB.',
-      keywords: 'WebMCP, navigator.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools',
+      title: 'WebMCP Recipe Workbench - document.modelContext demo | Chrome AI APIs',
+      description: 'A page-side WebMCP demo using document.modelContext in Chrome. Browse seeded recipes from IndexedDB.',
+      keywords: 'WebMCP, document.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools',
       structuredData: {
         '@context': 'https://schema.org',
         '@type': 'WebPage',
         name: 'WebMCP Recipe Workbench',
-        description: 'Page-side tools demo built on navigator.modelContext',
+        description: 'Page-side tools demo built on document.modelContext',
       },
     },
     '/webmcp/webmcp-api-documentation': {
       title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
-      description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
-      keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools',
+      description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through document.modelContext, registerTool, and the page-side tool descriptor.',
+      keywords: 'WebMCP documentation, document.modelContext API, registerTool, page-side tools docs, JSON Schema tools',
       structuredData: {
         '@context': 'https://schema.org',
         '@type': 'TechArticle',
@@ -459,7 +459,7 @@ function getSEODataForRoute(routePath) {
     '/generative-ui': {
       title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
       description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
-      keywords: 'MCP Apps, generative UI, navigator.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan',
+      keywords: 'MCP Apps, generative UI, document.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan',
       structuredData: {
         '@context': 'https://schema.org',
         '@type': 'WebPage',
@@ -469,13 +469,13 @@ function getSEODataForRoute(routePath) {
     },
     '/generative-ui/generative-ui-api-documentation': {
       title: 'Generative UI Docs — MCP Apps wire format + bidirectional pattern | Chrome AI APIs',
-      description: 'How to register UI-returning tools and hidden helpers with navigator.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
-      keywords: 'MCP Apps documentation, SEP-1865, navigator.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel',
+      description: 'How to register UI-returning tools and hidden helpers with document.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
+      keywords: 'MCP Apps documentation, SEP-1865, document.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel',
       structuredData: {
         '@context': 'https://schema.org',
         '@type': 'TechArticle',
         name: 'Generative UI API Documentation',
-        description: 'Technical documentation for the MCP Apps Generative UI pattern on navigator.modelContext.',
+        description: 'Technical documentation for the MCP Apps Generative UI pattern on document.modelContext.',
       },
     },
     '/proofreader': {

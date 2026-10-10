@@ -1,90 +1,102 @@
 # WebMCP API — Recipe Workbench guide
 
-WebMCP gives a web page a way to expose its in-page actions as discoverable, callable tools to AI agents — both an in-page LanguageModel agent and an external browser-resident agent (e.g. the Chrome WebMCP Tool Inspector extension). The page calls `document.modelContext.registerTool(...)` once per tool it wants to expose; agents see those tools, call them, and the page's handler runs in the user's browser context with the user's session state.
+WebMCP lets a web page expose its own actions as tools that AI agents can discover and call. The page registers each tool with `document.modelContext.registerTool()`; an agent — an in-page `LanguageModel` session, a browser agent, or an extension — sees the tools, calls them, and your `execute` function runs inside the page, with the user's session and DOM.
 
-This guide documents WebMCP as of the **W3C Draft Community Group Report dated April 23, 2026**. WebMCP is **not** a W3C Recommendation — the API is moving. See https://webmachinelearning.github.io/webmcp/ for the current spec.
-
-> **⚠️ Updated for Chrome 150 (July 2026).** Two things changed since this demo was first written against Chrome 146 Canary:
-> 1. **Entry point moved.** `navigator.modelContext` is **deprecated in Chrome 150** and will be removed; the API now lives on **`document.modelContext`** (tools are per-Document). Feature-detect both: `const modelContext = document.modelContext || navigator.modelContext;`. This site centralizes that in `chat/src/app/services/modelContext.ts` (`getModelContext()`).
-> 2. **Status advanced.** WebMCP graduated from a Chrome 146 flag to a **public origin trial in Chrome 149**. It still needs the `enable-webmcp-testing` flag for local dev, or an origin-trial token to run on a deployed origin.
-> See https://developer.chrome.com/docs/ai/webmcp/imperative-api
-
-> **Spec history.** Earlier drafts (≤ February 2026) defined `provideContext`, `unregisterTool`, and `clearContext` on `ModelContext`; they were briefly removed in March 2026, then `unregisterTool(name)` and `clearContext()` returned in the Chrome 150 implementation. The `AbortSignal` unregistration path below works across all of Chrome 146–150 and is what this demo uses.
+> **Status (October 2026).** WebMCP is a **Draft Community Group Report** of the W3C Web Machine Learning Community Group (snapshot: **9 October 2026**), not a W3C standard. In Chrome it is in **origin trial from Chrome 149 through 156**, with no stable ship milestone announced, and behind `chrome://flags/#enable-webmcp-testing` for local development. Behavior on this page was verified against **Chrome Canary 157**. Spec: https://webmachinelearning.github.io/webmcp/ · Chrome docs: https://developer.chrome.com/docs/ai/webmcp
 
 > **Declarative WebMCP.** You don't always need `registerTool()`. A plain HTML `<form>` with `toolname` and `tooldescription` attributes becomes a tool too, and Chrome builds its input schema from the form fields. See the **Declarative** tab for a live product-search and add-to-cart example and the full guide.
 
 ## Overview
 
-WebMCP is a browser-mediated alternative to running a local Model Context Protocol (MCP) server: the page itself IS the tool surface. Every tool is registered against the live page, runs with the user's signed-in session and DOM, and disappears when the page navigates away.
+WebMCP is a browser-mediated alternative to running a separate Model Context Protocol (MCP) server: the page itself is the tool surface. Tools are registered against the live document, run with the user's signed-in session and DOM, and disappear when the page goes away.
 
-The shipped surface is small:
+The whole surface lives on one object, `document.modelContext`:
 
-- One entry point: `document.modelContext` (a `ModelContext` instance, available in secure contexts; `navigator.modelContext` on Chrome 146–149).
-- Core method: `registerTool(tool, options?)`.
-- One descriptor shape: `{ name, description, inputSchema, execute, annotations? }`.
+| Member | What it does |
+|---|---|
+| `registerTool(tool, options?)` | Registers a tool. Returns a Promise. |
+| `getTools(options?)` | Lists the registered tools (imperative and declarative). |
+| `executeTool(tool, input?, options?)` | Runs a tool the way an agent does. |
+| `toolchange` event | Fires when the set of tools changes. |
+| `toolactivated`, `toolcancel` events | Fire for declarative (form) tools — see the **Declarative** tab. |
 
-Tools are unregistered by aborting the `AbortSignal` passed at registration time (Chrome 150 also adds `unregisterTool(name)` and `clearContext()`). This demo uses the AbortSignal path because it works across every version that ships WebMCP.
+To unregister a tool, abort the `AbortSignal` you passed to `registerTool()`. There is no `unregisterTool()` or `clearContext()`.
 
-The page is the trust boundary. Anything the page's JavaScript can do — read IndexedDB, mutate DOM, hit a same-origin API with the user's cookies — a registered tool can do, because the tool's `execute` runs in the page's context. That's the whole value proposition: agents get to drive the page the user is already signed into, without any separate auth handshake.
+The page is the trust boundary. Anything the page's JavaScript can do — read IndexedDB, change the DOM, call a same-origin API with the user's cookies — a registered tool can do, because `execute` runs in the page. That is the point: an agent drives the page the user is already signed into, with no separate auth handshake.
 
 ## Browser Support
 
-WebMCP is available in:
+- **Chrome 149–156** — public **origin trial**. Register your origin (trial ID `4163014905550602241`) and add the token to your pages.
+- **Chrome, local development** — enable `chrome://flags/#enable-webmcp-testing` and relaunch. The same flag enables the declarative API.
+- **Microsoft Edge** — available for testing in Edge Canary and Dev behind `edge://flags/#enable-webmcp-testing`, and through Microsoft's own origin trial.
 
-- **Chrome 149+** — public **origin trial** (register your origin for a token), or enable `chrome://flags/#enable-webmcp-testing` for local dev.
-- **Chrome 146–148 Canary** — behind the flag only (`chrome://flags/#WebMCP for testing`, set to "For testing").
-- **Microsoft Edge 147+** (added March 2026).
+Other browsers don't implement WebMCP. `document.modelContext` only exists in secure contexts (HTTPS or `localhost`), so feature-detect before using it:
 
-Other browsers do not implement WebMCP. On those, the Recipe Workbench page in this site shows a yellow banner (see `chat/src/app/components/MissingFlagBanner.tsx`) explaining how to enable it; the recipe browser itself stays usable for read-only browsing.
-
-The page resolves the entry point via `getModelContext()` (`document.modelContext ?? navigator.modelContext`) at mount time and falls back to the banner if absent. Registering against an undefined `modelContext` would throw, so the registration effect is guarded with the same check.
-
-**Production readiness.** WebMCP is a Draft Community Group Report — not a W3C standard, not a stable API. The shape is expected to change before stabilization (targeted mid-to-late 2026). Don't ship to production yet.
-
-## API Surface
-
-The core method used by this demo is `registerTool` on `ModelContext`:
-
-### `document.modelContext.registerTool(tool, options?)`
-
-Registers a tool descriptor. The page becomes the handler — when an agent calls the tool, the descriptor's `execute` function runs in the page's JavaScript context.
-
-**Parameters:**
-
-- `tool: ModelContextTool` — the tool descriptor (see "Descriptor shape" below).
-- `options?: { signal?: AbortSignal }` — when the signal aborts, the tool is unregistered.
-
-**Returns:** `void`. Throws if a tool with the same `name` is already registered (Chrome 146 Canary surfaces this as a `DOMException` whose message contains "duplicate tool name" or "already registered").
-
-**Lifetime.** A registered tool stays available until either (a) the page navigates away, or (b) the `AbortSignal` passed via `options.signal` aborts. Chrome 150 also adds `unregisterTool(name)`, but aborting the signal is the portable path and deregisters the whole set in one shot. In a React component, this maps cleanly onto a `useEffect` cleanup that calls `controller.abort()`.
-
-### Descriptor shape
-
-```ts
-interface ModelContextTool {
-  name: string;                 // unique within the page; agents address tools by this name
-  description: string;          // free-form; agents use this for tool selection
-  inputSchema?: object;         // JSON Schema for the input object
-  annotations?: { readOnlyHint?: boolean };  // hints for agents (UX, caching)
-  execute(input: Record<string, unknown>): Promise<unknown>;
+```javascript
+if ("modelContext" in document) {
+  // WebMCP is available.
+} else {
+  // Show a fallback; the page should keep working for people.
 }
 ```
 
-The `inputSchema` is a standard JSON Schema object describing the parameters the agent must pass when invoking the tool. Keep it tight: only `type: 'object'` schemas are practical, with `properties`, `required`, and `additionalProperties: false` for safety. Agents that ship JSON-Schema-aware tool routers (most do) will reject mis-shaped inputs before `execute` ever runs.
+On this site, the Recipe Workbench shows a yellow banner when WebMCP is missing; the recipe browser itself stays usable.
 
-The `execute` handler runs in the page's main thread. It receives the agent-supplied input as `Record<string, unknown>` (you must validate or narrow before use), and returns a `Promise<unknown>`. The agent receives the resolved value (the browser serializes it). Tools that surface to a `LanguageModel` chat session need their result coerced to a `Promise<string>` — see Sample 2.
+**Production readiness.** The API is still changing between drafts. Don't ship to production yet.
+
+## API Surface
+
+### `document.modelContext.registerTool(tool, options?)`
+
+Registers a tool. When an agent calls it, the tool's `execute` function runs in the page.
+
+**Parameters:**
+
+- `tool` — the tool descriptor (see "Descriptor shape" below).
+- `options.signal` — an `AbortSignal`. Aborting it unregisters the tool. Calls that are already running are not interrupted (Chrome 153+).
+- `options.exposedTo` — a list of origins allowed to see the tool from other sites. Tools are private to the page by default (see "Security & Permission Model").
+
+**Returns:** a Promise that resolves (to `undefined`) once the tool is registered. It **rejects** with `InvalidStateError: Duplicate tool name` if a tool with the same `name` is already registered — so `await` it and handle the rejection.
+
+**Lifetime.** A tool stays registered until its `AbortSignal` aborts or the page goes away. One `AbortController` can cover several tools, so one `abort()` removes them all.
+
+### Descriptor shape
+
+```javascript
+const tool = {
+  name: "scaleRecipe",              // required — what the agent calls
+  title: "Scale recipe",            // optional — human-readable label
+  description: "…",                 // required — when and why to use the tool
+  inputSchema: { type: "object" },  // JSON Schema for the input object
+  annotations: {                    // optional hints, all default to false
+    readOnlyHint: false,
+    untrustedContentHint: false,
+    consequentialHint: false,
+  },
+  async execute(input, { signal }) {
+    // input: the agent's arguments, already parsed from JSON
+    // signal: aborts if the call is cancelled
+    return "a string, or any JSON-serializable value";
+  },
+};
+```
 
 ### Field-by-field
 
-- **`name`** (required) — the identifier the agent uses to address the tool. Per the W3C IDL, the regex is `[A-Za-z0-9_\-.]{1,128}` — alphanumerics, underscore, dash, dot, up to 128 characters. The agent prompt sees this string verbatim, so short, descriptive camelCase reads best (`scaleRecipe`, `swapIngredient`, `generateShoppingList`).
-- **`description`** (required) — a free-form natural-language sentence that the agent uses to decide *when* to call this tool. Lead with the verb ("Scale a recipe to a new serving count..."), spell out side effects, and call out optional parameters. The model treats this as the primary documentation.
-- **`inputSchema`** (optional) — JSON Schema for the input object. Always pass `type: 'object'`; agents that emit non-object inputs are not what this API was designed for. Set `additionalProperties: false` to reject typos. List `required` fields explicitly so the agent can't omit them.
-- **`annotations`** (optional) — hints for agents about how to treat the tool. Currently the only widely-honored field is `readOnlyHint: boolean`; setting it to `true` lets agents reorder or cache the call. Setting it to `false` (or omitting it) tells the agent the tool mutates state.
-- **`execute`** (required) — the handler. Async; receives the parsed input as `Record<string, unknown>` (you must validate it inside the function); returns `Promise<unknown>` whose resolved value is what the agent receives.
+- **`name`** (required) — the identifier agents call. Short, descriptive camelCase reads best (`scaleRecipe`, `swapIngredient`). Chrome recommends staying under 30 characters.
+- **`title`** (optional) — a human-readable label shown by tools such as inspectors.
+- **`description`** (required) — the agent's main documentation for the tool, and how it decides *when* to call it. Lead with the verb ("Scale a recipe to…"), spell out side effects, and mention optional parameters. Chrome recommends at most 500 characters.
+- **`inputSchema`** — JSON Schema for the input. Use `type: "object"` with `properties`, list `required` fields, and set `additionalProperties: false`. Give each property a `description` (Chrome recommends at most 150 characters).
+- **`annotations`** (optional) — hints for the agent and browser:
+  - `readOnlyHint` — the tool doesn't change state, so it can be called with less caution.
+  - `consequentialHint` — the action has real consequences (money, messages, deleting data); the agent or browser may ask the user to confirm first.
+  - `untrustedContentHint` — the result contains user-generated or external content, which the agent should treat with extra suspicion.
+  - `debugging` — marks a tool meant for debugging (Chrome 156+).
+- **`execute(input, { signal })`** (required) — the handler. It receives the parsed input object and an options object with an `AbortSignal`, and returns (or resolves to) the result.
+
+**What the agent receives.** A string result is passed through unchanged. Any other value is serialized to JSON. Chrome recommends keeping tool output under about 1,500 characters.
 
 ### Input schema example
-
-A typical `inputSchema` for a single-required-parameter tool looks like this — the same shape Sample 1 uses for the real `scaleRecipe` descriptor:
 
 ```json
 {
@@ -93,11 +105,8 @@ A typical `inputSchema` for a single-required-parameter tool looks like this —
     "servings": {
       "type": "integer",
       "minimum": 1,
-      "description": "Target servings count"
-    },
-    "recipeId": {
-      "type": "string",
-      "description": "(optional) recipe id; defaults to active recipe"
+      "maximum": 50,
+      "description": "Target number of servings"
     }
   },
   "required": ["servings"],
@@ -105,214 +114,256 @@ A typical `inputSchema` for a single-required-parameter tool looks like this —
 }
 ```
 
-Use plain JSON Schema types (`string`, `number`, `integer`, `boolean`, `array`, `object`, `null`). Nested objects are allowed but discouraged — agents do better with flat input shapes. Each property's `description` is a hint to the agent about what value to fill in; treat it as documentation, not a UI label.
+Use plain JSON Schema types (`string`, `number`, `integer`, `boolean`, `array`, `object`, `null`). Agents do better with flat inputs than with deeply nested objects.
 
-### Registration patterns
+**Chrome does not validate the input against `inputSchema`.** In Chrome Canary 157 a string passed for an `integer` property, and a call with a `required` field missing, both reached `execute`. The schema tells the agent what to send; your handler must still check what it got.
 
-Single mount-time registration is the simplest case (see Sample 1 below). For pages that register multiple tools, loop the array (Sample 2). Prefer one shared `AbortController` across all the tools registered by a single component — that way, the component's cleanup callback aborts every registration in one call. The full mounted pattern looks like the one in Sample 2; both consumers there share a single `controller`.
+### Events
 
-A registration call against an undefined `modelContext` (browser without the flag) throws synchronously. Always feature-detect first — resolve `document.modelContext ?? navigator.modelContext` (see `getModelContext()`) and bail if it's undefined — or wrap the loop in a try/catch and surface a fallback UI on failure.
+`document.modelContext` is an `EventTarget`. The `toolchange` event fires whenever the set of registered tools changes:
+
+```javascript
+document.modelContext.addEventListener("toolchange", async () => {
+  const tools = await document.modelContext.getTools();
+  console.log("Tools now:", tools.map((t) => t.name));
+});
+```
+
+`toolactivated` and `toolcancel` belong to declarative form tools and are covered on the **Declarative** tab.
 
 ### Lifecycle, in summary
 
-1. **Mount** — page loads; React effect (or `DOMContentLoaded` handler) creates an `AbortController` and calls `registerTool` once per tool.
-2. **Visibility** — agents (in-page or external) discover tools via `document.modelContext` (or `navigator.modelContext` on Chrome 146–149); Chrome's Tool Inspector extension surfaces them in DevTools.
-3. **Invocation** — agent calls a tool by name with a JSON-Schema-shaped input; the browser routes the call to the registered descriptor's `execute`.
-4. **Result** — `execute` resolves; the browser serializes the resolved value back to the agent. Errors thrown inside `execute` reject the call.
-5. **Unmount** — page navigates away (implicit), or the component's cleanup calls `controller.abort()` (explicit). All registrations under that controller are torn down atomically.
+1. **Register** — on page load, create an `AbortController` and `await registerTool()` for each tool.
+2. **Discover** — agents list the tools (the same data `getTools()` returns).
+3. **Invoke** — the agent calls a tool with an input object; the browser runs your `execute`.
+4. **Result** — `execute` resolves; the agent receives the string, or the value as JSON. If `execute` throws, the call fails.
+5. **Unregister** — call `controller.abort()`, or let the page close.
 
-There is no separate "connect" or "handshake" phase — registration IS the handshake. The agent doesn't ask the page for permission; the page advertises tools and the agent decides whether to call them.
+There is no separate connect or handshake step: registering is the handshake.
 
-### Inspecting registered tools
+### Inspecting and testing tools
 
-Chrome 146 Canary ships an extension called the WebMCP Tool Inspector that surfaces every registered tool in the DevTools panel of the active page. To verify your registrations:
+You can list and run tools from the DevTools console — the same path an agent takes:
 
-1. Open `chrome://extensions`, install the Tool Inspector extension (link in the W3C draft repository).
-2. Open DevTools on the page, switch to the "WebMCP" panel.
-3. The panel lists every registered tool with its `name`, `description`, schema, and `annotations`. Calling a tool from the panel routes through the same `execute` handler the agent would.
+```javascript
+// Every tool on the page: registerTool() tools and declarative form tools.
+const tools = await document.modelContext.getTools();
+console.table(tools.map((t) => ({ name: t.name, title: t.title, description: t.description })));
 
-Pages without the extension can still spot-check via the DevTools console: in Chrome 146 Canary, `navigator.modelContext` exposes (non-standard) introspection helpers that vary by build. Treat these as debug-only — they are not part of the W3C draft and may disappear or change between releases.
+// Run one with a plain object as input. Resolves to a string.
+const scale = tools.find((t) => t.name === "scaleRecipe");
+const result = await document.modelContext.executeTool(scale, { servings: 4 });
+console.log(result);   // '{"ok":true,"oldServings":2,"newServings":4}'
+```
 
-### Errors and observability
+Each entry from `getTools()` has `name`, `title`, `description`, `inputSchema`, `annotations`, `origin` and `window`. Pass `executeTool()` an object, not a JSON string; it resolves to `null` if the call ends in a navigation.
 
-A few error shapes worth handling explicitly:
+Other tools:
 
-- **`DOMException` on duplicate names.** Re-registering a tool with the same `name` (without first aborting the prior registration) throws synchronously. In a React effect, this typically means StrictMode is double-invoking your effect — abort the previous controller in the cleanup function.
-- **`TypeError: Cannot read properties of undefined`.** The page is running outside a Secure Context (e.g. `http://`) or the user has not enabled the flag. Feature-detect via `document.modelContext ?? navigator.modelContext` (`getModelContext()`) before calling.
-- **Handler exceptions.** Anything thrown inside `execute` is propagated to the agent as a tool-call error. Wrap risky operations in try/catch and return a structured error shape (`{ ok: false, error: string }`) if you want the agent to recover gracefully rather than abort the conversation.
+- **Model Context Tool Inspector** (Chrome Web Store) — lists a page's tools and calls them.
+- **Example Agentic Chrome Extension** (`GoogleChromeLabs/webmcp-extension` on GitHub) — drives the tools with natural-language prompts.
+- **Chrome DevTools** — includes WebMCP support for checking how your tools and schemas are parsed.
 
-The browser does not surface tool-call telemetry to the page. If you need an audit trail (which tools were called, with what input, with what result), instrument it inside `execute` — log to your own backend or to a same-origin analytics endpoint.
+### Errors
+
+- **`InvalidStateError: Duplicate tool name`** — `registerTool()` rejects when the name is already taken. In a framework that mounts components twice in development (React StrictMode, hot reload), abort the previous controller before registering again.
+- **`TypeError: Cannot read properties of undefined`** — `document.modelContext` doesn't exist: no flag or origin-trial token, or the page isn't a secure context. Feature-detect first.
+- **`UnknownError` from a failed call** — if `execute` throws, the agent receives a generic error ("Tool was executed but the invocation failed…") and **does not see your error message**. To let the agent recover, return a structured result instead of throwing, such as `{ ok: false, error: "servings must be at least 1" }`.
+
+The browser doesn't report tool calls to the page. For an audit trail, log inside `execute`, or on your server if the tool calls one.
 
 ## Code Sample 1: Single-Tool Registration
 
-A single tool exposed via `document.modelContext.registerTool`. The descriptor below is a pruned version of the real `scaleRecipe` entry from `chat/src/app/services/recipeTools.ts` — same name, same description, same JSON Schema shape, with the handler inlined for self-contained reading.
+A complete, runnable tool. Paste it into the console of any HTTPS page with WebMCP enabled.
 
-```typescript
-import type { Recipe } from '../services/RecipePersistence';
-import { getRecipe, saveRecipe } from '../services/RecipePersistence';
-import { getActiveRecipeId } from '../services/recipeStore';
+```javascript
+// The state this tool acts on (a real page would use its own data).
+const recipe = {
+  title: "Pancakes",
+  servings: 2,
+  ingredients: [
+    { name: "flour", quantity: 200, unit: "g" },
+    { name: "milk", quantity: 300, unit: "ml" },
+    { name: "eggs", quantity: 2, unit: "" },
+  ],
+};
 
-const scaleRecipe: ModelContextTool = {
-  name: 'scaleRecipe',
-  description: 'Scale a recipe to a new serving count. All ingredient quantities are scaled proportionally.',
+const scaleRecipe = {
+  name: "scaleRecipe",
+  title: "Scale recipe",
+  description:
+    "Scale the open recipe to a new number of servings. All ingredient quantities change proportionally.",
   inputSchema: {
-    type: 'object',
+    type: "object",
     properties: {
-      servings: { type: 'integer', minimum: 1, description: 'Target servings count' },
-      recipeId: { type: 'string', description: '(optional) recipe id; defaults to active recipe' },
+      servings: { type: "integer", minimum: 1, maximum: 50, description: "Target number of servings" },
     },
-    required: ['servings'],
+    required: ["servings"],
     additionalProperties: false,
   },
   annotations: { readOnlyHint: false },
-  execute: async (input) => {
-    const { servings, recipeId } = input as { servings: number; recipeId?: string };
-    const recipe = await getRecipe(recipeId ?? getActiveRecipeId());
-    const factor = servings / recipe.servings;
-    const updated: Recipe = {
-      ...recipe,
-      servings,
-      ingredients: recipe.ingredients.map(ing => ({ ...ing, quantity: ing.quantity * factor })),
-    };
-    await saveRecipe(updated);
-    return { id: recipe.id, oldServings: recipe.servings, newServings: servings, factor };
+  async execute({ servings }) {
+    // Chrome doesn't enforce inputSchema — validate here.
+    if (!Number.isInteger(servings) || servings < 1 || servings > 50) {
+      return { ok: false, error: "servings must be a whole number from 1 to 50" };
+    }
+    const oldServings = recipe.servings;
+    const factor = servings / oldServings;
+    recipe.ingredients = recipe.ingredients.map((i) => ({ ...i, quantity: i.quantity * factor }));
+    recipe.servings = servings;
+    return { ok: true, oldServings, newServings: servings };
   },
 };
 
-// Mount-time registration. Pass an AbortSignal — when aborted, the tool is
-// torn down. Resolve the entry point (Chrome 150 moved it to document).
-const modelContext = document.modelContext ?? navigator.modelContext;
 const controller = new AbortController();
-modelContext.registerTool(scaleRecipe, { signal: controller.signal });
 
-// Later (e.g. in a React effect cleanup):
-controller.abort();  // tool is now gone
+if ("modelContext" in document) {
+  try {
+    await document.modelContext.registerTool(scaleRecipe, { signal: controller.signal });
+    console.log("scaleRecipe registered");
+  } catch (error) {
+    console.error("Could not register scaleRecipe:", error); // e.g. a duplicate name
+  }
+}
+
+// Later — for example when the user leaves this view:
+// controller.abort();
 ```
-
-The descriptor compiles cleanly against the ambient `ModelContextTool` type declared in `chat/src/app/types/webmcp.d.ts`, with no boundary casts. The handler is plain async TypeScript; the agent's call serializes the return value back across the WebMCP boundary.
-
-The narrow assertion `input as { servings: number; recipeId?: string }` is a type narrowing on the validated input shape, not a boundary cast — `input` has already been JSON-Schema-validated by the time it reaches the handler. In production code you'd add an explicit runtime guard (e.g. a tiny zod schema or a hand-rolled `isScaleInput(input)` predicate); for a single-file reading-order example the inline narrow is honest about what the schema guarantees.
 
 ### What the agent sees
 
-When an agent (in-page or external) discovers `scaleRecipe`, it sees a description object roughly like this:
+`getTools()` reports the tool roughly like this — your descriptor, plus the `origin` and `window` it belongs to and every annotation filled in:
 
 ```json
 {
   "name": "scaleRecipe",
-  "description": "Scale a recipe to a new serving count. All ingredient quantities are scaled proportionally.",
+  "title": "Scale recipe",
+  "description": "Scale the open recipe to a new number of servings. All ingredient quantities change proportionally.",
   "inputSchema": {
     "type": "object",
     "properties": {
-      "servings": { "type": "integer", "minimum": 1, "description": "Target servings count" },
-      "recipeId": { "type": "string", "description": "(optional) recipe id; defaults to active recipe" }
+      "servings": { "type": "integer", "minimum": 1, "maximum": 50, "description": "Target number of servings" }
     },
     "required": ["servings"],
     "additionalProperties": false
   },
-  "annotations": { "readOnlyHint": false }
+  "annotations": {
+    "readOnlyHint": false,
+    "untrustedContentHint": false,
+    "consequentialHint": false,
+    "debugging": false
+  },
+  "origin": "https://example.com"
 }
 ```
 
-The agent picks this tool when its planner concludes a serving-count adjustment is needed, fills out the input shape, and dispatches. The browser routes the dispatch to your `execute`. The resolved value comes back as a JSON-serializable object; the agent can read it directly or surface it to the user.
+When the agent calls it with `{ "servings": 4 }`, it receives the JSON string `{"ok":true,"oldServings":2,"newServings":4}`.
 
 ## Code Sample 2: One Definition, Two Consumers
 
-This is the WebMCP value proposition in code: **a single tool definition feeds both an external agent (via `document.modelContext`) and an in-page agent (via `LanguageModel`).** Add a tool once, both consumers gain it.
+The same tool definitions can serve an external agent (through `document.modelContext`) and an in-page Prompt API agent (through `LanguageModel`). Add a tool once and both consumers get it.
 
-```typescript
-import { RECIPE_TOOLS } from '../services/recipeTools';
+```javascript
+// Reuses `recipe` and `scaleRecipe` from Sample 1. Remove Sample 1's
+// registration first — registering the same name twice is rejected.
+controller.abort();
 
-// Consumer 1: external Chrome agent (Tool Inspector extension, an OS-level
-// agent reaching the page via WebMCP, etc.). Tools are discoverable via
-// document.modelContext on the live page (navigator.modelContext on 146–149).
-const modelContext = document.modelContext ?? navigator.modelContext;
-const controller = new AbortController();
-for (const tool of RECIPE_TOOLS) {
-  modelContext.registerTool(tool, { signal: controller.signal });
+const listIngredients = {
+  name: "listIngredients",
+  description: "List the open recipe's ingredients with quantities and units.",
+  inputSchema: { type: "object", properties: {}, additionalProperties: false },
+  annotations: { readOnlyHint: true },
+  async execute() {
+    return recipe.ingredients.map((i) => [i.quantity, i.unit, i.name].filter(Boolean).join(" ")).join("\n");
+  },
+};
+
+const tools = [scaleRecipe, listIngredients];
+
+// Consumer 1: agents outside the page (browser agents, extensions).
+const toolsController = new AbortController();
+for (const tool of tools) {
+  await document.modelContext.registerTool(tool, { signal: toolsController.signal });
 }
 
-// Consumer 2: the in-page LanguageModel chat agent. Same RECIPE_TOOLS array,
-// adapted to LanguageModel's tool shape — its `execute` must resolve to a
-// string, while WebMCP's `execute` resolves to `unknown`. The hand-rolled
-// adapter below shows the bridge explicitly.
-const lmTools = RECIPE_TOOLS.map(t => ({
-  name: t.name,
-  description: t.description,
-  inputSchema: t.inputSchema ?? { type: 'object', properties: {} },
-  execute: async (input: Record<string, unknown>) => {
-    const result = await t.execute(input);
-    return typeof result === 'string' ? result : JSON.stringify(result);
-  },
-}));
-
+// Consumer 2: an in-page Prompt API session. Its tool `execute` must resolve
+// to a string, so turn any other result into JSON.
 const session = await LanguageModel.create({
-  initialPrompts: [{ role: 'system', content: 'You are a recipe assistant.' }],
-  tools: lmTools,
+  initialPrompts: [{ role: "system", content: "You are a recipe assistant." }],
+  tools: tools.map((t) => ({
+    name: t.name,
+    description: t.description,
+    inputSchema: t.inputSchema,
+    async execute(input) {
+      const result = await t.execute(input, { signal: new AbortController().signal });
+      return typeof result === "string" ? result : JSON.stringify(result);
+    },
+  })),
 });
 
-// One definition. Two consumers. Both see the same handler logic, the same
-// JSON Schema, the same descriptions. Add a tool to RECIPE_TOOLS and both
-// the external Tool Inspector and the in-page chat gain it for free.
+console.log(await session.prompt("Scale the recipe for 6 people, then list the ingredients."));
 ```
 
-> **In this demo specifically.** The Recipe Workbench's in-page agent (`chat/src/app/components/RecipeWorkbench/AgentDrawer.tsx`) uses a `responseFormat`-driven JSON dispatch loop instead of `LanguageModel.create({ tools })`, because Chrome 147 Canary's `LanguageModel` tool-calling codepath was unreliable at the time of writing. The Prompt API's `tools` parameter is documented and functional as of the Chrome 148 stable release, so this workaround is no longer strictly required — but it still works, and swapping it is optional. The same `RECIPE_TOOLS` array drives both surfaces — only the in-page invocation transport differs. A reusable adapter exists at `chat/src/app/services/toolAdapter.ts` (export name `toLanguageModelTools`, plural) for the `tools`-based path.
+- One `toolsController.abort()` removes every WebMCP registration.
+- The `LanguageModel` session has its own lifecycle (`session.destroy()`); the two consumers share tool definitions, not a session.
+- An error thrown in `execute` reaches the external agent as a generic `UnknownError`, while the in-page session sees whatever your adapter returns — another reason to return structured errors.
 
-### Why hand-roll the adapter?
-
-The hand-rolled adapter in Sample 2 deliberately avoids importing `toLanguageModelTools` from `chat/src/app/services/toolAdapter.ts`. The reusable helper in this codebase wraps each call with event-emit plumbing (used by the workbench's tool-call indicator UI) and a couple of dispatch-side concerns specific to this app. Inlining the conversion in the doc means:
-
-- The reader sees exactly how `Promise<unknown>` (WebMCP's contract) becomes `Promise<string>` (LanguageModel's contract).
-- The reader sees exactly which descriptor fields the in-page agent cares about (`name`, `description`, `inputSchema`, `execute`) and which it doesn't (`annotations` — LanguageModel doesn't have an annotations field today).
-- The reader can copy the snippet straight into a fresh project that doesn't have this app's helper.
-
-Production code in this repository imports `toLanguageModelTools` for the event-emit plumbing; the doc trades that integration for pedagogical clarity. Both shapes are correct.
-
-### Lifecycle, recap
-
-When you control both consumers in Sample 2 with the same `controller`:
-
-- One `controller.abort()` tears down all WebMCP registrations atomically.
-- The `LanguageModel` session has its own lifecycle — `session.destroy()` (when available) or simply letting the variable go out of scope ends it. The two consumers do not share a session lifecycle; they share a tool definition.
-- If a tool's `execute` throws, the WebMCP consumer surfaces the exception to the calling agent; the LanguageModel consumer's wrapper catches it and surfaces an error string to the chat session. Same handler, two error transport channels.
+> **In this demo.** The Recipe Workbench's in-page agent uses a schema-constrained JSON dispatch loop (a `responseFormat` schema on `LanguageModel.create()`) rather than `LanguageModel.create({ tools })`, because the Prompt API's tool calling was unreliable in early Canary builds. The `tools` option works in current Chrome, so either approach is fine. The same tool definitions drive both the in-page agent and external agents.
 
 ## Security & Permission Model
 
-WebMCP's permission model is "the user opened this page". There is no OAuth handshake, no consent prompt, no permission API. That's a feature, not an oversight — the page IS the trust boundary.
+WebMCP's permission model starts with "the user opened this page". There is no OAuth handshake and no permission prompt for registering tools; the page is the trust boundary.
+
+### Who can see the tools
+
+- **The page's own agents, by default.** Tools are private to the document that registered them. Other websites can't list or call them.
+- **Other origins only if you say so.** Pass `exposedTo` to share a tool with specific origins:
+
+  ```javascript
+  await document.modelContext.registerTool(lookupOrder, {
+    exposedTo: ["https://partner.example"],
+  });
+  ```
+
+  Expose read-only tools only to origins you trust with the data they return, and read-write tools only to origins you trust to act for the user.
+- **Cross-origin iframes need permission.** Tool registration is controlled by the `tools` Permissions Policy, allowed for the page itself (`self`) by default. A cross-origin iframe can register tools only if the parent delegates it: `<iframe src="…" allow="tools">`.
 
 ### What the agent can do
 
-- **Inherits the user's browser session.** Tool handlers run with the user's cookies, IndexedDB, localStorage, and signed-in identity. The agent does not see those credentials directly; it sees only what the tool's `execute` function returns. If a registered tool calls a same-origin REST API, that call carries the user's auth automatically — exactly as if the user clicked a button.
-- **No OAuth handshake.** There is no external authorization step, no scoped token, no API key exchange. The "permission" is the user's act of visiting the page and (optionally) the user explicitly using an agent on it.
-- **User-mediated.** Tool calls happen inside the page the user has open. Closing the tab or navigating away ends every registration. The user retains control by virtue of the navigation surface — there is no background channel, no service worker registration path.
-- **Same-origin scoped.** Tools registered on `https://example.com` are not visible on `https://other.example`. The `ModelContext` is per-document; the page that calls `registerTool` is the only handler. There is no cross-document discovery and no postMessage bridge.
+- **It acts with the user's session.** Tool handlers run with the user's cookies, storage and signed-in identity. The agent never sees those credentials; it sees only what `execute` returns.
+- **It works only while the page is open.** Closing the tab or navigating away removes every tool. There is no background or service-worker registration path.
 
 ### What the page is responsible for
 
-The browser does not validate `inputSchema`, does not authenticate the agent, does not gate dangerous operations behind a confirmation dialog. All of that is the page's job. Concretely:
+The browser doesn't validate input against `inputSchema` and doesn't authenticate the agent. That's the page's job:
 
-1. **Validate input inside `execute`.** Treat the input as untrusted. Even when the agent is JSON-Schema-aware, a malicious or buggy agent can still send the wrong shape. A 5-line runtime guard at the top of every handler catches this.
-2. **Confirm destructive actions.** For tools that mutate state irreversibly (deleting accounts, transferring funds, sending email), the handler itself should require explicit user confirmation — a DOM modal, a native `confirm()`, anything that interrupts the flow. The descriptor should also set `annotations: { readOnlyHint: false }` so well-behaved agents know the call has side effects.
-3. **Avoid leaking secrets in returned values.** The agent receives whatever `execute` resolves to. Don't return raw cookies, session tokens, or PII unless that's the literal point of the tool.
-4. **Log tool calls server-side.** If the tool hits a backend, that backend should log the call. Browser-side logs disappear when the tab closes; server logs are the audit trail.
+1. **Validate input in `execute`.** Treat it as untrusted, whatever the schema says.
+2. **Mark and confirm consequential actions.** Set `consequentialHint: true` on tools that spend money, send messages or delete data, so the agent or browser can ask the user first — and confirm inside the handler for anything irreversible.
+3. **Flag untrusted output.** Set `untrustedContentHint: true` when a tool returns user-generated or third-party content. That content can carry prompt-injection attempts aimed at the agent.
+4. **Return only what's needed.** The agent receives whatever `execute` returns; never include tokens, secrets or unnecessary personal data.
+5. **Log server-side.** Browser-side logs disappear with the tab; your server's logs are the audit trail.
 
 ### Threat model in one paragraph
 
-The realistic risk is a malicious page convincing the user to install or trust an agent that issues calls the user wouldn't make manually — a confused-deputy attack at the agent layer. WebMCP itself has no opinion on this; it just routes calls. Pages that integrate WebMCP should treat any agent as having the user's full authority on that page, exactly as if the user had a third-party browser extension running. If you wouldn't expose a page action via a public REST endpoint, don't expose it via WebMCP either.
+Prompt injection is the realistic risk: content the agent reads — a review, an email, a web page — tries to steer it into calling tools the user never intended. Chrome's own guidance is that safety inside a language model can't be guaranteed, so defenses belong in the tools: least privilege, the annotations above, confirmation for consequential actions, and validation of every input. Treat an agent on your page as having the user's full authority there. If you wouldn't expose an action as a public API endpoint, don't expose it as a tool.
 
 ## Limitations
 
-1. **Non-streaming handlers**: tool `execute` returns a single Promise; there is no streaming-tool surface in the current spec. Long-running operations should report progress via a separate channel (e.g. updating page state that an external observer can read).
-2. **No polyfill in this demo**: this site uses native `document.modelContext` (falling back to the deprecated `navigator.modelContext` on Chrome 146–149) only. Browsers without the flag see the `MissingFlagBanner`; they do not get a JS shim.
-3. **Spec is moving**: this guide pins to the April 23, 2026 W3C Draft Community Group Report. Earlier drafts had `provideContext` / `unregisterTool` / `clearContext` (removed in March 2026); future drafts may add or rename surface area before stabilization.
-4. **Same-origin only**: tools registered on one origin are not visible to pages on other origins. Cross-origin tool sharing is out of scope for this API.
-5. **Single document scope**: tools live on the document that registered them. Closing the tab unregisters everything (the implicit `AbortSignal` of page unload). There is no service-worker or background-page registration path.
-6. **No built-in input validation**: the browser does NOT enforce `inputSchema` before calling `execute`. Most agents validate against the schema themselves, but the handler must still treat its input as untrusted and validate at the top.
+1. **No schema enforcement.** Chrome passes the agent's input to `execute` without validating it against `inputSchema`.
+2. **Error messages don't reach the agent.** A thrown error arrives as a generic `UnknownError`; return structured errors instead.
+3. **Non-streaming handlers.** `execute` returns one result; there is no streaming tool output. Show progress for long operations in the page itself.
+4. **Page lifetime only.** Tools exist while the document is open. There is no background registration.
+5. **No polyfill in this demo.** The site uses native `document.modelContext` only; browsers without WebMCP see the banner.
+6. **The spec is moving.** Members have been added and removed between drafts. This guide follows the 9 October 2026 Draft Community Group Report and Chrome Canary 157.
 
 ## References
 
-- W3C WebMCP Draft Community Group Report — https://webmachinelearning.github.io/webmcp/ (snapshot: April 23, 2026)
-- WebMCP repository — https://github.com/webmachinelearning/webmcp
-- Chrome flag — `chrome://flags/#enable-webmcp-testing` (Chrome 149+ origin trial; older Canary 146–148 used `#WebMCP for testing`)
-- In-app fallback — `chat/src/app/components/MissingFlagBanner.tsx`
-- Tool source of truth — `chat/src/app/services/recipeTools.ts` (the `RECIPE_TOOLS` array driving Sample 2)
+- WebMCP spec (Draft Community Group Report, 9 October 2026) — https://webmachinelearning.github.io/webmcp/
+- WebMCP repository and explainers — https://github.com/webmachinelearning/webmcp
+- Chrome: WebMCP overview — https://developer.chrome.com/docs/ai/webmcp
+- Chrome: imperative API — https://developer.chrome.com/docs/ai/webmcp/imperative-api
+- Chrome: declarative API — https://developer.chrome.com/docs/ai/webmcp/declarative-api
+- Chrome: securing WebMCP tools — https://developer.chrome.com/docs/ai/webmcp/secure-tools
+- Chrome: best practices — https://developer.chrome.com/docs/ai/webmcp/best-practices
+- Chrome Status entry — https://chromestatus.com/feature/5117755740913664
+- Origin trial registration — https://developer.chrome.com/origintrials/#/register_trial/4163014905550602241

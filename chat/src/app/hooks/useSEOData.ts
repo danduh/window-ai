@@ -80,16 +80,16 @@ export const seoConfigs = {
     keywords: 'AI writing, content creation, text rewriting, writing assistant, content enhancement, AI writer, text generation'
   },
   webmcp: {
-    title: 'WebMCP Recipe Workbench - navigator.modelContext demo | Chrome AI APIs',
-    description: 'A page-side WebMCP demo using navigator.modelContext in Chrome 146+ Canary. Browse seeded recipes from IndexedDB and (in later phases) drive them with native browser tools — no MCP server required.',
-    keywords: 'WebMCP, navigator.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools, IndexedDB demo'
+    title: 'WebMCP Recipe Workbench - document.modelContext demo | Chrome AI APIs',
+    description: 'A page-side WebMCP demo using document.modelContext in Chrome. Browse seeded recipes from IndexedDB and (in later phases) drive them with native browser tools — no MCP server required.',
+    keywords: 'WebMCP, document.modelContext, Model Context Protocol, page-side tools, Chrome 146, recipe workbench, browser AI tools, IndexedDB demo'
   },
   // Must match prerender-react.js:357-367 verbatim — single source of truth
   // is the prerender file (crawler parity). See Phase 3 D-08 + D-12.
   webmcpDocs: {
     title: 'WebMCP API Documentation - Recipe Workbench guide | Chrome AI APIs',
-    description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through navigator.modelContext, registerTool, and the page-side tool descriptor.',
-    keywords: 'WebMCP documentation, navigator.modelContext API, registerTool, page-side tools docs, JSON Schema tools'
+    description: 'Documentation for the WebMCP Recipe Workbench demo. Walks through document.modelContext, registerTool, and the page-side tool descriptor.',
+    keywords: 'WebMCP documentation, document.modelContext API, registerTool, page-side tools docs, JSON Schema tools'
   },
   // Must match prerender-react.js seoConfigs['/webmcp/webmcp-declarative'] verbatim.
   webmcpDeclarative: {
@@ -102,14 +102,14 @@ export const seoConfigs = {
   generativeUI: {
     title: 'Generative UI — MCP Apps demo with on-device recipe cards | Chrome AI APIs',
     description: 'A Chrome 146 Canary demo of the MCP Apps pattern: the in-page chat calls searchRecipes, an interactive recipe-card carousel renders in the chat bubble via a sandboxed iframe, and clicking Pick updates the meal-plan column live — all on-device, no network.',
-    keywords: 'MCP Apps, generative UI, navigator.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan'
+    keywords: 'MCP Apps, generative UI, document.modelContext, Chrome AI, on-device AI, recipe cards, sandboxed iframe, WebMCP, SEP-1865, meal plan'
   },
   // Must match prerender-react.js seoConfigs['/generative-ui/docs'] verbatim.
   // See Phase 3 D-08 + D-12 — prerender drift caused a Phase 3 hotfix.
   generativeUIDocs: {
     title: 'Generative UI Docs — MCP Apps wire format + bidirectional pattern | Chrome AI APIs',
-    description: 'How to register UI-returning tools and hidden helpers with navigator.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
-    keywords: 'MCP Apps documentation, SEP-1865, navigator.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel'
+    description: 'How to register UI-returning tools and hidden helpers with document.modelContext, sandboxed iframes, and JSON-RPC postMessage bridge — SEP-1865 reference.',
+    keywords: 'MCP Apps documentation, SEP-1865, document.modelContext, registerTool, _meta.ui.resourceUri, sandboxed iframe, JSON-RPC postMessage, visibility annotation, hidden helpers, recipe carousel'
   },
   // Must match prerender-react.js seoConfigs['/proofreader'] verbatim — Phase 12 grep -F audits.
   proofreader: {

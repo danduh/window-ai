@@ -241,7 +241,7 @@ const result = await document.modelContext.executeTool(addToCart, { sku: "kb-310
 console.log(result);   // the JSON passed to respondWith(), or null
 ```
 
-Older guides use `navigator.modelContextTesting.listTools()`; Chrome removed that testing API in mid-2026. The DevTools **Issues** panel lists the declarative mistakes described above.
+The DevTools **Issues** panel lists the declarative mistakes described above.
 
 ## A zero-JavaScript version
 
