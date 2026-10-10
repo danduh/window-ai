@@ -304,6 +304,7 @@ Common pairs that work well on Chrome desktop today:
 | `es-ES`       | `es`              |
 | `fr-FR`       | `fr`              |
 | `de-DE`       | `de`              |
+| `it-IT`       | `it`              |
 | `ja-JP`       | `ja`              |
 | `uk-UA`       | `uk`              |
 | `ru-RU`       | `ru`              |
