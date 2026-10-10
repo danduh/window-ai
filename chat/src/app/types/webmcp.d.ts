@@ -27,7 +27,9 @@ declare global {
     readonly modelContext?: ModelContext;
   }
 
-  interface ModelContext {
+  // An EventTarget: fires `toolchange` (tool set changed), `toolactivated`
+  // (declarative form filled by an agent) and `toolcancel`.
+  interface ModelContext extends EventTarget {
     /**
      * Registers a single tool with the user agent without removing others.
      * Pass an `AbortSignal` via `options` to deregister the tool.
@@ -49,6 +51,40 @@ declare global {
     provideContext(context: object): void;
     /** Removes all registered tools/context (Chrome 150+). */
     clearContext?(): void;
+    /**
+     * Lists every tool currently registered on the document — imperative
+     * (`registerTool`) AND declarative (`<form toolname>`). Verified on Chrome
+     * Canary 157. Optional because older builds don't expose it.
+     */
+    getTools?(): Promise<ModelContextToolInfo[]>;
+    /**
+     * Runs a tool as an agent would. `input` is a plain object (Canary 157
+     * rejects a JSON string). Resolves with the JSON-encoded result a
+     * declarative form passed to `SubmitEvent.respondWith()`, or `null` when
+     * the form returned nothing.
+     */
+    executeTool?(tool: ModelContextToolInfo, input: object): Promise<string | null>;
+  }
+
+  /** A registered tool as reported by `getTools()`. */
+  interface ModelContextToolInfo {
+    readonly name: string;
+    readonly description: string;
+    readonly title?: string;
+    readonly origin?: string;
+    /** The JSON Schema Chrome derived (declarative) or was given (imperative). */
+    readonly inputSchema?: object;
+  }
+
+  /**
+   * Declarative WebMCP additions to the submit event of a `<form toolname>`.
+   * Optional because they only exist when the declarative API is enabled.
+   */
+  interface SubmitEvent {
+    /** True when an agent (not a person) started this submission. */
+    readonly agentInvoked?: boolean;
+    /** Return a result to the agent instead of navigating. Call after preventDefault(). */
+    respondWith?(response: Promise<unknown>): void;
   }
 
   interface ModelContextRegisterToolOptions {

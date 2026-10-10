@@ -97,7 +97,7 @@ const AppRouter: React.FC = () => {
             {demoRoutes('/translate', TranslatePage, ['/translate-api-documentation', '/translate-demo'])}
             {demoRoutes('/writer', WriteRewritePage, ['/writer-api-documentation', '/writer-demo'])}
             {demoRoutes('/live-translate', LiveTranslatePage, ['/live-translate-api-documentation', '/live-translate-demo'])}
-            {demoRoutes('/webmcp', RecipeWorkbenchPage, ['/webmcp-api-documentation', '/webmcp-demo'])}
+            {demoRoutes('/webmcp', RecipeWorkbenchPage, ['/webmcp-api-documentation', '/webmcp-demo', '/webmcp-declarative'])}
             {demoRoutes('/generative-ui', GenerativeUIPage, ['/generative-ui-api-documentation', '/generative-ui-demo'])}
             {demoRoutes('/proofreader', ProofreaderPage, ['/proofreader-api-documentation', '/proofreader-demo'])}
             {demoRoutes('/multimodal', MultimodalPage, ['/multimodal-api-documentation', '/multimodal-demo'])}

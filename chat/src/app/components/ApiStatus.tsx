@@ -278,7 +278,7 @@ const CATALOG: ApiEntry[] = [
   {
     name: 'WebMCP — document.modelContext',
     blurb:
-      'A page exposes its actions as callable tools for an AI agent. Also powers the Generative-UI demo. (navigator.modelContext is deprecated in Chrome 150.)',
+      'A page exposes its actions as callable tools for an AI agent. Also powers the Generative-UI demo.',
     stability: 'origin-trial',
     since: 'Origin trial from Chrome 149',
     enable:

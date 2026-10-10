@@ -1,0 +1,23 @@
+/* Declarative WebMCP pseudo-classes (Chrome, with the WebMCP flag / origin trial).
+ * Kept in plain CSS (Tailwind has no variant for them) and as SEPARATE rules with
+ * DIFFERENT declarations: a browser that doesn't know a pseudo-class drops the
+ * whole rule, so they must never be merged into one selector list. */
+
+/* The <form> an agent is currently filling or submitting. */
+.wmd-form:tool-form-active {
+  outline: 3px solid #6366f1;
+  outline-offset: 3px;
+}
+
+/* The submit button of that form. */
+.wmd-submit:tool-submit-active {
+  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.55);
+}
+
+/* "An agent filled this form" note — hidden unless the form is agent-active. */
+.wmd-agent-note {
+  display: none;
+}
+.wmd-form:tool-form-active .wmd-agent-note {
+  display: block;
+}
